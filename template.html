@@ -252,7 +252,7 @@ kbd{font-size:10.5px;border:1px solid var(--line);border-bottom-width:2px;border
 .tick svg{width:13px;height:13px}
 
 /* ============ filters drawer ============ */
-details.filters{margin-top:auto;border-top:1px solid var(--line);background:var(--bg)}
+details.filters{border-bottom:1px solid var(--line);background:var(--bg)}
 details.filters summary{display:flex;align-items:center;gap:8px;padding:13px 16px;
   cursor:pointer;font-size:13px;font-weight:500;color:var(--sub);list-style:none}
 details.filters summary::-webkit-details-marker{display:none}
@@ -371,7 +371,6 @@ details.filters summary svg{width:16px;height:16px}
 <div class="shell">
   <div class="panel" id="panel">
     <div class="grab" id="grab" aria-hidden="true"><i></i></div>
-    <div id="flow"></div>
     <details class="filters">
       <summary><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10m-7 6h4"/></svg>Filters</summary>
       <div class="filter-body">
@@ -380,6 +379,7 @@ details.filters summary svg{width:16px;height:16px}
         <div id="facets"></div>
       </div>
     </details>
+    <div id="flow"></div>
   </div>
   <div id="map"></div>
 </div>
