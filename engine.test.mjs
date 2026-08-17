@@ -159,6 +159,34 @@ eq(E.tourOrder([[0, 5], [5, 0]]), [1], 'tourOrder: single');
     { mode: 'walk', sec: 600 },
     { mode: 'transit', arr: iso(now + 2000e3), rideSec: 400 }
   ], now), now + 2000e3, 'projected: chain walk then valid transit');
+
+  /* ---- goMs: travel already ridden is read off the clock, not re-charged ---- */
+  {
+    const go = now - 1500e3;                       // set off 25 min ago
+    const at = { mode: 'bike', sec: 720, goMs: go, i: 7 };   // 12 min ride, arrived 13 min ago
+    eq(E.projectedArrivalMs([{ sec: 0 }, at], now), now,
+      'goMs: travel already finished is not re-charged to now');
+    // still riding: the projected arrival is measured from when she set off
+    eq(E.projectedArrivalMs([{ sec: 0 },
+      { mode: 'bike', sec: 720, goMs: now - 120e3, i: 7 }], now), now - 120e3 + 720e3,
+      'goMs: a ride in progress lands at goMs + duration');
+    // without a goMs stamp the from-now projection still applies
+    eq(E.projectedArrivalMs([{ sec: 0 }, { mode: 'bike', sec: 720, i: 7 }], now),
+      now + 720e3, 'goMs: absent stamp falls back to projecting from now');
+    // a later hop's own stamp supersedes the clamped cursor from the hop before
+    eq(E.projectedArrivalMs([{ sec: 0 },
+      { mode: 'bike', sec: 720, goMs: now - 5400e3, i: 7 },      // rode 90 min ago
+      { mode: 'bike', sec: 600, goMs: now - 2400e3, i: 8 }       // rode 40 min ago
+    ], now), now,
+      'goMs: each committed hop re-anchors, so earlier legs do not stack up');
+    // no repair-time estimate: standing at a stop with bikes open still reads
+    // "you can set off now", because Done is what tells us work has finished
+    eq(E.projectedArrivalMs([{ sec: 0 }, at], now), now,
+      'no dwell is invented for time spent at a stop');
+  }
+  ok(E.projectedArrivalMs([{ sec: 0 }, { mode: 'bike', sec: 60, goMs: now - 9e8 }], now) >= now,
+    'projected: never returns a moment in the past');
+  eq(E.projectedArrivalMs.length, 2, 'projectedArrivalMs takes (trip, nowMs) only');
 }
 
 console.log(failed ? `${failed} FAILED, ${passed} passed` : `all ${passed} passed`);

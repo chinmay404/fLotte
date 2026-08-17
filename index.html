@@ -156,6 +156,7 @@ svg{display:block}
 .modeline .mv{display:inline-flex;align-items:center;gap:5px}
 .modeline .mv svg{width:14px;height:14px}
 .modeline .mv b{color:var(--ink);font-weight:500}
+.modeline .mv-l{text-transform:capitalize}
 .modeline .mv.sel b{color:var(--blue-tx)}
 .modeline .mv.sel{color:var(--blue-tx)}
 .bikes{display:flex;gap:12px;flex-wrap:wrap;margin:9px 0 0 34px}
@@ -203,12 +204,17 @@ kbd{font-size:10.5px;border:1px solid var(--line);border-bottom-width:2px;border
   padding:0 4px;background:var(--bg)}
 
 /* ============ mission banner ============ */
-.mission{display:flex;align-items:center;gap:10px;margin:12px 16px 0;padding:10px 14px;
+.mission{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;
+  margin:12px 16px 0;padding:10px 14px;
   border-radius:8px;background:var(--red-bg);font-size:13px;color:var(--ink)}
+.mission > span{flex:1 1 12em;min-width:0}
 .mission svg{width:16px;height:16px;color:var(--red);flex:none}
 .mission b{font-weight:500}
 .mission .link{margin-left:auto;color:var(--red)}
 .mission .link:hover{background:rgba(217,48,37,.08)}
+/* always its own row: the main line is crowded enough */
+.mission > .ordernote{flex:1 0 100%;padding-top:2px;font-size:12px;color:var(--sub)}
+.mission > .ordernote b{color:var(--ink)}
 .done{padding:24px 16px}
 .done h2{font-size:18px;font-weight:500;margin:0 0 6px}
 .done p{color:var(--sub);font-size:13.5px;margin:0 0 16px}
@@ -230,6 +236,11 @@ kbd{font-size:10.5px;border:1px solid var(--line);border-bottom-width:2px;border
 .run svg{width:15px;height:15px}
 .cat-tools{display:flex;align-items:center;gap:4px;padding:10px 16px 4px;font-size:12.5px;
   color:var(--sub);flex-wrap:wrap}
+.cat-tools b{color:var(--ink);font-weight:500}
+/* flagged work the filter is hiding: quiet, but not invisible */
+.buried{margin:6px 16px 0;padding:8px 12px;border-radius:6px;background:var(--red-bg);
+  font-size:12.5px;color:var(--ink)}
+.buried b{font-weight:600}
 .bikerow{display:flex;align-items:center;gap:14px;width:100%;padding:10px 16px;
   border-bottom:1px solid var(--line);transition:background var(--t)}
 .bikerow:hover{background:var(--alt)}
@@ -508,14 +519,22 @@ function transitCandidates(reachable, stations, opts){
   return out.slice(0, opts.k);
 }
 
-/* The absolute moment you would reach the end of the trip chain. Transit hops
-   keep their absolute arrival stamps; a stale stamp (planning outlived the
-   departure) decays to pure ride time. Timestamps are facts, durations are
-   derived — never store the difference. */
+/* The absolute moment you could next set off from the end of the trip chain.
+   Transit hops keep their absolute arrival stamps; a stale stamp (planning
+   outlived the departure) decays to pure ride time. Timestamps are facts,
+   durations are derived — never store the difference.
+
+   A committed hop carries a real `goMs` stamp — the moment she actually set
+   off — and that fact supersedes the running projection, so travel already
+   ridden is read off the clock instead of being re-charged to `now` on every
+   call. Time spent working at a stop is deliberately NOT estimated: marking a
+   bike Done re-plans from that moment, so the app is told when work finished
+   instead of guessing. The clamp keeps the answer out of the past. */
 function projectedArrivalMs(trip, nowMs){
   var cursor = nowMs;
   for(var i = 1; i < trip.length; i++){
     var hop = trip[i];
+    if(hop.goMs != null) cursor = hop.goMs;
     var arrMs = hop.arr ? Date.parse(hop.arr) : NaN;
     if(hop.mode === 'transit' && !isNaN(arrMs)){
       if(arrMs > cursor) cursor = arrMs;
@@ -523,6 +542,7 @@ function projectedArrivalMs(trip, nowMs){
     }else{
       cursor += (hop.sec || 0) * 1000;
     }
+    if(cursor < nowMs) cursor = nowMs;      // you cannot set off at a past moment
   }
   return cursor;
 }
@@ -537,6 +557,7 @@ var PAYLOAD   = JSON.parse(document.getElementById('payload').textContent);
 var LOCATIONS = PAYLOAD.locations;
 var COLORS    = PAYLOAD.colors;
 var FALLBACK  = '#5F6368';
+var TOTAL_ITEMS = LOCATIONS.reduce(function(a, l){ return a + l.items.length; }, 0);
 
 var VALHALLA = 'https://valhalla1.openstreetmap.de/sources_to_targets';
 var VALHALLA_ROUTE = 'https://valhalla1.openstreetmap.de/route';
@@ -544,6 +565,8 @@ var VBB      = 'https://v6.vbb.transport.rest';
 var SHOW     = 5;      // options per hop: 5 transit lookups, not 250
 var ALTS     = 3;      // journey alternatives per station
 var GAP      = 1100;   // ms between VBB calls; parallel requests get 503s
+var VBB_TIMEOUT  = 9000;   // an overloaded VBB sits on the socket for 30s+
+var ROAD_TIMEOUT = 15000;  // Valhalla matrices are heavier, give them longer
 
 /* ---------- icons ---------- */
 var IC = {
@@ -607,6 +630,27 @@ function defectStations(){
 
 /* ---------- helpers ---------- */
 function colorOf(d){ return COLORS[d] || FALLBACK; }
+/* Some fLotte thumbnails 404. An inline onerror hid them, but every repaint
+   re-emitted the <img> and the browser re-requested it — the same dead URL
+   fetched on every keystroke, on mobile data. Remember the failures instead
+   and stop asking. */
+var badThumb = {};
+function thumbOK(u){ return !!u && !badThumb[u]; }
+function wireThumbs(root){
+  Array.prototype.forEach.call(root.querySelectorAll('img[data-thumb]'), function(im){
+    function fail(){
+      badThumb[im.getAttribute('data-thumb')] = true;
+      if(im.getAttribute('data-fail') === 'ph'){
+        var ph = document.createElement('span');
+        ph.className = 'ph';
+        if(im.parentNode) im.parentNode.replaceChild(ph, im);
+      }else im.style.display = 'none';
+    }
+    // a cached failure can beat the listener, so check the loaded state too
+    if(im.complete && im.naturalWidth === 0) fail();
+    else im.addEventListener('error', fail);
+  });
+}
 function esc(s){
   return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
@@ -628,7 +672,7 @@ function inMin(iso){ return iso ? Math.round((new Date(iso) - Date.now())/60000)
 function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
 function here(){ return trip[trip.length-1]; }
 function visitedIdx(){ return trip.filter(function(s){ return s.i != null; }).map(function(s){ return s.i; }); }
-/* when you would actually be standing at the current position */
+/* when you could actually set off again from the current position */
 function depBaseMs(){ return FlotteEngine.projectedArrivalMs(trip, Date.now()); }
 function baseFuture(){ return depBaseMs() - Date.now() > 90000; }
 function hhmm(ms){ var d = new Date(ms); return ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2); }
@@ -659,6 +703,26 @@ function locPasses(loc, skip){
   return loc.items.some(function(it){ return itemPasses(it, skip); });
 }
 function eligible(){ return LOCATIONS.filter(function(l){ return locPasses(l); }); }
+function filtersActive(){
+  if(filters.q) return true;
+  return LOC_FACETS.concat(ITEM_FACETS).some(function(f){ return filters[f.key].size > 0; });
+}
+function clearFilters(){
+  filters.q = '';
+  LOC_FACETS.concat(ITEM_FACETS).forEach(function(f){ filters[f.key].clear(); });
+  var q = document.getElementById('q');
+  if(q) q.value = '';
+  refilter();
+}
+/* Every bike the current filters allow, station by station — the one source
+   the bike list, the map and the header tally all count from. */
+function eligibleItems(){
+  var out = [];
+  eligible().forEach(function(loc){
+    loc.items.forEach(function(it){ if(itemPasses(it)) out.push({it:it, loc:loc}); });
+  });
+  return out;
+}
 function valuesFor(key){
   var seen = [];
   LOCATIONS.forEach(function(loc){
@@ -788,8 +852,8 @@ function tipHTML(loc, o){
     items.map(function(it){
       var bad = defects.has(it.id);
       return '<div class="tip-bike">' +
-        (it.thumbnail ? '<img src="' + esc(it.thumbnail) + '" alt="" ' +
-          'onerror="this.style.display=\'none\'">' : '') +
+        (thumbOK(it.thumbnail) ? '<img src="' + esc(it.thumbnail) + '" alt="" ' +
+          'data-thumb="' + esc(it.thumbnail) + '">' : '') +
         '<div><b>' + esc(it.name) + '</b><span class="' + (bad ? 'fix' : '') + '">' +
         esc(bad ? 'needs repair' : [it.type[0], it.drive[0]].filter(Boolean).join(' · ') || 'cargo bike') +
         '</span></div></div>';
@@ -883,13 +947,13 @@ function decodeShape(str){
 var previewSeq = 0;
 async function fetchShape(from, to, costing){
   try{
-    var r = await fetch(VALHALLA_ROUTE, {
+    var r = await fetchT(VALHALLA_ROUTE, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         locations:[{lat:from.lat, lon:from.lon}, {lat:to.lat, lon:to.lon}],
         costing: costing
       })
-    });
+    }, ROAD_TIMEOUT);
     if(!r.ok) return null;
     var legs = (await r.json()).trip.legs;
     return legs.reduce(function(a, l){ return a.concat(decodeShape(l.shape)); }, []);
@@ -982,15 +1046,30 @@ function previewOf(i){
 }
 
 /* ---------- routing ---------- */
+/* fetch has no default timeout, and an overloaded VBB or Valhalla holds the
+   socket open for 30s+ before answering 503. Three retries across five
+   stations is then minutes of "Checking departures…" on a phone at a
+   junction. Abort early and let the caller report the failure honestly. */
+function fetchT(url, opts, ms){
+  var o = opts || {}, ctl = null;
+  if(typeof AbortController !== 'undefined'){
+    ctl = new AbortController();
+    o = Object.assign({}, o, {signal: ctl.signal});
+  }
+  var timer = setTimeout(function(){ if(ctl) ctl.abort(); }, ms);
+  return fetch(url, o).then(
+    function(r){ clearTimeout(timer); return r; },
+    function(e){ clearTimeout(timer); throw e; });
+}
 async function matrix(costing, targets){
-  var r = await fetch(VALHALLA, {
+  var r = await fetchT(VALHALLA, {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({
       sources:[{lat:here().lat, lon:here().lon}],
       targets: targets.map(function(l){ return {lat:l.lat, lon:l.lon}; }),
       costing: costing
     })
-  });
+  }, ROAD_TIMEOUT);
   if(!r.ok) throw new Error('Road routing is unavailable right now (' + r.status + '). ');
   return (await r.json()).sources_to_targets[0].map(function(x){
     return x && typeof x.time === 'number'
@@ -1008,13 +1087,16 @@ async function transitFor(loc){
   var base = depBaseMs();
   if(base - Date.now() > 90000)
     url += '&departure=' + encodeURIComponent(new Date(base).toISOString());
+  /* kind:'none' means VBB answered and there is genuinely no route. kind:'down'
+     means we could not ask. Never collapse the two — reporting an outage as
+     "no route" sends a user walking 40 minutes past a working tram. */
   for(var tries = 0; tries < 3; tries++){
     try{
-      var r = await fetch(url);
+      var r = await fetchT(url, null, VBB_TIMEOUT);
       if(r.status === 503 || r.status === 429){ await sleep(2200 * (tries+1)); continue; }
-      if(!r.ok) return {err:'HTTP ' + r.status};
+      if(!r.ok) return {err:'HTTP ' + r.status, kind:'down'};
       var js = (await r.json()).journeys;
-      if(!js || !js.length) return {err:'no route'};
+      if(!js || !js.length) return {err:'no route', kind:'none'};
       return {journeys: js.map(function(j){
         var legs = j.legs;
         return {
@@ -1050,11 +1132,11 @@ async function transitFor(loc){
         };
       })};
     }catch(e){
-      if(tries === 2) return {err:'network error'};
+      if(tries === 2) return {err:'network error', kind:'down'};
       await sleep(2000);
     }
   }
-  return {err:'unreachable'};
+  return {err:'service unavailable', kind:'down'};
 }
 
 /* Transit cost is arrival minus when-you-can-leave: waiting counts, and for
@@ -1118,6 +1200,25 @@ function sorted(){
    actually are, so deviating from the plan just replans the rest. */
 var TOUR_MAX = 40;   // stations; above this the matrix call is skipped
 function roundCosting(){ return modePref === 'walk' ? 'pedestrian' : 'bicycle'; }
+/* The visiting order is solved on a road matrix — VBB is one call per pair at
+   GAP ms, so an N x N transit matrix is not affordable. Under Transit that
+   makes the order a *bicycle* order, so name the costing the plan was actually
+   solved for rather than let it pass as a transit plan. Read from
+   tour.costing, never modePref: the two differ until the round re-solves. */
+function costingLabel(c){ return c === 'pedestrian' ? 'on foot' : 'by bike'; }
+/* Best picks a mode per station, but the visiting order was solved on one road
+   matrix — so under Best the sequence can be optimal for a vehicle she is not
+   using on every leg. Report it only when the two actually disagree: a quiet
+   interface earns its warnings, and a standing banner would just be noise. */
+function orderModeMismatch(){
+  if(!mission || !tour || modePref !== 'best') return null;
+  var want = tour.costing === 'pedestrian' ? 'walk' : 'bike';
+  var off = options.filter(function(o){
+    var m = bestMode(o);
+    return m && m !== want;
+  });
+  return off.length ? {want: want, n: off.length, of: options.length} : null;
+}
 function tourRemaining(){
   return defectStations().filter(function(l){ return visitedIdx().indexOf(l._i) === -1; });
 }
@@ -1135,14 +1236,14 @@ async function ensureTour(my){
   var mat = null, estimated = false;
   if(pts.length <= TOUR_MAX + 1){
     try{
-      var r = await fetch(VALHALLA, {
+      var r = await fetchT(VALHALLA, {
         method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
           sources: pts.map(function(p){ return {lat:p.lat, lon:p.lon}; }),
           targets: pts.map(function(p){ return {lat:p.lat, lon:p.lon}; }),
           costing: costing
         })
-      });
+      }, ROAD_TIMEOUT);
       if(r.ok) mat = (await r.json()).sources_to_targets.map(function(row){
         return row.map(function(x){ return x && typeof x.time === 'number' ? x.time : null; });
       });
@@ -1195,9 +1296,10 @@ async function transitScan(my, all){
   var from = here();
   var rows = null;
   try{
-    var r = await fetch(VBB + '/stops/reachable-from?latitude=' + from.lat +
+    var r = await fetchT(VBB + '/stops/reachable-from?latitude=' + from.lat +
       '&longitude=' + from.lon + '&address=' + encodeURIComponent(from.label || 'Start') +
-      '&maxDuration=' + Math.min(60, Math.ceil(cutoff / 60)) + '&maxTransfers=2');
+      '&maxDuration=' + Math.min(60, Math.ceil(cutoff / 60)) + '&maxTransfers=2',
+      null, VBB_TIMEOUT);
     if(r.ok) rows = (await r.json()).reachable;
   }catch(e){}
   if(my !== token) return;
@@ -1283,14 +1385,23 @@ async function nextHop(){
     paint(); drawTrip();
   }
 
+  /* VBB down for two stations running is VBB down for all five. Each failure
+     costs 3 timeouts plus backoff, so proving it station by station is minutes
+     of spinner for a user standing at a junction — stop and let them retry. */
+  var downStreak = 0;
   for(var k = 0; k < options.length; k++){
     if(my !== token) return;
     if(options[k].transit) continue;
+    if(downStreak >= 2){
+      options[k].transit = {err:'service unavailable', kind:'down'};
+      continue;
+    }
     var res = await transitFor(LOCATIONS[options[k].i]);
     if(my !== token) return;
     options[k].transit = res;
+    downStreak = (res && res.kind === 'down') ? downStreak + 1 : 0;
     paint();
-    if(k < options.length - 1) await sleep(GAP);
+    if(k < options.length - 1 && downStreak < 2) await sleep(GAP);
   }
   if(my !== token) return;
   busy = false;
@@ -1318,7 +1429,9 @@ function choose(i){
   var loc = LOCATIONS[i];
   var mode = modePref === 'best' ? (bestMode(o) || 'walk') : modePref;
   var from = {lat: here().lat, lon: here().lon};
-  var hop = {lat:loc.lat, lon:loc.lon, label:loc.location_name, i:i, mode:mode};
+  // goMs anchors the chain in real time: this is when she actually set off
+  var hop = {lat:loc.lat, lon:loc.lon, label:loc.location_name, i:i, mode:mode,
+             goMs: Date.now()};
   if(mode === 'transit' && o.transit && o.transit.journeys){
     var j = o.transit.journeys[o.selJ || 0];
     hop.sec = Math.max(0, (new Date(j.arr) - depBaseMs()) / 1000);
@@ -1358,6 +1471,11 @@ function reset(){
   tripLines.clearLayers(); tourLines.clearLayers();
   drawBase(); paint();
   map.flyTo([52.5075, 13.404], 11, {animate:!reduce});
+}
+function enterMission(){
+  mission = true; view = 'plan';
+  drawBase();
+  if(trip.length) nextHop(); else paint();
 }
 function exitMission(){
   mission = false;
@@ -1400,10 +1518,10 @@ function openGmaps(){
 }
 /* Google transit is strictly A-to-B (no waypoints even in their own UI),
    so transit legs hand off one at a time. */
-function gmapsLegUrl(fLat, fLon, tLat, tLon){
+function gmapsLegUrl(fLat, fLon, tLat, tLon, mode){
   return 'https://www.google.com/maps/dir/?api=1' +
     '&origin=' + fLat + ',' + fLon + '&destination=' + tLat + ',' + tLon +
-    '&travelmode=transit';
+    '&travelmode=' + (mode || 'transit');
 }
 function copyPlan(){
   var out = ['fLotte Berlin trip — ' + new Date().toISOString().slice(0,10)];
@@ -1493,23 +1611,37 @@ function depHTML(o, j, n){
     stripHTML(j.legs) + hintHTML(j) +
   '</button>';
 }
-function mv(icon, label, v, sel, extra){
+/* Solo names the mode: with only one row left the icon alone is too quiet. */
+function mv(icon, label, v, sel, extra, solo){
   return '<span class="mv' + (sel ? ' sel' : '') + '">' + icon +
+    (solo ? '<span class="mv-l">' + label + '</span>' : '') +
     '<b>' + mins(v) + '</b>' + (extra ? '<span>· ' + extra + '</span>' : '') + '</span>';
 }
 function optHTML(o, n){
   var loc = LOCATIONS[o.i];
   var open = expanded === o.i;
   var shown = timeFor(o, modePref);
-  var mode = modePref === 'best' ? bestMode(o) : modePref;
+  // Best is the only comparing view; a picked mode shows that mode and nothing
+  // else, so a card can never read as three routes at once
+  var compare = modePref === 'best';
+  var mode = compare ? bestMode(o) : modePref;
   var js = o.transit && o.transit.journeys;
   var tsec = transitSec(o);
 
-  var transitBit;
-  if(o.transit && o.transit.err) transitBit = '<span class="mv">' + IC.tram + 'not found</span>';
+  // line badges only when transit is the mode you would actually take
+  var stripBit = mode === 'transit' && js && js.length
+    ? stripHTML(js[o.selJ || 0].legs, js[o.selJ || 0].dep)
+        .replace('class="strip"','class="strip" style="margin:9px 0 0 34px"')
+    : '';
+
+  var transitBit, tLab = compare ? '' : '<span class="mv-l">transit</span>';
+  if(o.transit && o.transit.err)
+    transitBit = '<span class="mv">' + IC.tram + tLab +
+      (o.transit.kind === 'down' ? 'unavailable' : 'no route') + '</span>';
   else if(js) transitBit = mv(IC.tram, 'transit', tsec, mode === 'transit',
-    js.length ? 'dep ' + clock(js[o.selJ || 0].dep) : null);
-  else transitBit = '<span class="mv">' + IC.tram + '…</span>';
+    // the strip above already carries the departure — don't say it twice
+    js.length && !stripBit ? 'dep ' + clock(js[o.selJ || 0].dep) : null, !compare);
+  else transitBit = '<span class="mv">' + IC.tram + tLab + '…</span>';
 
   var html = '<div class="opt" id="opt-' + o.i + '" style="' +
     (ANIM ? 'animation-delay:' + (n*45) + 'ms' : 'animation:none') + '">' +
@@ -1523,12 +1655,15 @@ function optHTML(o, n){
         '<span class="opt-time num">' + mins(shown) + '</span>' +
       '</div>' +
       '<div class="opt-sub">' + esc([loc.street, loc.district[0]].filter(Boolean).join(' · ')) + '</div>' +
-      (js && js.length ? stripHTML(js[o.selJ || 0].legs, js[o.selJ || 0].dep)
-        .replace('class="strip"','class="strip" style="margin:9px 0 0 34px"') : '') +
+      stripBit +
       '<div class="modeline num">' +
-        mv(IC.walk, 'walk', o.walk && o.walk.sec, mode === 'walk', o.walk && km(o.walk.km)) +
-        mv(IC.bike, 'bike', o.bike && o.bike.sec, mode === 'bike', o.bike && km(o.bike.km)) +
-        transitBit + '</div>' +
+        (compare || modePref === 'walk'
+          ? mv(IC.walk, 'walk', o.walk && o.walk.sec, mode === 'walk',
+              o.walk && km(o.walk.km), !compare) : '') +
+        (compare || modePref === 'bike'
+          ? mv(IC.bike, 'bike', o.bike && o.bike.sec, mode === 'bike',
+              o.bike && km(o.bike.km), !compare) : '') +
+        (compare || modePref === 'transit' ? transitBit : '') + '</div>' +
       (function(){
         // price the deviation: what the whole round costs if you start here
         if(!(mission && tour && tour.totalSec != null && tour.altTotals) || n === 0) return '';
@@ -1544,7 +1679,8 @@ function optHTML(o, n){
         : loc.items.slice(0,3)).map(function(it){
         var bad = defects.has(it.id), done = repaired.has(it.id);
         return '<span class="bike' + (done ? ' ok' : '') + '">' +
-          (it.thumbnail ? '<img src="' + esc(it.thumbnail) + '" alt="" loading="lazy" width="26" height="26" onerror="this.style.display=\'none\'">' : '') +
+          (thumbOK(it.thumbnail) ? '<img src="' + esc(it.thumbnail) + '" alt="" loading="lazy"' +
+            ' width="26" height="26" data-thumb="' + esc(it.thumbnail) + '">' : '') +
           '<b>' + esc(it.name) + '</b><span class="' + (bad ? 'fix' : '') + '">' +
           esc(done ? 'repaired ✓' : bad ? 'needs repair' : (it.type[0] || '')) + '</span>' +
           (bad && mission ? '<span class="donebtn" data-done="' + it.id + '">Done</span>' : '') +
@@ -1554,13 +1690,32 @@ function optHTML(o, n){
 
   if(open){
     html += '<div class="board"' + (BOARD_ANIM ? '' : ' style="animation:none"') + '>';
-    if(js && js.length){
+    // a road mode drills down into that road leg — departures belong to transit
+    if(modePref === 'walk' || modePref === 'bike'){
+      var rec = modePref === 'bike' ? o.bike : o.walk;
+      html += '<div class="board-head"><span>' +
+          (modePref === 'bike' ? 'By bike' : 'On foot') + '</span><span class="trip-links">' +
+          '<button class="link" type="button" data-gleg="' + o.i + '" data-gmode="' +
+          (modePref === 'bike' ? 'bicycling' : 'walking') +
+          '">This leg in Google ↗</button></span></div>' +
+        '<div class="note">' + (rec
+          ? 'About <b class="num">' + mins(rec.sec) + '</b>' +
+            (rec.km != null ? ' over <b class="num">' + km(rec.km) + '</b>' : '') +
+            ' from ' + esc(here().label) + '.'
+          : 'No ' + (modePref === 'bike' ? 'cycling' : 'walking') +
+            ' route found to this station.') + '</div>';
+    }else if(js && js.length){
       html += '<div class="board-head"><span>Departures</span><span class="trip-links">' +
         '<button class="link" type="button" data-gleg="' + o.i + '">This leg in Google ↗</button>' +
         '<button class="link" type="button" data-refresh="' + o.i + '">Refresh</button></span></div>' +
         js.map(function(j, k){ return depHTML(o, j, k); }).join('');
     }else if(o.transit && o.transit.err){
-      html += '<div class="note">No transit route found — walk or cycle this one.</div>';
+      html += o.transit.kind === 'down'
+        ? '<div class="note">Could not reach the departure service — this is <b>not</b> ' +
+          'a "no route" answer, so there may well be one. Walk and bike times are ' +
+          'unaffected.<br><button class="retry" type="button" data-refresh="' + o.i +
+          '">Try again</button></div>'
+        : '<div class="note">No transit route found — walk or cycle this one.</div>';
     }else{
       html += '<div class="note">Checking departures…</div>';
     }
@@ -1577,15 +1732,25 @@ function missionHTML(){
   if(!mission) return '';
   var left = defectStations().filter(function(l){ return visitedIdx().indexOf(l._i) === -1; });
   var bikes = left.reduce(function(a, l){ return a + defectiveAt(l).length; }, 0);
+  // travel only — repair time is never estimated, see projectedArrivalMs
   var plan = tour && tour.totalSec != null
-    ? ' · best order ≈ <b class="num">' + mins(tour.totalSec) + '</b> travel' +
+    ? ' · best order ' + costingLabel(tour.costing) +
+      ' ≈ <b class="num">' + mins(tour.totalSec) + '</b> travel' +
       (tour.estimated ? ' (est.)' : '')
     : '';
   return '<div class="mission">' + IC.wrench +
     '<span><b>Repair round</b> — ' + bikes + ' flagged bike' + (bikes === 1 ? '' : 's') +
     ' at ' + left.length + ' station' + (left.length === 1 ? '' : 's') + ' left' + plan +
     (repaired.size ? ' · <b>' + repaired.size + '</b> repaired ✓' : '') + '</span>' +
-    '<button class="link" type="button" id="exitm">Exit</button></div>';
+    '<button class="link" type="button" id="exitm">Exit</button>' +
+    (function(){
+      var mm = orderModeMismatch();
+      if(!mm) return '';
+      return '<span class="ordernote">Best routes <b>' + mm.n + '</b> of these ' +
+        mm.of + ' stops another way, but the order is solved ' +
+        costingLabel(tour.costing) + ' throughout — the sequence may not be ' +
+        'the fastest for how you actually travel.</span>';
+    })() + '</div>';
 }
 
 function renderNav(){
@@ -1607,15 +1772,19 @@ function renderNav(){
 
 function paintCatalogue(flow){
   var q = catQ.toLowerCase();
-  var rows = [];
-  LOCATIONS.forEach(function(loc){
-    loc.items.forEach(function(it){
-      if(!q || (it.name + ' ' + it.short_desc + ' ' + loc.location_name + ' ' + loc.district[0])
-          .toLowerCase().indexOf(q) !== -1)
-        rows.push({it:it, loc:loc});
-    });
+  // the filter drawer narrows the whole dataset, this list included; catQ then
+  // searches within what the filters already allow
+  var allowed = eligibleItems(), shown = {}, rows = [];
+  allowed.forEach(function(r){
+    shown[r.it.id] = true;
+    if(!q || (r.it.name + ' ' + r.it.short_desc + ' ' + r.loc.location_name + ' ' +
+        r.loc.district[0]).toLowerCase().indexOf(q) !== -1) rows.push(r);
   });
   rows.sort(function(a, b){ return a.it.name.localeCompare(b.it.name); });
+  // a bike you flagged can now be filtered out of sight — say so, because the
+  // round button still counts it and a silent mismatch reads as a lost flag
+  var buried = 0;
+  defects.forEach(function(id){ if(!shown[id]) buried++; });
 
   flow.innerHTML =
     '<div class="cat-bar">' +
@@ -1625,18 +1794,24 @@ function paintCatalogue(flow){
       '<button class="run" id="run" type="button"' + (defects.size ? '' : ' disabled') + '>' +
         IC.route + 'Optimal path' + (defects.size ? ' (' + defects.size + ')' : '') + '</button>' +
     '</div>' +
-    '<div class="cat-tools"><span>Tap a bike to flag it for repair.</span>' +
+    '<div class="cat-tools"><span>Tap a bike to flag it for repair.' +
+      (filtersActive() ? ' Filtered to <b>' + rows.length + '</b> of <b>' +
+        TOTAL_ITEMS + '</b>.' : '') + '</span>' +
       '<button class="link" id="rand5" type="button">Flag 5 random (demo)</button>' +
       (defects.size ? '<button class="link" id="clearall" type="button">Clear all</button>' : '') +
+      (filtersActive() ? '<button class="link" id="clearf" type="button">Clear filters</button>' : '') +
     '</div>' +
+    (buried ? '<div class="buried"><b>' + buried + '</b> flagged bike' +
+      (buried === 1 ? '' : 's') + ' hidden by the current filter — still counted in the round.' +
+      '</div>' : '') +
     rows.map(function(r){
       var bad = defects.has(r.it.id), done = repaired.has(r.it.id);
       return '<button class="bikerow" type="button" data-id="' + r.it.id + '"' +
         ' aria-pressed="' + bad + '">' +
-        (r.it.thumbnail
+        (thumbOK(r.it.thumbnail)
           ? '<img src="' + esc(r.it.thumbnail) + '" alt="" loading="lazy" width="40" height="40"' +
             (done ? ' style="filter:grayscale(1);opacity:.55"' : '') +
-            ' onerror="this.outerHTML=\'<span class=ph></span>\'">'
+            ' data-thumb="' + esc(r.it.thumbnail) + '" data-fail="ph">'
           : '<span class="ph">' + IC.bike + '</span>') +
         '<span class="bk-body"><span class="bk-name">' + esc(r.it.name) +
           (bad ? '<span class="fixtag">needs repair</span>'
@@ -1648,6 +1823,7 @@ function paintCatalogue(flow){
       '</button>';
     }).join('');
 
+  wireThumbs(flow);
   var catq = document.getElementById('catq');
   var catT = null;
   catq.addEventListener('input', function(){
@@ -1671,22 +1847,22 @@ function paintCatalogue(flow){
   });
   document.getElementById('rand5').addEventListener('click', function(){
     defects.clear();
-    var all = [];
-    LOCATIONS.forEach(function(l){ l.items.forEach(function(it){ all.push(it.id); }); });
+    // draw from what the filters allow, or the demo flags bikes you cannot see
+    var all = allowed.map(function(r){ return r.it.id; });
     while(defects.size < 5 && all.length){
       defects.add(all.splice(Math.floor(Math.random()*all.length), 1)[0]);
     }
     saveDefects(); drawBase(); paint();
   });
+  var cf = document.getElementById('clearf');
+  if(cf) cf.addEventListener('click', clearFilters);
   var ca = document.getElementById('clearall');
   if(ca) ca.addEventListener('click', function(){
     defects.clear(); repaired.clear(); saveDefects(); drawBase(); paint();
   });
   document.getElementById('run').addEventListener('click', function(){
     if(!defects.size) return;
-    mission = true; view = 'plan';
-    drawBase();
-    if(trip.length) nextHop(); else paint();
+    enterMission();
   });
 }
 
@@ -1783,6 +1959,15 @@ function paint(errMsg){
       'If that seems wrong, restart and choose a point on the map.</span>' +
       '<button class="link" id="farfix" type="button">Restart</button></div>';
   }
+  // a failed reachable-from silently drops the stations only transit serves
+  // well, which is the whole reason the scan exists — do not hide that
+  if(scanInfo && !scanInfo.ok && !mission){
+    html += '<div class="mission">' + IC.tram +
+      '<span>Could not search transit-served stations, so this list is the ' +
+      'road-nearest few only — a stop that just a tram or U-Bahn reaches well ' +
+      'may be missing.</span>' +
+      '<button class="link" id="rescan" type="button">Try again</button></div>';
+  }
   html += '<div class="modes-row" role="tablist" aria-label="Travel mode">' +
     mtab('best', IC.zap, 'Best') + mtab('walk', IC.walk, 'Walk') +
     mtab('bike', IC.bike, 'Bike') + mtab('transit', IC.tram, 'Transit') + '</div>';
@@ -1840,6 +2025,7 @@ function paint(errMsg){
   }
   flow.innerHTML = html;
   wireList();
+  wireThumbs(flow);
 }
 
 function wireStart(last){
@@ -1855,8 +2041,8 @@ function wireStart(last){
     if(q.length < 3){ sugs.innerHTML = ''; return; }
     timer = setTimeout(function(){
       var my = ++seq;
-      fetch(VBB + '/locations?query=' + encodeURIComponent(q) +
-            '&results=5&addresses=true&poi=true&stops=true')
+      fetchT(VBB + '/locations?query=' + encodeURIComponent(q) +
+            '&results=5&addresses=true&poi=true&stops=true', null, VBB_TIMEOUT)
         .then(function(r){ return r.ok ? r.json() : []; })
         .then(function(list){
           if(my !== seq) return;
@@ -1913,10 +2099,16 @@ function wireList(){
   if((el = document.getElementById('copy')))  el.addEventListener('click', copyPlan);
   if((el = document.getElementById('gmaps'))) el.addEventListener('click', openGmaps);
   if((el = document.getElementById('retry'))) el.addEventListener('click', nextHop);
+  if((el = document.getElementById('rescan'))) el.addEventListener('click', nextHop);
   if((el = document.getElementById('farfix'))) el.addEventListener('click', reset);
   Array.prototype.forEach.call(flow.querySelectorAll('[data-mode]'), function(t){
     t.addEventListener('click', function(){
       modePref = t.getAttribute('data-mode');
+      // switching road mode invalidates the round: a bicycle order is not a
+      // walking order, so re-solve rather than leave a stale sequence on screen
+      if(mission && tour && trip.length && roundCosting() !== tour.costing){
+        nextHop(); return;
+      }
       paint(); drawTrip();
       if(expanded != null) previewOf(expanded);
       else if(options.length && !busy) previewOf(sorted()[0].i);
@@ -1953,8 +2145,8 @@ function wireList(){
   Array.prototype.forEach.call(flow.querySelectorAll('[data-gleg]'), function(b){
     b.addEventListener('click', function(){
       var loc = LOCATIONS[+b.getAttribute('data-gleg')];
-      window.open(gmapsLegUrl(here().lat, here().lon, loc.lat, loc.lon),
-        '_blank', 'noopener');
+      window.open(gmapsLegUrl(here().lat, here().lon, loc.lat, loc.lon,
+        b.getAttribute('data-gmode')), '_blank', 'noopener');
     });
   });
   Array.prototype.forEach.call(flow.querySelectorAll('[data-refresh]'), function(b){
@@ -1971,6 +2163,11 @@ function wireList(){
 map.on('click', function(e){
   if(!picking) return;
   start(e.latlng.lat, e.latlng.lng, 'Chosen point');
+});
+// marker tooltips live outside #flow, so they need their own thumbnail wiring
+map.on('tooltipopen', function(e){
+  var el = e.tooltip && e.tooltip.getElement();
+  if(el) wireThumbs(el);
 });
 
 document.addEventListener('keydown', function(e){
@@ -2031,8 +2228,7 @@ function buildFacets(){
 function refilter(){
   buildFacets(); drawBase();
   document.getElementById('t-stations').textContent = eligible().length;
-  document.getElementById('t-bikes').textContent =
-    eligible().reduce(function(a,l){ return a + l.items.filter(function(it){ return itemPasses(it); }).length; }, 0);
+  document.getElementById('t-bikes').textContent = eligibleItems().length;
   if(trip.length) nextHop(); else paint();
 }
 var qEl = document.getElementById('q'), qT;
@@ -2058,22 +2254,22 @@ window.__flotte = {
     defects.clear();
     ids.forEach(function(id){ defects.add(id); });
     saveDefects();
-    mission = true; view = 'plan';
-    drawBase();
-    if(trip.length) nextHop(); else paint();
+    enterMission();
   },
   state: function(){
     return {
       busy: busy, mission: mission, farKm: farKm, scanInfo: scanInfo,
+      modePref: modePref, baseMs: depBaseMs(),
       trip: trip.map(function(s){
-        return {label: s.label, i: s.i, mode: s.mode, sec: s.sec,
+        return {label: s.label, i: s.i, mode: s.mode, sec: s.sec, goMs: s.goMs || null,
                 hasShape: !!(s.shape || s.legs)};
       }),
       options: sorted().map(function(o){
         return {i: o.i, viaScan: !!o.viaScan, hasTransit: !!o.transit,
                 best: timeFor(o, 'best'), transit: timeFor(o, 'transit')};
       }),
-      tour: tour ? {order: tour.order, totalSec: tour.totalSec, estimated: tour.estimated} : null,
+      tour: tour ? {order: tour.order, totalSec: tour.totalSec, estimated: tour.estimated,
+                    costing: tour.costing} : null,
       lineCounts: {trip: tripLines.getLayers().length,
                    tour: tourLines.getLayers().length,
                    preview: lines.getLayers().length},
