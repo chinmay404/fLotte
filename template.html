@@ -832,6 +832,11 @@ function drawBase(){
     var bad = defectiveAt(loc).length > 0;
     var hot = bad && (mission || view === 'catalogue');
     if(mission && view === 'plan' && !bad) return;   // round prep: flagged only
+    /* A dot is the only thing on screen for ~245 stations, so it has to answer
+       "which bikes are here?" on its own. The drawn dot stays 3.5px — no thumb
+       hits that — so an invisible 13px halo underneath carries the tooltip and
+       the tap. fill-opacity 0 still hit-tests under SVG visiblePainted, because
+       the test is whether `fill` is set, not whether you can see it. */
     dots.addLayer(L.circleMarker([loc.lat, loc.lon], {
       radius: hot ? 6 : 3.5,
       weight: hot ? 2.5 : 1.5,
@@ -840,6 +845,16 @@ function drawBase(){
       fillOpacity:.95,
       interactive:false
     }));
+    var hit = L.circleMarker([loc.lat, loc.lon], {
+      radius: 13, stroke:false, fill:true, fillOpacity:0, fillColor:'#000'
+    });
+    hit.bindTooltip(tipHTML(loc, null),
+      {className:'pinpop', direction:'top', offset:[0, hot ? -8 : -6]});
+    /* Events keep bubbling to the map on purpose: while "Choose on map" is
+       armed, a tap on a dot must still set the start point, and map's own
+       handler already ignores clicks when it is not. */
+    hit.on('click', function(){ if(!picking) hit.openTooltip(); });
+    dots.addLayer(hit);
   });
 }
 function tipHTML(loc, o){
