@@ -2,7 +2,7 @@
    no CORS headers and holds the socket ~30s, which the browser reports as a CORS
    error and the app used to render as "No transit route found" — sending a
    mechanic walking past a working tram.  Run: node outage.test.mjs            */
-import { fn, sandbox, harness, TEMPLATE } from './testkit.mjs';
+import { fn, engineSrc, sandbox, harness, TEMPLATE } from './testkit.mjs';
 
 const { ok, done } = harness('outage');
 
@@ -12,10 +12,12 @@ let responder = null;
 const sb = sandbox(
   ['esc', 'safeColor', 'mins', 'km', 'clock', 'inMin', 'sleep', 'here', 'fetchT',
    'transitFor', 'transitSec', 'timeFor', 'bestMode', 'stripHTML', 'hintHTML',
-   'depHTML', 'mv', 'thumbOK', 'optHTML'],
+   'depHTML', 'mv', 'thumbOK', 'hoursToday', 'windowsFor', 'windowsCover',
+   'hoursLabel', 'hhmmOf', 'optHTML'],
   {
     VBB: 'https://vbb.test', ALTS: 3, VBB_TIMEOUT: 50,
-    IC: { walk: '<ICON-walk>', bike: '<ICON-bike>', tram: '<ICON-tram>', right: '<ICON-right>' },
+    IC: { walk: '<ICON-walk>', bike: '<ICON-bike>', tram: '<ICON-tram>', right: '<ICON-right>',
+          clock: '<ICON-clock>' },
     LOCATIONS: [{ location_name: 'Manege gGmbH', street: 'Rixdorfer Str. 1',
                   district: ['Neukölln'], lat: 52.403, lon: 13.525,
                   items: [{ id: 1, name: 'Alex', type: ['Rikscha'], thumbnail: null }] }],
@@ -28,7 +30,7 @@ const sb = sandbox(
     // a real fetch honours the abort signal; so must this one
     fetch: (url, o) => { calls.push(url); return responder(url, o); },
     AbortController, setTimeout, clearTimeout, Date,
-  });
+  }, engineSrc());
 
 const res = (status, body) => Promise.resolve({
   ok: status >= 200 && status < 300, status, json: () => Promise.resolve(body),

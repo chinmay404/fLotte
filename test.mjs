@@ -1,7 +1,8 @@
 /* Runs every suite. Usage: node test.mjs */
 import { spawnSync } from 'node:child_process';
 const SUITES = ['engine.test.mjs', 'card.test.mjs', 'round.test.mjs',
-                'filter.test.mjs', 'outage.test.mjs', 'dot.test.mjs'];
+                'filter.test.mjs', 'outage.test.mjs', 'dot.test.mjs',
+                'hours.test.mjs'];
 let bad = 0, total = 0;
 for (const s of SUITES) {
   const r = spawnSync(process.execPath, [s], { encoding: 'utf8' });

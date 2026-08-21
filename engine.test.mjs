@@ -189,5 +189,119 @@ eq(E.tourOrder([[0, 5], [5, 0]]), [1], 'tourOrder: single');
   eq(E.projectedArrivalMs.length, 2, 'projectedArrivalMs takes (trip, nowMs) only');
 }
 
+/* ---- feasibleAt: wait if early, refuse if shut ---- */
+{
+  const W = [[600, 1200]];                       // open 600s..1200s from departure
+  eq(E.feasibleAt(700, W), 700, 'feasibleAt: inside the window, arrive as you are');
+  eq(E.feasibleAt(100, W), 600, 'feasibleAt: early means you wait for opening');
+  eq(E.feasibleAt(1201, W), null, 'feasibleAt: after closing there is no way in');
+  eq(E.feasibleAt(1200, W), 1200, 'feasibleAt: bang on closing still counts');
+  eq(E.feasibleAt(9e9, null), 9e9, 'feasibleAt: no published hours = always open');
+  const split = [[0, 300], [900, 1500]];         // a lunch break
+  eq(E.feasibleAt(400, split), 900, 'feasibleAt: falls through to the later shift');
+  eq(E.feasibleAt(200, split), 200, 'feasibleAt: the earlier shift is used when open');
+}
+
+/* ---- tourOrderTW ---- */
+{
+  // no windows at all: it must behave like the travel-only solver
+  const mat = [[0, 2, 1, 9], [9, 0, 9, 1], [9, 1, 0, 9], [9, 9, 9, 0]];
+  const tw = E.tourOrderTW(mat, null);
+  eq(tw.order, [2, 1, 3], 'tourOrderTW: with no hours it matches tourOrder');
+  eq(tw.dropped, [], 'tourOrderTW: nothing dropped when everything is open');
+  eq(tw.finish, 3, 'tourOrderTW: finish is the arrival at the last stop');
+
+  // a window forces a different order than pure distance would pick
+  //   node 1 is nearest but shuts at 5; node 2 is further but open all day
+  const m2 = [[0, 10, 20], [10, 0, 10], [20, 10, 0]];
+  const late = E.tourOrderTW(m2, [null, [[0, 5]], null]);
+  eq(late.order, [2], 'tourOrderTW: a stop that shuts too early is left out');
+  eq(late.dropped, [1], 'tourOrderTW: and is reported as dropped, not silently lost');
+
+  // widen that window and both fit, nearest-first
+  const both = E.tourOrderTW(m2, [null, [[0, 3600]], null]);
+  eq(both.order, [1, 2], 'tourOrderTW: with the door open it serves both');
+  eq(both.finish, 20, 'tourOrderTW: finish counts the whole chain');
+
+  // waiting: a stop that opens late should be visited after the other
+  const m3 = [[0, 10, 10], [10, 0, 10], [10, 10, 0]];
+  const wait = E.tourOrderTW(m3, [null, [[1000, 2000]], [[0, 2000]]]);
+  eq(wait.order, [2, 1], 'tourOrderTW: visits the open stop first and waits for the late one');
+  eq(wait.finish, 1000, 'tourOrderTW: finish includes the wait');
+
+  // serving more stops beats finishing sooner
+  const m4 = [[0, 1, 1], [1, 0, 1], [1, 1, 0]];
+  const more = E.tourOrderTW(m4, [null, null, null]);
+  eq(more.order.length, 2, 'tourOrderTW: prefers serving every reachable stop');
+
+  eq(E.tourOrderTW([[0]], null).order, [], 'tourOrderTW: empty round');
+  eq(E.tourOrderTW([[0, 5], [5, 0]], null).order, [1], 'tourOrderTW: single stop');
+  eq(E.tourOrderTW([[0, 5], [5, 0]], [null, [[0, 1]]]).dropped, [1],
+    'tourOrderTW: single unreachable stop is dropped');
+}
+
+/* ---- exactness: TW solver must equal brute force on random instances ---- */
+{
+  function bestBrute(mat, win, n) {
+    const nodes = Array.from({ length: n }, (_, k) => k + 1);
+    let bestServed = -1, bestFinish = Infinity;
+    (function perm(rest, order) {
+      if (!rest.length) {
+        const r = E.walkTW(mat, win, order);
+        if (r.order.length > bestServed ||
+           (r.order.length === bestServed && r.finish < bestFinish)) {
+          bestServed = r.order.length; bestFinish = r.finish;
+        }
+        return;
+      }
+      for (let k = 0; k < rest.length; k++)
+        perm(rest.slice(0, k).concat(rest.slice(k + 1)), order.concat(rest[k]));
+    })(nodes, []);
+    return { served: bestServed, finish: bestFinish };
+  }
+  let exact = true, bad = null;
+  for (let seed = 1; seed <= 90 && exact; seed++) {
+    const rnd = mulberry32(seed * 7919);
+    const n = 2 + Math.floor(rnd() * 5);                 // 2..6
+    const mat = randMatrix(n, rnd);
+    const win = [null];
+    for (let k = 1; k <= n; k++) {
+      if (rnd() < 0.3) { win.push(null); continue; }     // some have no hours
+      const open = Math.floor(rnd() * 3000);
+      win.push([[open, open + 500 + Math.floor(rnd() * 6000)]]);
+    }
+    const got = E.tourOrderTW(mat, win);
+    const want = bestBrute(mat, win, n);
+    if (got.order.length !== want.served || got.finish !== want.finish) {
+      exact = false;
+      bad = { seed, n, got: { served: got.order.length, finish: got.finish }, want };
+    }
+  }
+  ok(exact, 'tourOrderTW: exact vs brute force, 90 random windowed instances', bad);
+}
+
+/* ---- big rounds fall back to the heuristic but stay honest ---- */
+{
+  let sane = true, bad = null;
+  for (let seed = 1; seed <= 20 && sane; seed++) {
+    const rnd = mulberry32(5000 + seed);
+    const n = 13 + Math.floor(rnd() * 6);
+    const mat = randMatrix(n, rnd);
+    const win = [null];
+    for (let k = 1; k <= n; k++)
+      win.push(rnd() < 0.4 ? null : [[0, 2000 + Math.floor(rnd() * 20000)]]);
+    const r = E.tourOrderTW(mat, win);
+    const seen = new Set(r.order);
+    const replay = E.walkTW(mat, win, r.order);
+    if (seen.size !== r.order.length ||
+        r.order.length + r.dropped.length !== n ||
+        replay.order.length !== r.order.length ||
+        replay.finish !== r.finish) {
+      sane = false; bad = { seed, n, order: r.order, dropped: r.dropped };
+    }
+  }
+  ok(sane, 'tourOrderTW: heuristic returns a replayable, fully-accounted plan', bad);
+}
+
 console.log(failed ? `${failed} FAILED, ${passed} passed` : `all ${passed} passed`);
 process.exit(failed ? 1 : 0);

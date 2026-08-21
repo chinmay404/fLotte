@@ -150,6 +150,12 @@ svg{display:block}
 .lb{display:inline-flex;align-items:center;font-size:12px;font-weight:700;
   padding:2px 7px;border-radius:4px;background:var(--ink);color:#fff;white-space:nowrap}
 .hintline{font-size:12px;color:var(--sub);margin:6px 0 0 34px}
+/* opening hours: the reason a nearer station can be the wrong next stop */
+.hoursline{display:flex;align-items:center;gap:5px;margin:6px 0 0 34px;
+  font-size:12px;color:var(--sub)}
+.hoursline svg{width:13px;height:13px;flex:none}
+.hoursline.none{color:var(--line-tx,#9AA0A6);font-style:italic}
+.hoursline.shut{color:var(--red);font-weight:500}
 .late{color:var(--red);font-weight:500}
 .modeline{display:flex;gap:14px;flex-wrap:wrap;margin:8px 0 0 34px;font-size:12.5px;
   color:var(--sub)}
@@ -493,6 +499,147 @@ function tourOrder(mat){
   return n <= 12 ? heldKarp(mat, n) : heuristic(mat, n);
 }
 
+/* ---- opening hours: the same tour, but stops can be shut ----------------
+   `win[k]` is the list of [open, close] intervals for node k, in seconds from
+   the moment you set off (t = 0). null means "no hours published" — treated as
+   always open, because absent data must never masquerade as a closed door.
+   Arrive before a window opens and you wait; arrive after the last one closes
+   and that stop is simply not servable on this run.                          */
+function feasibleAt(arrive, wins){
+  if(!wins) return arrive;                 // unknown hours: assume reachable
+  for(var i = 0; i < wins.length; i++){
+    var open = wins[i][0], close = wins[i][1];
+    if(arrive <= close) return arrive > open ? arrive : open;   // wait if early
+  }
+  return null;                             // every window has already shut
+}
+/* Walk a given order, dropping stops that cannot be served in that position.
+   Returns what you'd actually achieve, not what you hoped for. */
+function walkTW(mat, win, order){
+  var t = 0, prev = 0, served = [], dropped = [], arrive = {};
+  for(var i = 0; i < order.length; i++){
+    var k = order[i];
+    var at = feasibleAt(t + mat[prev][k], win ? win[k] : null);
+    if(at == null){ dropped.push(k); continue; }
+    t = at; prev = k; served.push(k); arrive[k] = at;
+  }
+  return {order: served, dropped: dropped, finish: t, arrive: arrive};
+}
+/* Exact, by the same Held-Karp shape as the travel-only solver — but the state
+   is the earliest moment you can be standing at j, not the cheapest way there.
+   Waiting for a door to open is part of the cost, so this minimises when the
+   round ends rather than how far it rides. */
+function heldKarpTW(mat, win, n){
+  var FULL = 1 << n, mask, j, k;
+  var dp = new Array(FULL), par = new Array(FULL);
+  for(mask = 0; mask < FULL; mask++){
+    dp[mask] = new Float64Array(n).fill(Infinity);
+    par[mask] = new Int8Array(n).fill(-1);
+  }
+  for(j = 0; j < n; j++){
+    var first = feasibleAt(mat[0][j+1], win ? win[j+1] : null);
+    if(first != null) dp[1 << j][j] = first;
+  }
+  for(mask = 1; mask < FULL; mask++){
+    for(j = 0; j < n; j++){
+      if(!(mask & (1 << j)) || dp[mask][j] === Infinity) continue;
+      for(k = 0; k < n; k++){
+        if(mask & (1 << k)) continue;
+        var at = feasibleAt(dp[mask][j] + mat[j+1][k+1], win ? win[k+1] : null);
+        if(at == null) continue;
+        var nm = mask | (1 << k);
+        if(at < dp[nm][k]){ dp[nm][k] = at; par[nm][k] = j; }
+      }
+    }
+  }
+  // prefer serving more stops; break ties on the earlier finish
+  var bits = function(m){ var c = 0; while(m){ c += m & 1; m >>= 1; } return c; };
+  var bestMask = -1, bestEnd = -1, bestVal = Infinity, bestBits = -1;
+  for(mask = 1; mask < FULL; mask++){
+    for(j = 0; j < n; j++){
+      if(dp[mask][j] === Infinity) continue;
+      var b = bits(mask);
+      if(b > bestBits || (b === bestBits && dp[mask][j] < bestVal)){
+        bestBits = b; bestVal = dp[mask][j]; bestMask = mask; bestEnd = j;
+      }
+    }
+  }
+  if(bestMask < 0) return {order:[], dropped: Array.from({length:n}, function(_,i){ return i+1; }),
+                           finish: 0, arrive: {}};
+  var order = [], cur = bestEnd, m2 = bestMask;
+  while(cur !== -1 && m2){
+    order.push(cur + 1);
+    var pj = par[m2][cur];
+    m2 ^= (1 << cur);
+    cur = pj;
+  }
+  order.reverse();
+  return walkTW(mat, win, order);
+}
+/* Bigger rounds: earliest-feasible-next, then the same 2-opt / relocation pass
+   as the travel-only heuristic, scored on (stops served, then finish time). */
+function heuristicTW(mat, win, n){
+  var left = [], order = [], t = 0, prev = 0, j;
+  for(j = 1; j <= n; j++) left.push(j);
+  while(left.length){
+    var bi = -1, bt = Infinity;
+    for(j = 0; j < left.length; j++){
+      var at = feasibleAt(t + mat[prev][left[j]], win ? win[left[j]] : null);
+      if(at != null && at < bt){ bt = at; bi = j; }
+    }
+    if(bi === -1) break;                    // nothing else can still be served
+    t = bt; prev = left[bi]; order.push(left.splice(bi, 1)[0]);
+  }
+  order = order.concat(left);               // keep the rest so 2-opt can try them
+  function score(o){
+    var r = walkTW(mat, win, o);
+    return {served: r.order.length, finish: r.finish};
+  }
+  var best = score(order), improved = true, i, k;
+  function better(c){
+    var s = score(c);
+    return s.served > best.served || (s.served === best.served && s.finish < best.finish)
+      ? s : null;
+  }
+  while(improved){
+    improved = false;
+    for(i = 0; i < order.length - 1; i++){
+      for(k = i + 1; k < order.length; k++){
+        var cand = order.slice(0, i).concat(order.slice(i, k+1).reverse(), order.slice(k+1));
+        var s1 = better(cand);
+        if(s1){ order = cand; best = s1; improved = true; }
+      }
+    }
+    for(i = 0; i < order.length; i++){
+      for(k = 0; k < order.length; k++){
+        if(i === k) continue;
+        var c2 = order.slice(), node = c2.splice(i, 1)[0];
+        c2.splice(k, 0, node);
+        var s2 = better(c2);
+        if(s2){ order = c2; best = s2; improved = true; }
+      }
+    }
+  }
+  return walkTW(mat, win, order);
+}
+/* mat as tourOrder. win is (n+1) entries of [[open,close],...] or null.
+   Returns {order, dropped, finish, arrive} — dropped are the stops whose doors
+   shut before you could get there. */
+function tourOrderTW(mat, win){
+  var n = mat.length - 1;
+  if(n <= 0) return {order:[], dropped:[], finish:0, arrive:{}};
+  var r = n === 1 ? walkTW(mat, win, [1])
+        : n <= 12 ? heldKarpTW(mat, win, n) : heuristicTW(mat, win, n);
+  /* dropped is every stop NOT in the plan, not merely the ones a walk tried and
+     refused — the exact solver simply never proposes an unreachable stop, and a
+     station that quietly disappears from the round is the worst outcome here. */
+  var served = {}, dropped = [];
+  for(var i = 0; i < r.order.length; i++) served[r.order[i]] = true;
+  for(var k = 1; k <= n; k++) if(!served[k]) dropped.push(k);
+  r.dropped = dropped;
+  return r;
+}
+
 /* Estimate transit reach: VBB reachable-from buckets (minutes) + a walk from
    the stop. A station only qualifies if some stop is within maxKm of it. */
 var WALK_SEC_PER_KM = 750;   // ~4.8 km/h
@@ -548,6 +695,7 @@ function projectedArrivalMs(trip, nowMs){
 }
 
 return {haversineKm: haversineKm, tourOrder: tourOrder, tourCost: tourCost,
+        tourOrderTW: tourOrderTW, walkTW: walkTW, feasibleAt: feasibleAt,
         transitCandidates: transitCandidates, projectedArrivalMs: projectedArrivalMs};
 })();
 /*ENGINE-END*/
@@ -580,6 +728,7 @@ var IC = {
   right:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h13m-6-7 7 7-7 7"/></svg>',
   chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg>',
   refresh:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 3v4h-4"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
   wrench:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4.5 4.5 0 0 0-6 5.6L3 17.6V21h3.4l5.7-5.7a4.5 4.5 0 0 0 5.6-6L14.5 12l-2.5-2.5 2.7-3.2Z"/></svg>',
   route:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8 19h6a4 4 0 0 0 0-8H10a4 4 0 0 1 0-8h6"/></svg>',
   check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>'
@@ -1214,6 +1363,49 @@ function sorted(){
    stations, solved as an open tour. Recomputed each hop from wherever you
    actually are, so deviating from the plan just replans the rest. */
 var TOUR_MAX = 40;   // stations; above this the matrix call is skipped
+/* ---- opening hours ------------------------------------------------------
+   loc.hours is {weekday: [[openMin, closeMin], ...]} in local minutes, 1=Mon.
+   null means fLotte publishes none, which must read as "unknown", never as a
+   closed door. A schedule that simply omits today DOES mean closed today. */
+function hoursToday(loc, atMs){
+  if(!loc || !loc.hours) return null;                  // unknown: always open
+  var wd = new Date(atMs).getDay();                    // 0=Sun
+  var spans = loc.hours[String(wd === 0 ? 7 : wd)];
+  return spans ? spans : [];                           // [] = shut all day
+}
+/* Windows for the solver, in seconds from the moment she can set off. */
+function windowsFor(loc, baseMs){
+  var spans = hoursToday(loc, baseMs);
+  if(spans === null) return null;
+  var d = new Date(baseMs);
+  var secOfDay = d.getHours()*3600 + d.getMinutes()*60 + d.getSeconds();
+  var out = [];
+  spans.forEach(function(sp){
+    var close = sp[1]*60 - secOfDay;
+    if(close > 0) out.push([sp[0]*60 - secOfDay, close]);   // drop shut windows
+  });
+  return out;
+}
+function hasHours(list){
+  return list.some(function(l){ return !!l.hours; });
+}
+/* Human label for a station's hours today, or null when nothing is published. */
+function hoursLabel(loc, atMs){
+  var spans = hoursToday(loc, atMs);
+  if(spans === null) return null;
+  if(!spans.length) return 'closed today';
+  return spans.map(function(sp){
+    return hhmmOf(sp[0]) + '–' + hhmmOf(sp[1]);
+  }).join(', ');
+}
+function windowsCover(loc, baseMs, sec){
+  var w = windowsFor(loc, baseMs);
+  if(!w) return true;                       // unknown hours: do not cry wolf
+  return FlotteEngine.feasibleAt(sec, w) != null;
+}
+function hhmmOf(min){
+  return ('0' + Math.floor(min/60)).slice(-2) + ':' + ('0' + (min%60)).slice(-2);
+}
 function roundCosting(){ return modePref === 'walk' ? 'pedestrian' : 'bicycle'; }
 /* The visiting order is solved on a road matrix — VBB is one call per pair at
    GAP ms, so an N x N transit matrix is not affordable. Under Transit that
@@ -1242,7 +1434,8 @@ async function ensureTour(my){
   if(!mission || !trip.length || !rem.length){ tour = null; drawTour(); return; }
   var prevShapes = (tour && tour.costing === costing && tour.legShapes) || {};
   if(rem.length === 1){
-    tour = {order:[rem[0]._i], totalSec:null, estimated:false, costing:costing,
+    tour = {order:[rem[0]._i], dropped:[], totalSec:null, arriveAt:null,
+            timed:false, baseMs:depBaseMs(), estimated:false, costing:costing,
             altTotals:null, legShapes:prevShapes};
     drawTour(); return;
   }
@@ -1277,20 +1470,52 @@ async function ensureTour(my){
     for(var i = 0; i < mat.length; i++) for(var j = 0; j < mat.length; j++)
       if(mat[i][j] == null){ estimated = true; mat[i][j] = est(i, j); }
   }
-  var perm = FlotteEngine.tourOrder(mat);
-  // price every possible first stop: forcing station k first, then optimal —
-  // this is what makes deviating an informed choice instead of a hidden cost
+  /* Opening hours turn this from "shortest ride" into "earliest finish that
+     actually gets through the doors". Waiting for a door counts, and a stop
+     whose last window shuts before she can reach it is reported, not hidden. */
+  var baseMs = depBaseMs();
+  var timed = hasHours(rem);
+  var win = timed ? [null].concat(rem.map(function(l){ return windowsFor(l, baseMs); }))
+                  : null;
+  var res = timed ? FlotteEngine.tourOrderTW(mat, win)
+                  : {order: FlotteEngine.tourOrder(mat), dropped: [], arrive: null};
+  var perm = res.order;
+
+  // price every possible first stop, so deviating is an informed choice
   var altTotals = {};
   for(var k = 1; k < mat.length; k++){
     var idxs = [k];
     for(var j3 = 1; j3 < mat.length; j3++) if(j3 !== k) idxs.push(j3);
     var sub = idxs.map(function(a){ return idxs.map(function(b){ return mat[a][b]; }); });
-    var perm2 = FlotteEngine.tourOrder(sub);
-    altTotals[rem[k-1]._i] = mat[0][k] + FlotteEngine.tourCost(sub, perm2);
+    if(timed){
+      // forcing k first shifts everyone else's windows by the arrival there
+      var atK = FlotteEngine.feasibleAt(mat[0][k], win[k]);
+      if(atK == null){ altTotals[rem[k-1]._i] = null; continue; }
+      var subWin = idxs.map(function(a, n2){
+        if(n2 === 0) return null;
+        var w = win[a];
+        if(!w) return null;
+        return w.map(function(sp){ return [sp[0] - atK, sp[1] - atK]; })
+                .filter(function(sp){ return sp[1] > 0; });
+      });
+      var r2 = FlotteEngine.tourOrderTW(sub, subWin);
+      altTotals[rem[k-1]._i] = atK + r2.finish;
+    }else{
+      altTotals[rem[k-1]._i] = mat[0][k] + FlotteEngine.tourCost(sub, FlotteEngine.tourOrder(sub));
+    }
   }
   tour = {
     order: perm.map(function(k){ return rem[k-1]._i; }),
-    totalSec: FlotteEngine.tourCost(mat, perm),
+    dropped: (res.dropped || []).map(function(k){ return rem[k-1]._i; }),
+    totalSec: timed ? res.finish : FlotteEngine.tourCost(mat, perm),
+    arriveAt: timed ? (function(){
+      var out = {};
+      Object.keys(res.arrive || {}).forEach(function(k){
+        out[rem[k-1]._i] = baseMs + res.arrive[k] * 1000;
+      });
+      return out;
+    })() : null,
+    timed: timed, baseMs: baseMs,
     altTotals: altTotals,
     estimated: estimated, costing: costing, legShapes: prevShapes
   };
@@ -1670,6 +1895,20 @@ function optHTML(o, n){
         '<span class="opt-time num">' + mins(shown) + '</span>' +
       '</div>' +
       '<div class="opt-sub">' + esc([loc.street, loc.district[0]].filter(Boolean).join(' · ')) + '</div>' +
+      (function(){
+        /* Hours are the reason a nearer station can be the wrong next stop, so
+           they belong on the card — and "not published" is said out loud
+           rather than left blank, which would read as "open". */
+        var lbl = hoursLabel(loc, depBaseMs());
+        if(lbl === null) return '<div class="hoursline none">hours not published</div>';
+        var shut = lbl === 'closed today';
+        var eta = shown != null ? depBaseMs() + shown * 1000 : null;
+        var late = !shut && eta != null && !windowsCover(loc, depBaseMs(), shown);
+        return '<div class="hoursline' + (shut || late ? ' shut' : '') + '">' +
+          IC.clock + (shut ? 'closed today'
+            : 'open ' + esc(lbl) + (late ? ' · shut by the time you arrive' : '')) +
+          '</div>';
+      })() +
       stripBit +
       '<div class="modeline num">' +
         (compare || modePref === 'walk'
@@ -1748,16 +1987,32 @@ function missionHTML(){
   var left = defectStations().filter(function(l){ return visitedIdx().indexOf(l._i) === -1; });
   var bikes = left.reduce(function(a, l){ return a + defectiveAt(l).length; }, 0);
   // travel only — repair time is never estimated, see projectedArrivalMs
-  var plan = tour && tour.totalSec != null
-    ? ' · best order ' + costingLabel(tour.costing) +
-      ' ≈ <b class="num">' + mins(tour.totalSec) + '</b> travel' +
-      (tour.estimated ? ' (est.)' : '')
-    : '';
+  var plan = '';
+  if(tour && tour.totalSec != null){
+    plan = ' · best order ' + costingLabel(tour.costing) +
+      ' ≈ <b class="num">' + mins(tour.totalSec) + '</b> ' +
+      // with hours in play the number is a finish time, not a ride length:
+      // waiting for a door to open is part of it
+      (tour.timed ? 'to the last stop · there ~<b class="num">' +
+                    hhmm(tour.baseMs + tour.totalSec * 1000) + '</b>'
+                  : 'travel') +
+      (tour.estimated ? ' (est.)' : '');
+  }
   return '<div class="mission">' + IC.wrench +
     '<span><b>Repair round</b> — ' + bikes + ' flagged bike' + (bikes === 1 ? '' : 's') +
     ' at ' + left.length + ' station' + (left.length === 1 ? '' : 's') + ' left' + plan +
     (repaired.size ? ' · <b>' + repaired.size + '</b> repaired ✓' : '') + '</span>' +
     '<button class="link" type="button" id="exitm">Exit</button>' +
+    (function(){
+      var out = tour && tour.dropped && tour.dropped.length ? tour.dropped : null;
+      if(!out) return '';
+      var names = out.slice(0, 3).map(function(i){
+        return '<b>' + esc(LOCATIONS[i].location_name) + '</b>';
+      }).join(', ');
+      return '<span class="ordernote">Shut before you could get there: ' + names +
+        (out.length > 3 ? ' and ' + (out.length - 3) + ' more' : '') +
+        ' — still flagged, so they carry over to another run.</span>';
+    })() +
     (function(){
       var mm = orderModeMismatch();
       if(!mm) return '';

@@ -2,16 +2,18 @@
    comparing view. Before this was enforced, every card listed walk + bike +
    transit at once with a faint tint on the active one, so picking Walk still
    showed you three routes.  Run: node card.test.mjs                           */
-import { fn, iconSrc, sandbox, harness } from './testkit.mjs';
+import { fn, engineSrc, sandbox, harness } from './testkit.mjs';
 
 const { ok, done } = harness('card');
 const BASE = Date.parse('2026-08-17T10:00:00Z');
 
 const sb = sandbox(
   ['esc', 'safeColor', 'mins', 'km', 'clock', 'inMin', 'transitSec', 'timeFor',
-   'bestMode', 'stripHTML', 'hintHTML', 'depHTML', 'mv', 'thumbOK', 'optHTML'],
+   'bestMode', 'stripHTML', 'hintHTML', 'depHTML', 'mv', 'thumbOK', 'hoursToday', 'windowsFor', 'windowsCover',
+   'hoursLabel', 'hhmmOf', 'optHTML'],
   {
-    IC: { walk: '<ICON-walk>', bike: '<ICON-bike>', tram: '<ICON-tram>', right: '<ICON-right>' },
+    IC: { walk: '<ICON-walk>', bike: '<ICON-bike>', tram: '<ICON-tram>', right: '<ICON-right>',
+          clock: '<ICON-clock>' },
     LOCATIONS: [{ location_name: 'Kiezpirat Nord', street: 'Kastanienallee 12',
                   district: ['Pankow'],
                   items: [{ id: 1, name: 'Kiezpirat', type: ['Long John'], thumbnail: null }] }],
@@ -21,7 +23,7 @@ const sb = sandbox(
     defects: new Set(), repaired: new Set(), badThumb: {},
     mission: false, tour: null, ANIM: false, BOARD_ANIM: false,
     expanded: null, modePref: 'best', Date,
-  });
+  }, engineSrc());
 
 const journey = {
   dep: '2026-08-17T10:05:00Z', arr: '2026-08-17T10:20:00Z',
