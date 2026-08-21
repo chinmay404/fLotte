@@ -2,7 +2,7 @@
    no CORS headers and holds the socket ~30s, which the browser reports as a CORS
    error and the app used to render as "No transit route found" — sending a
    mechanic walking past a working tram.  Run: node outage.test.mjs            */
-import { fn, engineSrc, sandbox, harness, TEMPLATE } from './testkit.mjs';
+import { fn, engineSrc, sandbox, harness, TEMPLATE, i18nSrc } from './testkit.mjs';
 
 const { ok, done } = harness('outage');
 
@@ -30,7 +30,7 @@ const sb = sandbox(
     // a real fetch honours the abort signal; so must this one
     fetch: (url, o) => { calls.push(url); return responder(url, o); },
     AbortController, setTimeout, clearTimeout, Date,
-  }, engineSrc());
+  }, engineSrc() + '\n' + i18nSrc());
 
 const res = (status, body) => Promise.resolve({
   ok: status >= 200 && status < 300, status, json: () => Promise.resolve(body),

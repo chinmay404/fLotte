@@ -2,7 +2,7 @@
    comparing view. Before this was enforced, every card listed walk + bike +
    transit at once with a faint tint on the active one, so picking Walk still
    showed you three routes.  Run: node card.test.mjs                           */
-import { fn, engineSrc, sandbox, harness } from './testkit.mjs';
+import { fn, engineSrc, sandbox, harness, i18nSrc } from './testkit.mjs';
 
 const { ok, done } = harness('card');
 const BASE = Date.parse('2026-08-17T10:00:00Z');
@@ -23,7 +23,7 @@ const sb = sandbox(
     defects: new Set(), repaired: new Set(), badThumb: {},
     mission: false, tour: null, ANIM: false, BOARD_ANIM: false,
     expanded: null, modePref: 'best', Date,
-  }, engineSrc());
+  }, engineSrc() + '\n' + i18nSrc());
 
 const journey = {
   dep: '2026-08-17T10:05:00Z', arr: '2026-08-17T10:20:00Z',
@@ -65,7 +65,8 @@ for (const [mode, icon, want, other1, other2, dist] of [
   ok(ml.includes(icon), `${mode}: its own row is present`, ml);
   ok(!ml.includes(other1) && !ml.includes(other2),
     `${mode}: no other mode's time leaks in`, ml);
-  ok(ml.includes(`<span class="mv-l">${mode}</span>`), `${mode}: the row is named`, ml);
+  const NAME = { walk: 'Walk', bike: 'Bike' }[mode];
+  ok(ml.includes(`<span class="mv-l">${NAME}</span>`), `${mode}: the row is named`, ml);
   ok(ml.includes('mv sel'), `${mode}: shown as the picked mode`, ml);
   ok(ml.includes(dist), `${mode}: distance shown`, ml);
   ok(!h.includes('class="strip"'), `${mode}: no transit line badges`);
@@ -77,7 +78,7 @@ for (const [mode, icon, want, other1, other2, dist] of [
   const h = render('transit'), ml = modeline(h);
   ok(ml.includes('<ICON-tram>') && !ml.includes('<ICON-walk>') && !ml.includes('<ICON-bike>'),
     'transit: transit row only', ml);
-  ok(ml.includes('<span class="mv-l">transit</span>'), 'transit: the row is named', ml);
+  ok(ml.includes('<span class="mv-l">Transit</span>'), 'transit: the row is named', ml);
   ok(h.includes('class="strip"') && h.includes('>M4<'),
     'transit: line badges for the picked journey');
   ok((h.match(/dep 10:05/g) || []).length === 1,

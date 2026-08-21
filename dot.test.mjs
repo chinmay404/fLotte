@@ -1,7 +1,7 @@
 /* Station dots on the map must answer "which bikes are here?" on their own.
    They were drawn with interactive:false, so ~250 stations were inert and the
    only way to identify a bike was the Bikes list.  Run: node dot.test.mjs     */
-import { fn, sandbox, payload, harness } from './testkit.mjs';
+import { fn, sandbox, payload, harness, i18nSrc } from './testkit.mjs';
 
 const { ok, done } = harness('dot');
 const P = payload();
@@ -10,7 +10,8 @@ const sb = sandbox(
   ['esc', 'safeColor', 'colorOf', 'mins', 'timeFor', 'transitSec', 'thumbOK',
    'defectiveAt', 'tipHTML'],
   { LOCATIONS: P.locations, COLORS: P.colors, FALLBACK: '#5F6368',
-    defects: new Set(), mission: false, badThumb: {}, modePref: 'best' });
+    defects: new Set(), mission: false, badThumb: {}, modePref: 'best' },
+  i18nSrc());
 
 /* ---- what a dot actually shows ---- */
 const loc = P.locations.find(l => l.items.length > 2) || P.locations[0];

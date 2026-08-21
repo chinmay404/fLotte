@@ -124,7 +124,7 @@ ok(sb.eligible().length === P.locations.length, 'unfiltered: every station eligi
   ok(/buried/.test(body), 'paintCatalogue reports flagged bikes the filter hides');
   const rand = (body.match(/rand5[\s\S]*?\}\);/) || [''])[0];
   ok(!/LOCATIONS\.forEach/.test(rand), 'the demo flagger draws from the filtered pool');
-  ok(/eligibleItems\(\)\.length/.test(fn('refilter')),
+  ok(/eligibleItems\(\)/.test(fn('tallyText')),
     'the header tally shares the same helper');
 }
 

@@ -61,6 +61,12 @@ export function chunk(re, label) {
   return m[0];
 }
 
+/** The string table plus T(), with LANG defaulting to English.
+    Suites can flip `sb.LANG = 'de'` to render the German copy. */
+export function i18nSrc() {
+  return "var LANG = 'en';\n" + chunk(/var STR = \{[\s\S]*?\n\};/, 'STR') + '\n' + fn('T');
+}
+
 /** The real icon set, so rendered markup looks like the app's. */
 export function iconSrc() { return chunk(/var IC = \{[\s\S]*?\n\};/, 'IC'); }
 

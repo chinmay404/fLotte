@@ -1,7 +1,7 @@
 /* Repair round: the clock must follow the mechanic in real time, the visiting
    order must name the costing it was solved for, and no repair time may ever be
    invented (clicking Done is the signal).  Run: node round.test.mjs           */
-import { fn, engineSrc, sandbox, harness, TEMPLATE } from './testkit.mjs';
+import { fn, engineSrc, sandbox, harness, TEMPLATE, i18nSrc } from './testkit.mjs';
 
 const { ok, done } = harness('round');
 const NOW = Date.parse('2026-08-17T10:00:00Z');
@@ -27,7 +27,7 @@ const sb = sandbox(
       static now() { return clockMs; }
       static parse(s) { return Date.parse(s); }
     },
-  }, engineSrc());
+  }, engineSrc() + '\n' + i18nSrc());
 
 const at = ms => new Date(ms).toISOString().slice(11, 16);
 const M = 60000;
@@ -70,8 +70,8 @@ ok(sb.depBaseMs() === NOW + 100 * M,
   ok(!/dwell/.test(bar), 'round bar has no work-time control');
   ok(!/min work/.test(bar), 'round bar adds no estimated work total');
   ok(!/done ~/.test(bar), 'round bar makes no finish-time promise');
-  ok(bar.includes('20 min</b> travel'), 'round bar still shows travel time', bar);
-  ok(bar.includes('1 flagged bike at 1 station left'),
+  ok(/20 min<\/b>\s*travel/.test(bar), 'round bar still shows travel time', bar);
+  ok(bar.includes('<b>1</b> flagged bike at <b>1</b> station left'),
     'round bar counts only unvisited stations with work left',
     (bar.match(/Repair round[^·]*/) || [])[0]);
   ok(bar.includes('<b>3</b> repaired'), 'round bar counts repairs done');
@@ -105,8 +105,9 @@ ok(sb.depBaseMs() === NOW + 100 * M,
 
 /* ---- Best stays selectable in a round (an attempt to hide it was reverted) ---- */
 {
-  const row = TEMPLATE.match(/<div class="modes-row"[\s\S]*?Transit'\) \+ '<\/div>';/);
-  ok(row && !/mission \?/.test(row[0]), 'Best tab is not hidden during a round');
+  const row = TEMPLATE.match(/<div class="modes-row"[\s\S]{0,400}?<\/div>';/);
+  ok(row && /mtab\('best'/.test(row[0]) && !/mission \?/.test(row[0]),
+    'Best tab is offered and not hidden during a round', row && row[0]);
   ok(!/if\(modePref === 'best'\) modePref = 'bike'/.test(TEMPLATE),
     'entering a round does not coerce Best to Bike');
 }

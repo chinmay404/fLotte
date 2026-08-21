@@ -1,7 +1,7 @@
 /* Opening hours: the payload must carry them, the app must convert them into
    solver windows correctly, and "not published" must never read as "closed".
    Run: node hours.test.mjs                                                    */
-import { fn, engineSrc, sandbox, payload, harness } from './testkit.mjs';
+import { fn, engineSrc, i18nSrc, sandbox, payload, harness } from './testkit.mjs';
 
 const { ok, eq, done } = harness('hours');
 const P = payload();
@@ -28,7 +28,7 @@ const P = payload();
 const MON = Date.parse('2026-08-17T09:00:00');          // a Monday, 09:00 local
 const sb = sandbox(
   ['hoursToday', 'windowsFor', 'windowsCover', 'hoursLabel', 'hhmmOf', 'hasHours'],
-  { LOCATIONS: [], Date, FlotteEngine: null }, engineSrc());
+  { LOCATIONS: [], Date, FlotteEngine: null }, engineSrc() + '\n' + i18nSrc());
 sb.FlotteEngine = sb.FlotteEngine || null;
 // re-expose the engine the way the app sees it
 const eng = sandbox([], {}, engineSrc());
@@ -93,8 +93,8 @@ const shutMon = { hours: { '2': [[600, 960]] } };        // Tue only
 {
   const body = fn('optHTML');
   ok(/hoursLabel\(loc, depBaseMs\(\)\)/.test(body), 'the card shows the hours for today');
-  ok(/hours not published/.test(body), 'the card says so when nothing is published');
-  ok(/shut by the time you arrive/.test(body),
+  ok(/T\('hoursNone'\)/.test(body), 'the card says so when nothing is published');
+  ok(/T\('hoursTooLate'\)/.test(body),
     'the card warns when the door shuts before arrival');
 }
 

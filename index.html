@@ -42,7 +42,11 @@ svg{display:block}
   letter-spacing:-.3px;color:var(--navy)}
 .brand em{font-style:normal;color:var(--blue);font-weight:600}
 .tally{font-size:12px;color:var(--sub)}
-.tabsnav{margin-left:auto;display:flex;height:56px}
+.langbtn{margin-left:auto;padding:5px 10px;border:1px solid var(--line);
+  border-radius:14px;background:var(--bg);font:inherit;font-size:12px;
+  font-weight:600;color:var(--sub);cursor:pointer;letter-spacing:.5px}
+.langbtn:hover{color:var(--ink);background:var(--alt)}
+.tabsnav{display:flex;height:56px}
 .tabsnav button{position:relative;display:flex;align-items:center;gap:8px;padding:0 16px;
   font-size:14px;font-weight:500;color:var(--sub);transition:color var(--t)}
 .tabsnav button:hover{color:var(--ink);background:var(--alt)}
@@ -382,6 +386,7 @@ details.filters summary svg{width:16px;height:16px}
 <header class="bar-top">
   <div class="brand">fLotte <em>Berlin</em></div>
   <div class="tally"><b id="t-stations">0</b> stations · <b id="t-bikes">0</b> free cargo bikes</div>
+  <button class="langbtn" id="langbtn" type="button">EN</button>
   <nav class="tabsnav" id="nav" aria-label="View"></nav>
 </header>
 
@@ -389,7 +394,7 @@ details.filters summary svg{width:16px;height:16px}
   <div class="panel" id="panel">
     <div class="grab" id="grab" aria-hidden="true"><i></i></div>
     <details class="filters">
-      <summary><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10m-7 6h4"/></svg>Filters</summary>
+      <summary><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10m-7 6h4"/></svg><span>Filters</span></summary>
       <div class="filter-body">
         <label class="facet-name" for="q">Search stations</label>
         <input class="fsearch" id="q" type="search" placeholder="Station, street, postcode, bike" autocomplete="off">
@@ -777,6 +782,204 @@ function defectStations(){
   return LOCATIONS.filter(function(l){ return defectiveAt(l).length; });
 }
 
+var STR = {
+en:{
+  // chrome
+  tally:'<b id="t-stations">{st}</b> stations · <b id="t-bikes">{bk}</b> free cargo bikes',
+  filters:'Filters', searchStations:'Search stations',
+  searchPlaceholder:'Station, street, postcode, bike',
+  navPlan:'Directions', navBikes:'Bikes',
+  mBest:'Best', mWalk:'Walk', mBike:'Bike', mTransit:'Transit',
+  // start
+  startRoundQ:'Where does the round start?', startQ:'Where are you?',
+  startRoundHint:'Set a start point — the round is planned in the best visiting order from there.',
+  startHint:'You get the nearest cargo bike stations — plus any that transit reaches faster — and the quickest way to each.',
+  addrPlaceholder:'Search address or place', addrLabel:'Search for a start point',
+  myLocation:'My location', pickMap:'Choose on map', pickArmed:'Click the map…',
+  resume:'Start again from {label}', chosenPoint:'Chosen point',
+  geoAsking:'Asking your browser for your location…',
+  geoNone:'No geolocation here — search or choose on the map.',
+  geoBlocked:'Location blocked ({why}) — search above or choose on the map.',
+  addrDown:'Address search is unavailable right now.',
+  // trip
+  yourTrip:'Your trip', maps:'Maps ↗', copy:'Copy', undo:'Undo', restart:'Restart',
+  copied:'Copied ✓', copyFail:'Copy failed',
+  tripSum:{one:'<b>{n}</b> stop · about <b>{t}</b> total · arrive ~<b>{at}</b>',
+           other:'<b>{n}</b> stops · about <b>{t}</b> total · arrive ~<b>{at}</b>'},
+  // round
+  round:'Repair round',
+  roundLeft:'{bikes} at {stations} left',
+  nBikes:{one:'<b>1</b> flagged bike', other:'<b>{n}</b> flagged bikes'},
+  nStations:{one:'<b>1</b> station', other:'<b>{n}</b> stations'},
+  bestOrder:' · best order {mode} ≈ <b class="num">{t}</b> ',
+  toLastStop:'to the last stop · there ~<b class="num">{at}</b>', travelWord:'travel',
+  estSuffix:' (est.)', nRepaired:' · <b>{n}</b> repaired ✓', exit:'Exit',
+  byBike:'by bike', onFoot:'on foot',
+  shutOut:'Shut before you could get there: {names}{more} — still flagged, so they carry over to another run.',
+  andMore:' and {n} more',
+  mismatch:'Best routes <b>{n}</b> of these {of} stops another way, but the order is solved {mode} throughout — the sequence may not be the fastest for how you actually travel.',
+  // options
+  nearestFrom:'Nearest stations from <b>{label}</b>', leavingAt:' · leaving ~<b class="num">{at}</b>',
+  finding:'Finding the nearest stations…', checking:'Checking connections…',
+  fastest:'Fastest option', nextInRound:'Next in round order',
+  go:'Go', goOn:'Go — continue from here', orderTag:'next in round order',
+  scanTag:'transit find', wholeRound:'whole round if taken first: <b class="num">{t}</b>',
+  vsPlan:' · <span class="late">+{d} vs plan</span>', tiesPlan:' · ties the plan',
+  kbdHint:'<kbd>1</kbd>–<kbd>{n}</kbd> open · <kbd>Enter</kbd> go · <kbd>Esc</kbd> close',
+  farStart:'Your start point is {dist} from the nearest station — location services can miss by a lot. If that seems wrong, restart and choose a point on the map.',
+  veryFar:'very far', aboutKm:'~<b class="num">{km} km</b>',
+  scanFailed:'Could not search transit-served stations, so this list is the road-nearest few only — a stop that just a tram or U-Bahn reaches well may be missing.',
+  tryAgain:'Try again',
+  // modes / hours
+  noRoute:'no route', unavailable:'unavailable', notFound:'not found',
+  hoursOpen:'open {range}', hoursClosed:'closed today', hoursNone:'hours not published',
+  hoursTooLate:' · shut by the time you arrive',
+  // board
+  departures:'Departures', legInGoogle:'This leg in Google ↗', refresh:'Refresh',
+  boardWalk:'On foot', boardBike:'By bike',
+  legAbout:'About <b class="num">{t}</b> over <b class="num">{km}</b> from {label}.',
+  legAboutNoKm:'About <b class="num">{t}</b> from {label}.',
+  noRoadRoute:'No {mode} route found to this station.',
+  cycling:'cycling', walking:'walking',
+  noTransit:'No transit route found — walk or cycle this one.',
+  transitDown:'Could not reach the departure service — this is <b>not</b> a "no route" answer, so there may well be one. Walk and bike times are unaffected.',
+  checkingDep:'Checking departures…',
+  departsAt:'departs <b>{t}</b>', leavesIn:'leaves in <b>{n} min</b>', departed:'departed',
+  towards:'towards {dir}', platform:'platform {p}',
+  delay:'<span class="late">{sign}{n} min delay</span>',
+  // catalogue
+  searchBikes:'Search {n} bikes', searchBikesLabel:'Search bikes',
+  tapToFlag:'Tap a bike to flag it for repair.', filteredTo:' Filtered to <b>{n}</b> of <b>{m}</b>.',
+  flagRandom:'Flag 5 random (demo)', clearAll:'Clear all', clearFilters:'Clear filters',
+  optimalPath:'Optimal path', needsRepair:'needs repair', repairedTag:'repaired ✓',
+  cargoBike:'cargo bike', done:'Done',
+  buried:{one:'<b>1</b> flagged bike hidden by the current filter — still counted in the round.',
+          other:'<b>{n}</b> flagged bikes hidden by the current filter — still counted in the round.'},
+  roadDown:'Road routing is unavailable right now ({status}). '
+},
+de:{
+  tally:'<b id="t-stations">{st}</b> Standorte · <b id="t-bikes">{bk}</b> freie Lastenräder',
+  filters:'Filter', searchStations:'Standorte suchen',
+  searchPlaceholder:'Standort, Straße, PLZ, Rad',
+  navPlan:'Route', navBikes:'Räder',
+  mBest:'Beste', mWalk:'Fuß', mBike:'Rad', mTransit:'ÖPNV',
+  startRoundQ:'Wo beginnt die Runde?', startQ:'Wo bist du?',
+  startRoundHint:'Setze einen Startpunkt — die Runde wird von dort in der besten Reihenfolge geplant.',
+  startHint:'Du bekommst die nächsten Lastenrad-Standorte — auch die, die mit dem ÖPNV schneller erreichbar sind — und den kürzesten Weg zu jedem.',
+  addrPlaceholder:'Adresse oder Ort suchen', addrLabel:'Startpunkt suchen',
+  myLocation:'Mein Standort', pickMap:'Auf der Karte wählen', pickArmed:'Auf die Karte klicken…',
+  resume:'Neu starten ab {label}', chosenPoint:'Gewählter Punkt',
+  geoAsking:'Frage den Browser nach deinem Standort…',
+  geoNone:'Keine Standortbestimmung — suche oder wähle auf der Karte.',
+  geoBlocked:'Standort blockiert ({why}) — suche oben oder wähle auf der Karte.',
+  addrDown:'Die Adresssuche ist gerade nicht verfügbar.',
+  yourTrip:'Deine Tour', maps:'Maps ↗', copy:'Kopieren', undo:'Zurück', restart:'Neu starten',
+  copied:'Kopiert ✓', copyFail:'Kopieren fehlgeschlagen',
+  tripSum:{one:'<b>{n}</b> Stopp · etwa <b>{t}</b> gesamt · Ankunft ~<b>{at}</b>',
+           other:'<b>{n}</b> Stopps · etwa <b>{t}</b> gesamt · Ankunft ~<b>{at}</b>'},
+  round:'Reparatur-Runde',
+  roundLeft:'noch {bikes} an {stations}',
+  nBikes:{one:'<b>1</b> gemeldetes Rad', other:'<b>{n}</b> gemeldete Räder'},
+  nStations:{one:'<b>1</b> Standort', other:'<b>{n}</b> Standorten'},
+  bestOrder:' · beste Reihenfolge {mode} ≈ <b class="num">{t}</b> ',
+  toLastStop:'bis zum letzten Stopp · dort ~<b class="num">{at}</b>', travelWord:'Fahrzeit',
+  estSuffix:' (geschätzt)', nRepaired:' · <b>{n}</b> repariert ✓', exit:'Beenden',
+  byBike:'mit dem Rad', onFoot:'zu Fuß',
+  shutOut:'Vor deiner Ankunft geschlossen: {names}{more} — bleiben gemeldet und kommen in eine spätere Runde.',
+  andMore:' und {n} weitere',
+  mismatch:'„Beste“ führt dich bei <b>{n}</b> von {of} Stopps anders hin, die Reihenfolge ist aber durchgehend {mode} berechnet — sie ist für deine tatsächliche Fahrweise vielleicht nicht die schnellste.',
+  nearestFrom:'Nächste Standorte ab <b>{label}</b>', leavingAt:' · Abfahrt ~<b class="num">{at}</b>',
+  finding:'Suche die nächsten Standorte…', checking:'Prüfe Verbindungen…',
+  fastest:'Schnellste Option', nextInRound:'Nächster in der Runde',
+  go:'Los', goOn:'Los — von hier weiter', orderTag:'nächster in der Runde',
+  scanTag:'ÖPNV-Fund', wholeRound:'ganze Runde, wenn zuerst: <b class="num">{t}</b>',
+  vsPlan:' · <span class="late">+{d} gegenüber dem Plan</span>', tiesPlan:' · gleich wie der Plan',
+  kbdHint:'<kbd>1</kbd>–<kbd>{n}</kbd> öffnen · <kbd>Enter</kbd> los · <kbd>Esc</kbd> schließen',
+  farStart:'Dein Startpunkt ist {dist} vom nächsten Standort entfernt — die Ortung kann sich stark irren. Wenn das falsch aussieht, starte neu und wähle einen Punkt auf der Karte.',
+  veryFar:'sehr weit', aboutKm:'~<b class="num">{km} km</b>',
+  scanFailed:'Standorte mit guter ÖPNV-Anbindung konnten nicht gesucht werden — diese Liste enthält nur die auf der Straße nächsten. Ein Stopp, den nur Tram oder U-Bahn gut erreicht, kann fehlen.',
+  tryAgain:'Erneut versuchen',
+  noRoute:'keine Verbindung', unavailable:'nicht verfügbar', notFound:'nicht gefunden',
+  hoursOpen:'offen {range}', hoursClosed:'heute geschlossen', hoursNone:'keine Öffnungszeiten angegeben',
+  hoursTooLate:' · bei deiner Ankunft geschlossen',
+  departures:'Abfahrten', legInGoogle:'Diese Etappe in Google ↗', refresh:'Aktualisieren',
+  boardWalk:'Zu Fuß', boardBike:'Mit dem Rad',
+  legAbout:'Etwa <b class="num">{t}</b> über <b class="num">{km}</b> ab {label}.',
+  legAboutNoKm:'Etwa <b class="num">{t}</b> ab {label}.',
+  noRoadRoute:'Keine Route {mode} zu diesem Standort gefunden.',
+  cycling:'mit dem Rad', walking:'zu Fuß',
+  noTransit:'Keine ÖPNV-Verbindung gefunden — fahre oder gehe diese Etappe.',
+  transitDown:'Der Abfahrts-Dienst war nicht erreichbar — das ist <b>keine</b> Aussage „keine Verbindung“, es gibt also vermutlich eine. Die Zeiten zu Fuß und mit dem Rad sind davon nicht betroffen.',
+  checkingDep:'Prüfe Abfahrten…',
+  departsAt:'Abfahrt <b>{t}</b>', leavesIn:'fährt in <b>{n} Min.</b>', departed:'abgefahren',
+  towards:'Richtung {dir}', platform:'Gleis {p}',
+  delay:'<span class="late">{sign}{n} Min. Verspätung</span>',
+  searchBikes:'{n} Räder durchsuchen', searchBikesLabel:'Räder durchsuchen',
+  tapToFlag:'Tippe ein Rad an, um es zur Reparatur zu melden.',
+  filteredTo:' Gefiltert auf <b>{n}</b> von <b>{m}</b>.',
+  flagRandom:'5 zufällig melden (Demo)', clearAll:'Alle zurücksetzen', clearFilters:'Filter zurücksetzen',
+  optimalPath:'Beste Route', needsRepair:'Reparatur nötig', repairedTag:'repariert ✓',
+  cargoBike:'Lastenrad', done:'Fertig',
+  buried:{one:'<b>1</b> gemeldetes Rad ist durch den Filter verborgen — zählt weiter zur Runde.',
+          other:'<b>{n}</b> gemeldete Räder sind durch den Filter verborgen — zählen weiter zur Runde.'},
+  roadDown:'Die Straßen-Routenberechnung ist gerade nicht verfügbar ({status}). '
+}
+};
+/* ---------- language ----------
+   The data is already German (station names, bike names, VBB line names and
+   directions); only the app's own words were English. Sentences are stored
+   whole, with {placeholders}, because German word order will not survive being
+   assembled from fragments — "3 flagged bikes at 2 stations left" reorders into
+   "noch 3 gemeldete Räder an 2 Standorten", so per-word swaps cannot work.
+
+   Plurals carry explicit one/other forms rather than an "s" suffix, for the
+   same reason. T() never throws on a missing key: it falls back to English and
+   then to the key itself, so a gap shows up as odd copy, not a blank screen.
+
+   Interpolated values are inserted raw — callers must esc() anything from the
+   payload or the user before passing it in.                                  */
+var LANG = 'de';
+try{ var lsav = localStorage.getItem('flotte-lang'); if(lsav === 'en' || lsav === 'de') LANG = lsav; }catch(e){}
+function setLang(code){
+  LANG = code === 'de' ? 'de' : 'en';
+  try{ localStorage.setItem('flotte-lang', LANG); }catch(e){}
+  document.documentElement.setAttribute('lang', LANG);
+  applyStaticText();
+  buildFacets(); drawBase(); paint();
+}
+function T(key, p){
+  var dict = STR[LANG] || STR.en;
+  var v = dict[key];
+  if(v == null) v = STR.en[key];
+  if(v == null) return key;
+  if(typeof v === 'object') v = v[(p && Number(p.n) === 1) ? 'one' : 'other'];
+  return String(v).replace(/\{(\w+)\}/g, function(_, k){
+    return (p && p[k] != null) ? p[k] : '';
+  });
+}
+/* the handful of strings that live in the HTML shell rather than in a render */
+function tallyText(){
+  var el = document.querySelector('.tally');
+  if(!el) return;
+  el.innerHTML = T('tally', {st: eligible().length, bk: eligibleItems().length});
+}
+function applyStaticText(){
+  var set = function(sel, txt){
+    var el = document.querySelector(sel);
+    if(el) el.textContent = txt;
+  };
+  set('.filters > summary span', T('filters'));
+  set('label[for="q"]', T('searchStations'));
+  var q = document.getElementById('q');
+  if(q) q.setAttribute('placeholder', T('searchPlaceholder'));
+  var lb = document.getElementById('langbtn');
+  if(lb){
+    lb.textContent = LANG === 'de' ? 'EN' : 'DE';
+    lb.setAttribute('aria-label', LANG === 'de' ? 'Switch to English' : 'Auf Deutsch umschalten');
+  }
+  tallyText();
+}
+
 /* ---------- helpers ---------- */
 function colorOf(d){ return COLORS[d] || FALLBACK; }
 /* Some fLotte thumbnails 404. An inline onerror hid them, but every repaint
@@ -1019,7 +1222,8 @@ function tipHTML(loc, o){
         (thumbOK(it.thumbnail) ? '<img src="' + esc(it.thumbnail) + '" alt="" ' +
           'data-thumb="' + esc(it.thumbnail) + '">' : '') +
         '<div><b>' + esc(it.name) + '</b><span class="' + (bad ? 'fix' : '') + '">' +
-        esc(bad ? 'needs repair' : [it.type[0], it.drive[0]].filter(Boolean).join(' · ') || 'cargo bike') +
+        (bad ? T('needsRepair')
+             : esc([it.type[0], it.drive[0]].filter(Boolean).join(' · ')) || T('cargoBike')) +
         '</span></div></div>';
     }).join('') + '</div>';
 }
@@ -1234,7 +1438,7 @@ async function matrix(costing, targets){
       costing: costing
     })
   }, ROAD_TIMEOUT);
-  if(!r.ok) throw new Error('Road routing is unavailable right now (' + r.status + '). ');
+  if(!r.ok) throw new Error(T('roadDown', {status: r.status}));
   return (await r.json()).sources_to_targets[0].map(function(x){
     return x && typeof x.time === 'number'
       ? {sec:x.time, km: typeof x.distance === 'number' ? x.distance : null} : null;
@@ -1393,7 +1597,7 @@ function hasHours(list){
 function hoursLabel(loc, atMs){
   var spans = hoursToday(loc, atMs);
   if(spans === null) return null;
-  if(!spans.length) return 'closed today';
+  if(!spans.length) return T('hoursClosed');
   return spans.map(function(sp){
     return hhmmOf(sp[0]) + '–' + hhmmOf(sp[1]);
   }).join(', ');
@@ -1412,7 +1616,7 @@ function roundCosting(){ return modePref === 'walk' ? 'pedestrian' : 'bicycle'; 
    makes the order a *bicycle* order, so name the costing the plan was actually
    solved for rather than let it pass as a transit plan. Read from
    tour.costing, never modePref: the two differ until the round re-solves. */
-function costingLabel(c){ return c === 'pedestrian' ? 'on foot' : 'by bike'; }
+function costingLabel(c){ return c === 'pedestrian' ? T('onFoot') : T('byBike'); }
 /* Best picks a mode per station, but the visiting order was solved on one road
    matrix — so under Best the sequence can be optimal for a vehicle she is not
    using on every leg. Report it only when the two actually disagree: a quiet
@@ -1788,7 +1992,7 @@ function copyPlan(){
   var text = out.join('\n');
   function flash(ok){
     var b = document.getElementById('copy');
-    if(b){ b.textContent = ok ? 'Copied ✓' : 'Copy failed'; setTimeout(paint, 1400); }
+    if(b){ b.textContent = ok ? T('copied') : T('copyFail'); setTimeout(paint, 1400); }
   }
   if(navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(text).then(function(){ flash(true); },
@@ -1828,19 +2032,19 @@ function hintHTML(j){
   for(var n = 0; n < j.legs.length; n++){ if(!j.legs[n].walking){ first = j.legs[n]; break; } }
   if(!first) return '';
   var bits = [];
-  if(first.direction) bits.push('towards ' + esc(first.direction));
-  if(first.platform) bits.push('platform ' + esc(first.platform));
+  if(first.direction) bits.push(T('towards', {dir: esc(first.direction)}));
+  if(first.platform) bits.push(T('platform', {p: esc(first.platform)}));
   if(first.delay != null && Math.abs(first.delay) >= 60)
-    bits.push('<span class="late">' + (first.delay > 0 ? '+' : '−') +
-      Math.round(Math.abs(first.delay)/60) + ' min delay</span>');
+    bits.push(T('delay', {sign: first.delay > 0 ? '+' : '−',
+                          n: Math.round(Math.abs(first.delay)/60)}));
   return bits.length ? '<div class="hintline">' + bits.join(' · ') + '</div>' : '';
 }
 function depHTML(o, j, n){
   var lead = inMin(j.dep);
   var when = baseFuture()
-    ? 'departs <b>' + clock(j.dep) + '</b>'
+    ? T('departsAt', {t: clock(j.dep)})
     : (lead != null && lead >= 0
-        ? 'leaves in <b>' + (lead < 1 ? '1' : lead) + ' min</b>' : 'departed');
+        ? T('leavesIn', {n: lead < 1 ? 1 : lead}) : T('departed'));
   return '<button class="dep" type="button" data-i="' + o.i + '" data-j="' + n + '"' +
     ' aria-selected="' + ((o.selJ || 0) === n ? 'true' : 'false') + '">' +
     '<div class="dep-when num">' +
@@ -1874,11 +2078,11 @@ function optHTML(o, n){
         .replace('class="strip"','class="strip" style="margin:9px 0 0 34px"')
     : '';
 
-  var transitBit, tLab = compare ? '' : '<span class="mv-l">transit</span>';
+  var transitBit, tLab = compare ? '' : '<span class="mv-l">' + T('mTransit') + '</span>';
   if(o.transit && o.transit.err)
     transitBit = '<span class="mv">' + IC.tram + tLab +
-      (o.transit.kind === 'down' ? 'unavailable' : 'no route') + '</span>';
-  else if(js) transitBit = mv(IC.tram, 'transit', tsec, mode === 'transit',
+      (o.transit.kind === 'down' ? T('unavailable') : T('noRoute')) + '</span>';
+  else if(js) transitBit = mv(IC.tram, T('mTransit'), tsec, mode === 'transit',
     // the strip above already carries the departure — don't say it twice
     js.length && !stripBit ? 'dep ' + clock(js[o.selJ || 0].dep) : null, !compare);
   else transitBit = '<span class="mv">' + IC.tram + tLab + '…</span>';
@@ -1890,8 +2094,8 @@ function optHTML(o, n){
         '<span class="opt-rank" style="background:' +
           (mission ? '#C75300' : colorOf(loc.district[0])) + '">' + (n+1) + '</span>' +
         '<span class="opt-name">' + esc(loc.location_name) +
-          (mission && o.i === tourNext() ? ' <span class="ordertag">next in round order</span>' : '') +
-          (o.viaScan ? ' <span class="ordertag scan">transit find</span>' : '') + '</span>' +
+          (mission && o.i === tourNext() ? ' <span class="ordertag">' + T('orderTag') + '</span>' : '') +
+          (o.viaScan ? ' <span class="ordertag scan">' + T('scanTag') + '</span>' : '') + '</span>' +
         '<span class="opt-time num">' + mins(shown) + '</span>' +
       '</div>' +
       '<div class="opt-sub">' + esc([loc.street, loc.district[0]].filter(Boolean).join(' · ')) + '</div>' +
@@ -1900,22 +2104,22 @@ function optHTML(o, n){
            they belong on the card — and "not published" is said out loud
            rather than left blank, which would read as "open". */
         var lbl = hoursLabel(loc, depBaseMs());
-        if(lbl === null) return '<div class="hoursline none">hours not published</div>';
-        var shut = lbl === 'closed today';
+        if(lbl === null) return '<div class="hoursline none">' + T('hoursNone') + '</div>';
+        var shut = lbl === T('hoursClosed');
         var eta = shown != null ? depBaseMs() + shown * 1000 : null;
         var late = !shut && eta != null && !windowsCover(loc, depBaseMs(), shown);
         return '<div class="hoursline' + (shut || late ? ' shut' : '') + '">' +
-          IC.clock + (shut ? 'closed today'
-            : 'open ' + esc(lbl) + (late ? ' · shut by the time you arrive' : '')) +
+          IC.clock + (shut ? T('hoursClosed')
+            : T('hoursOpen', {range: esc(lbl)}) + (late ? T('hoursTooLate') : '')) +
           '</div>';
       })() +
       stripBit +
       '<div class="modeline num">' +
         (compare || modePref === 'walk'
-          ? mv(IC.walk, 'walk', o.walk && o.walk.sec, mode === 'walk',
+          ? mv(IC.walk, T('mWalk'), o.walk && o.walk.sec, mode === 'walk',
               o.walk && km(o.walk.km), !compare) : '') +
         (compare || modePref === 'bike'
-          ? mv(IC.bike, 'bike', o.bike && o.bike.sec, mode === 'bike',
+          ? mv(IC.bike, T('mBike'), o.bike && o.bike.sec, mode === 'bike',
               o.bike && km(o.bike.km), !compare) : '') +
         (compare || modePref === 'transit' ? transitBit : '') + '</div>' +
       (function(){
@@ -1924,9 +2128,8 @@ function optHTML(o, n){
         var alt = tour.altTotals[o.i];
         if(alt == null) return '';
         var diff = alt - tour.totalSec;
-        return '<div class="hintline">whole round if taken first: <b class="num">' + mins(alt) + '</b>' +
-          (diff > 60 ? ' · <span class="late">+' + mins(diff) + ' vs plan</span>'
-                     : ' · ties the plan') + '</div>';
+        return '<div class="hintline">' + T('wholeRound', {t: mins(alt)}) +
+          (diff > 60 ? T('vsPlan', {d: mins(diff)}) : T('tiesPlan')) + '</div>';
       })() +
       '<div class="bikes">' + (mission
         ? loc.items.filter(function(it){ return defects.has(it.id) || repaired.has(it.id); })
@@ -1936,8 +2139,8 @@ function optHTML(o, n){
           (thumbOK(it.thumbnail) ? '<img src="' + esc(it.thumbnail) + '" alt="" loading="lazy"' +
             ' width="26" height="26" data-thumb="' + esc(it.thumbnail) + '">' : '') +
           '<b>' + esc(it.name) + '</b><span class="' + (bad ? 'fix' : '') + '">' +
-          esc(done ? 'repaired ✓' : bad ? 'needs repair' : (it.type[0] || '')) + '</span>' +
-          (bad && mission ? '<span class="donebtn" data-done="' + it.id + '">Done</span>' : '') +
+          (done ? T('repairedTag') : bad ? T('needsRepair') : esc(it.type[0] || '')) + '</span>' +
+          (bad && mission ? '<span class="donebtn" data-done="' + it.id + '">' + T('done') + '</span>' : '') +
           '</span>';
       }).join('') + '</div>' +
     '</button>';
@@ -1948,32 +2151,30 @@ function optHTML(o, n){
     if(modePref === 'walk' || modePref === 'bike'){
       var rec = modePref === 'bike' ? o.bike : o.walk;
       html += '<div class="board-head"><span>' +
-          (modePref === 'bike' ? 'By bike' : 'On foot') + '</span><span class="trip-links">' +
+          (modePref === 'bike' ? T('boardBike') : T('boardWalk')) + '</span><span class="trip-links">' +
           '<button class="link" type="button" data-gleg="' + o.i + '" data-gmode="' +
           (modePref === 'bike' ? 'bicycling' : 'walking') +
-          '">This leg in Google ↗</button></span></div>' +
+          '">' + T('legInGoogle') + '</button></span></div>' +
         '<div class="note">' + (rec
-          ? 'About <b class="num">' + mins(rec.sec) + '</b>' +
-            (rec.km != null ? ' over <b class="num">' + km(rec.km) + '</b>' : '') +
-            ' from ' + esc(here().label) + '.'
-          : 'No ' + (modePref === 'bike' ? 'cycling' : 'walking') +
-            ' route found to this station.') + '</div>';
+          ? T(rec.km != null ? 'legAbout' : 'legAboutNoKm',
+              {t: mins(rec.sec), km: km(rec.km), label: esc(here().label)})
+          : T('noRoadRoute', {mode: modePref === 'bike' ? T('cycling') : T('walking')})) +
+        '</div>';
     }else if(js && js.length){
-      html += '<div class="board-head"><span>Departures</span><span class="trip-links">' +
-        '<button class="link" type="button" data-gleg="' + o.i + '">This leg in Google ↗</button>' +
-        '<button class="link" type="button" data-refresh="' + o.i + '">Refresh</button></span></div>' +
+      html += '<div class="board-head"><span>' + T('departures') + '</span><span class="trip-links">' +
+        '<button class="link" type="button" data-gleg="' + o.i + '">' + T('legInGoogle') + '</button>' +
+        '<button class="link" type="button" data-refresh="' + o.i + '">' + T('refresh') + '</button></span></div>' +
         js.map(function(j, k){ return depHTML(o, j, k); }).join('');
     }else if(o.transit && o.transit.err){
       html += o.transit.kind === 'down'
-        ? '<div class="note">Could not reach the departure service — this is <b>not</b> ' +
-          'a "no route" answer, so there may well be one. Walk and bike times are ' +
-          'unaffected.<br><button class="retry" type="button" data-refresh="' + o.i +
-          '">Try again</button></div>'
-        : '<div class="note">No transit route found — walk or cycle this one.</div>';
+        ? '<div class="note">' + T('transitDown') +
+          '<br><button class="retry" type="button" data-refresh="' + o.i + '">' +
+          T('tryAgain') + '</button></div>'
+        : '<div class="note">' + T('noTransit') + '</div>';
     }else{
-      html += '<div class="note">Checking departures…</div>';
+      html += '<div class="note">' + T('checkingDep') + '</div>';
     }
-    html += '<button class="go" type="button" data-go="' + o.i + '">Go — continue from here' +
+    html += '<button class="go" type="button" data-go="' + o.i + '">' + T('goOn') +
       IC.right + '</button></div>';
   }
   return html + '</div>';
@@ -1989,37 +2190,33 @@ function missionHTML(){
   // travel only — repair time is never estimated, see projectedArrivalMs
   var plan = '';
   if(tour && tour.totalSec != null){
-    plan = ' · best order ' + costingLabel(tour.costing) +
-      ' ≈ <b class="num">' + mins(tour.totalSec) + '</b> ' +
+    plan = T('bestOrder', {mode: costingLabel(tour.costing), t: mins(tour.totalSec)}) +
       // with hours in play the number is a finish time, not a ride length:
       // waiting for a door to open is part of it
-      (tour.timed ? 'to the last stop · there ~<b class="num">' +
-                    hhmm(tour.baseMs + tour.totalSec * 1000) + '</b>'
-                  : 'travel') +
-      (tour.estimated ? ' (est.)' : '');
+      (tour.timed ? T('toLastStop', {at: hhmm(tour.baseMs + tour.totalSec * 1000)})
+                  : T('travelWord')) +
+      (tour.estimated ? T('estSuffix') : '');
   }
   return '<div class="mission">' + IC.wrench +
-    '<span><b>Repair round</b> — ' + bikes + ' flagged bike' + (bikes === 1 ? '' : 's') +
-    ' at ' + left.length + ' station' + (left.length === 1 ? '' : 's') + ' left' + plan +
-    (repaired.size ? ' · <b>' + repaired.size + '</b> repaired ✓' : '') + '</span>' +
-    '<button class="link" type="button" id="exitm">Exit</button>' +
+    '<span><b>' + T('round') + '</b> — ' +
+    T('roundLeft', {bikes: T('nBikes', {n: bikes}),
+                    stations: T('nStations', {n: left.length})}) + plan +
+    (repaired.size ? T('nRepaired', {n: repaired.size}) : '') + '</span>' +
+    '<button class="link" type="button" id="exitm">' + T('exit') + '</button>' +
     (function(){
       var out = tour && tour.dropped && tour.dropped.length ? tour.dropped : null;
       if(!out) return '';
       var names = out.slice(0, 3).map(function(i){
         return '<b>' + esc(LOCATIONS[i].location_name) + '</b>';
       }).join(', ');
-      return '<span class="ordernote">Shut before you could get there: ' + names +
-        (out.length > 3 ? ' and ' + (out.length - 3) + ' more' : '') +
-        ' — still flagged, so they carry over to another run.</span>';
+      return '<span class="ordernote">' + T('shutOut', {names: names,
+        more: out.length > 3 ? T('andMore', {n: out.length - 3}) : ''}) + '</span>';
     })() +
     (function(){
       var mm = orderModeMismatch();
       if(!mm) return '';
-      return '<span class="ordernote">Best routes <b>' + mm.n + '</b> of these ' +
-        mm.of + ' stops another way, but the order is solved ' +
-        costingLabel(tour.costing) + ' throughout — the sequence may not be ' +
-        'the fastest for how you actually travel.</span>';
+      return '<span class="ordernote">' + T('mismatch',
+        {n: mm.n, of: mm.of, mode: costingLabel(tour.costing)}) + '</span>';
     })() + '</div>';
 }
 
@@ -2027,9 +2224,9 @@ function renderNav(){
   var nav = document.getElementById('nav');
   nav.innerHTML =
     '<button type="button" data-view="plan" aria-selected="' + (view === 'plan') + '">' +
-      IC.route + 'Directions</button>' +
+      IC.route + T('navPlan') + '</button>' +
     '<button type="button" data-view="catalogue" aria-selected="' + (view === 'catalogue') + '">' +
-      IC.bike + 'Bikes' +
+      IC.bike + T('navBikes') +
       (defects.size ? ' <span class="count">' + defects.size + '</span>' : '') + '</button>';
   Array.prototype.forEach.call(nav.querySelectorAll('button'), function(b){
     b.addEventListener('click', function(){
@@ -2059,21 +2256,18 @@ function paintCatalogue(flow){
   flow.innerHTML =
     '<div class="cat-bar">' +
       '<div class="cat-search">' + IC.search +
-        '<input id="catq" type="search" placeholder="Search ' + rows.length + ' bikes" ' +
-          'value="' + esc(catQ) + '" aria-label="Search bikes"></div>' +
+        '<input id="catq" type="search" placeholder="' + esc(T('searchBikes',{n:rows.length})) + '" ' +
+          'value="' + esc(catQ) + '" aria-label="' + esc(T('searchBikesLabel')) + '"></div>' +
       '<button class="run" id="run" type="button"' + (defects.size ? '' : ' disabled') + '>' +
-        IC.route + 'Optimal path' + (defects.size ? ' (' + defects.size + ')' : '') + '</button>' +
+        IC.route + T('optimalPath') + (defects.size ? ' (' + defects.size + ')' : '') + '</button>' +
     '</div>' +
-    '<div class="cat-tools"><span>Tap a bike to flag it for repair.' +
-      (filtersActive() ? ' Filtered to <b>' + rows.length + '</b> of <b>' +
-        TOTAL_ITEMS + '</b>.' : '') + '</span>' +
-      '<button class="link" id="rand5" type="button">Flag 5 random (demo)</button>' +
-      (defects.size ? '<button class="link" id="clearall" type="button">Clear all</button>' : '') +
-      (filtersActive() ? '<button class="link" id="clearf" type="button">Clear filters</button>' : '') +
+    '<div class="cat-tools"><span>' + T('tapToFlag') +
+      (filtersActive() ? T('filteredTo', {n: rows.length, m: TOTAL_ITEMS}) : '') + '</span>' +
+      '<button class="link" id="rand5" type="button">' + T('flagRandom') + '</button>' +
+      (defects.size ? '<button class="link" id="clearall" type="button">' + T('clearAll') + '</button>' : '') +
+      (filtersActive() ? '<button class="link" id="clearf" type="button">' + T('clearFilters') + '</button>' : '') +
     '</div>' +
-    (buried ? '<div class="buried"><b>' + buried + '</b> flagged bike' +
-      (buried === 1 ? '' : 's') + ' hidden by the current filter — still counted in the round.' +
-      '</div>' : '') +
+    (buried ? '<div class="buried">' + T('buried', {n: buried}) + '</div>' : '') +
     rows.map(function(r){
       var bad = defects.has(r.it.id), done = repaired.has(r.it.id);
       return '<button class="bikerow" type="button" data-id="' + r.it.id + '"' +
@@ -2084,8 +2278,8 @@ function paintCatalogue(flow){
             ' data-thumb="' + esc(r.it.thumbnail) + '" data-fail="ph">'
           : '<span class="ph">' + IC.bike + '</span>') +
         '<span class="bk-body"><span class="bk-name">' + esc(r.it.name) +
-          (bad ? '<span class="fixtag">needs repair</span>'
-               : done ? '<span class="fixtag ok">repaired ✓</span>' : '') + '</span>' +
+          (bad ? '<span class="fixtag">' + T('needsRepair') + '</span>'
+               : done ? '<span class="fixtag ok">' + T('repairedTag') + '</span>' : '') + '</span>' +
         '<span class="bk-sub"><span class="bk-dot" style="background:' +
           colorOf(r.loc.district[0]) + '"></span>' +
           esc([r.loc.location_name, r.it.type[0]].filter(Boolean).join(' · ')) + '</span></span>' +
@@ -2167,21 +2361,20 @@ function paint(errMsg){
     try{ last = JSON.parse(localStorage.getItem('flotte-last-start') || 'null'); }catch(e){}
     flow.innerHTML = missionHTML() +
       '<div class="start">' +
-        '<h2>' + (mission ? 'Where does the round start?' : 'Where are you?') + '</h2>' +
+        '<h2>' + (mission ? T('startRoundQ') : T('startQ')) + '</h2>' +
         '<p>' + (mission
-          ? 'Set a start point — the round is planned in the best visiting order from there.'
-          : 'You get the nearest cargo bike stations — plus any that transit reaches faster — and the quickest way to each.') + '</p>' +
+          ? T('startRoundHint') : T('startHint')) + '</p>' +
         '<div class="searchwrap">' + IC.search +
-          '<input class="addr" id="addr" type="search" placeholder="Search address or place" ' +
-            'autocomplete="off" aria-label="Search for a start point"></div>' +
+          '<input class="addr" id="addr" type="search" placeholder="' + esc(T('addrPlaceholder')) + '" ' +
+            'autocomplete="off" aria-label="' + esc(T('addrLabel')) + '"></div>' +
         '<div class="sugs" id="sugs"></div>' +
         '<div class="startrow">' +
-          '<button class="chipbtn" id="geo" type="button">' + IC.gps + 'My location</button>' +
+          '<button class="chipbtn" id="geo" type="button">' + IC.gps + T('myLocation') + '</button>' +
           '<button class="chipbtn' + (picking ? ' on' : '') + '" id="pick" type="button">' +
-            IC.pin + (picking ? 'Click the map…' : 'Choose on map') + '</button>' +
+            IC.pin + (picking ? T('pickArmed') : T('pickMap')) + '</button>' +
         '</div>' +
         (last && last.label ? '<button class="resume" id="resume" type="button">' +
-          IC.refresh + 'Start again from ' + esc(last.label) + '</button>' : '') +
+          IC.refresh + T('resume', {label: esc(last.label)}) + '</button>' : '') +
         '<div class="note" id="note">' + (errMsg ? esc(errMsg) : '') + '</div>' +
       '</div>';
     wireStart(last);
@@ -2191,11 +2384,11 @@ function paint(errMsg){
   }
 
   var html = '<div class="trip"><div class="trip-top">' +
-    '<span class="trip-title">Your trip</span><span class="trip-links">' +
-    (trip.length > 1 ? '<button class="link" id="gmaps" type="button">Maps ↗</button>' +
-      '<button class="link" id="copy" type="button">Copy</button>' +
-      '<button class="link" id="back" type="button">Undo</button>' : '') +
-    '<button class="link" id="reset" type="button">Restart</button></span></div>' +
+    '<span class="trip-title">' + T('yourTrip') + '</span><span class="trip-links">' +
+    (trip.length > 1 ? '<button class="link" id="gmaps" type="button">' + T('maps') + '</button>' +
+      '<button class="link" id="copy" type="button">' + T('copy') + '</button>' +
+      '<button class="link" id="back" type="button">' + T('undo') + '</button>' : '') +
+    '<button class="link" id="reset" type="button">' + T('restart') + '</button></span></div>' +
     '<div class="chain">';
   trip.forEach(function(s, n){
     if(n) html += IC.chev;
@@ -2214,39 +2407,32 @@ function paint(errMsg){
   });
   html += '</div>';
   if(trip.length > 1){
-    html += '<div class="trip-sum num"><b>' + (trip.length-1) + '</b> stop' +
-      (trip.length > 2 ? 's' : '') + ' · about <b>' +
-      mins((depBaseMs() - Date.now()) / 1000) + '</b> total · arrive ~<b>' +
-      hhmm(depBaseMs()) + '</b></div>';
+    html += '<div class="trip-sum num">' + T('tripSum', {n: trip.length - 1,
+      t: mins((depBaseMs() - Date.now()) / 1000), at: hhmm(depBaseMs())}) + '</div>';
   }
   html += '</div>';
 
   html += missionHTML();
   if(farKm != null && options.length){
-    html += '<div class="mission">' + IC.pin + '<span>Your start point is ' +
-      (farKm > 0 ? '~<b class="num">' + farKm + ' km</b>' : 'very far') +
-      ' from the nearest station — location services can miss by a lot. ' +
-      'If that seems wrong, restart and choose a point on the map.</span>' +
-      '<button class="link" id="farfix" type="button">Restart</button></div>';
+    html += '<div class="mission">' + IC.pin + '<span>' +
+      T('farStart', {dist: farKm > 0 ? T('aboutKm', {km: farKm}) : T('veryFar')}) + '</span>' +
+      '<button class="link" id="farfix" type="button">' + T('restart') + '</button></div>';
   }
   // a failed reachable-from silently drops the stations only transit serves
   // well, which is the whole reason the scan exists — do not hide that
   if(scanInfo && !scanInfo.ok && !mission){
-    html += '<div class="mission">' + IC.tram +
-      '<span>Could not search transit-served stations, so this list is the ' +
-      'road-nearest few only — a stop that just a tram or U-Bahn reaches well ' +
-      'may be missing.</span>' +
-      '<button class="link" id="rescan" type="button">Try again</button></div>';
+    html += '<div class="mission">' + IC.tram + '<span>' + T('scanFailed') + '</span>' +
+      '<button class="link" id="rescan" type="button">' + T('tryAgain') + '</button></div>';
   }
   html += '<div class="modes-row" role="tablist" aria-label="Travel mode">' +
-    mtab('best', IC.zap, 'Best') + mtab('walk', IC.walk, 'Walk') +
-    mtab('bike', IC.bike, 'Bike') + mtab('transit', IC.tram, 'Transit') + '</div>';
+    mtab('best', IC.zap, T('mBest')) + mtab('walk', IC.walk, T('mWalk')) +
+    mtab('bike', IC.bike, T('mBike')) + mtab('transit', IC.tram, T('mTransit')) + '</div>';
 
   if(errMsg){
     html += '<div class="spin">' + esc(errMsg) +
-      '<br><button class="retry" id="retry" type="button">Try again</button></div>';
+      '<br><button class="retry" id="retry" type="button">' + T('tryAgain') + '</button></div>';
   }else if(!options.length){
-    html += '<div class="spin">Finding the nearest stations…' +
+    html += '<div class="spin">' + T('finding') +
       '<div class="progress" style="margin:10px 0 0"><i style="width:35%"></i></div></div>';
   }else{
     var list = sorted();
@@ -2259,8 +2445,8 @@ function paint(errMsg){
     var top = list[0];
     if(top){
       var tl = LOCATIONS[top.i];
-      var kick = busy ? 'Checking connections…'
-        : (mission && top.i === tourNext() ? 'Next in round order' : 'Fastest option');
+      var kick = busy ? T('checking')
+        : (mission && top.i === tourNext() ? T('nextInRound') : T('fastest'));
       var pkMode = modePref === 'best' ? (bestMode(top) || 'walk') : modePref;
       var pkRec = pkMode === 'walk' ? top.walk : pkMode === 'bike' ? top.bike : null;
       var pkX = pkRec && pkRec.km != null ? ' · ' + km(pkRec.km) : '';
@@ -2278,20 +2464,19 @@ function paint(errMsg){
         '<span class="pk-time num">' + mins(timeFor(top, modePref)) +
           ({walk:' walking', bike:' by bike', transit:' by transit'})[pkMode] + pkX +
         '</span></span>' +
-        '<span class="pk-go">Go' + IC.right + '</span></button>' + html;
+        '<span class="pk-go">' + T('go') + IC.right + '</span></button>' + html;
     }
     var checked = options.filter(function(o){ return o.transit; }).length;
-    html += '<div class="opts-head"><span>Nearest stations from <b>' +
-      esc(here().label) + '</b>' +
-      (baseFuture() ? ' · leaving ~<b class="num">' + hhmm(depBaseMs()) + '</b>' : '') +
+    html += '<div class="opts-head"><span>' +
+      T('nearestFrom', {label: esc(here().label)}) +
+      (baseFuture() ? T('leavingAt', {at: hhmm(depBaseMs())}) : '') +
       '</span>' +
       (busy ? '<span class="num">' + checked + '/' + options.length + '</span>' : '') + '</div>';
     if(busy) html += '<div class="progress"><i style="width:' +
       Math.round(checked/Math.max(options.length,1)*100) + '%"></i></div>';
     // numbers are the round order in a round, the time rank otherwise
     html += list.map(optHTML).join('');
-    html += '<div class="kbd-hint"><kbd>1</kbd>–<kbd>' + Math.min(list.length, 9) +
-      '</kbd> open · <kbd>Enter</kbd> go · <kbd>Esc</kbd> close</div>';
+    html += '<div class="kbd-hint">' + T('kbdHint', {n: Math.min(list.length, 9)}) + '</div>';
   }
   flow.innerHTML = html;
   wireList();
@@ -2333,18 +2518,18 @@ function wireStart(last){
             });
           });
         })
-        .catch(function(){ if(my === seq) note.textContent = 'Address search is unavailable right now.'; });
+        .catch(function(){ if(my === seq) note.textContent = T('addrDown'); });
     }, 350);
   });
 
   document.getElementById('geo').addEventListener('click', function(){
-    if(!navigator.geolocation){ note.textContent = 'No geolocation here — search or choose on the map.'; return; }
-    note.textContent = 'Asking your browser for your location…';
+    if(!navigator.geolocation){ note.textContent = T('geoNone'); return; }
+    note.textContent = T('geoAsking');
     navigator.geolocation.getCurrentPosition(
-      function(p){ start(p.coords.latitude, p.coords.longitude, 'My location'); },
+      function(p){ start(p.coords.latitude, p.coords.longitude, T('myLocation')); },
       function(err){
         // file:// is not a secure context in Chromium, so this usually fails locally
-        note.textContent = 'Location blocked (' + err.message + ') — search above or choose on the map.';
+        note.textContent = T('geoBlocked', {why: err.message});
       },
       {enableHighAccuracy:true, timeout:10000}
     );
@@ -2432,7 +2617,7 @@ function wireList(){
 
 map.on('click', function(e){
   if(!picking) return;
-  start(e.latlng.lat, e.latlng.lng, 'Chosen point');
+  start(e.latlng.lat, e.latlng.lng, T('chosenPoint'));
 });
 // marker tooltips live outside #flow, so they need their own thumbnail wiring
 map.on('tooltipopen', function(e){
@@ -2497,8 +2682,7 @@ function buildFacets(){
 }
 function refilter(){
   buildFacets(); drawBase();
-  document.getElementById('t-stations').textContent = eligible().length;
-  document.getElementById('t-bikes').textContent = eligibleItems().length;
+  tallyText();
   if(trip.length) nextHop(); else paint();
 }
 var qEl = document.getElementById('q'), qT;
@@ -2509,10 +2693,12 @@ qEl.addEventListener('input', function(){
 
 /* ---------- boot ---------- */
 LOCATIONS.forEach(function(l, i){ l._i = i; });
-buildFacets(); drawBase(); paint();
-document.getElementById('t-stations').textContent = LOCATIONS.length;
-document.getElementById('t-bikes').textContent =
-  LOCATIONS.reduce(function(a,l){ return a + l.items.length; }, 0);
+document.documentElement.setAttribute('lang', LANG);
+buildFacets(); drawBase(); applyStaticText(); paint();
+document.getElementById('langbtn').addEventListener('click', function(){
+  setLang(LANG === 'de' ? 'en' : 'de');
+});
+tallyText();
 map.whenReady(function(){ setTimeout(function(){ map.invalidateSize(); }, 60); });
 sheetInit();
 
