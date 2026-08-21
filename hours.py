@@ -33,7 +33,12 @@ GAP = 1.5           # seconds between page fetches
 # ---------------------------------------------------------------- parsing
 
 DAYS = {"mo": 1, "di": 2, "mi": 3, "do": 4, "fr": 5, "sa": 6, "so": 7}
-DAY = r"(?:Mo|Di|Mi|Do|Fr|Sa|So)"
+DAY = r"(?:Mo|Di|Mi|Do|Fr|Sa|So|Feiertag\w*)"
+# fLotte writes day lists with any of these, not just commas:
+#   "Di + Do", "Sa+So", "Mo/Mi/Do", "Di u. Mi", "Mo und Fr"
+# Missing one silently drops a day, and a dropped day reads as CLOSED, which
+# would skip a station that is actually open.
+SEP = r"\s*(?:,|\+|/|&|u\.|und)\s*"
 
 # everything from the holiday clause onward is prose, not a schedule
 TAIL = re.compile(r"[,.;]?\s*\(?\s*(?:außer|ausser)\s+an\s+(?:gesetzl\w*\.?\s*)?Feiertagen\)?",
@@ -44,19 +49,22 @@ VAGUE = re.compile(r"nach\s+(?:vorheriger\s+)?(?:individueller\s+)?(?:telefon\w*
                    r"|auf\s+Anfrage", re.I)
 RANGE = re.compile(r"(\d{1,2})(?::(\d{2}))?\s*[-–]\s*(\d{1,2})(?::(\d{2}))?")
 CLAUSE = re.compile(
-    rf"((?:{DAY}(?:\s*[-–]\s*{DAY})?)(?:\s*,\s*{DAY}(?:\s*[-–]\s*{DAY})?)*)"
+    rf"((?:{DAY}(?:\s*[-–]\s*{DAY})?)(?:{SEP}{DAY}(?:\s*[-–]\s*{DAY})?)*)"
     rf"\s*(?![-–]\s*{DAY})"
     r"((?:\s*\d{1,2}(?::\d{2})?\s*[-–]\s*\d{1,2}(?::\d{2})?(?:\s*(?:\||u\.|und|,)\s*)?)+)",
     re.I)
 
 
 def _expand(token):
-    """'Mo-Fr' -> [1,2,3,4,5];  'Sa' -> [6]"""
-    parts = re.split(r"\s*[-–]\s*", token.strip())
-    a = DAYS[parts[0][:2].lower()]
-    if len(parts) == 1:
+    """'Mo-Fr' -> [1,2,3,4,5];  'Sa' -> [6];  'Feiertag' -> [] (not a weekday)"""
+    parts = [t for t in re.split(r"\s*[-–]\s*", token.strip()) if t]
+    keys = [p[:2].lower() for p in parts]
+    if not keys or keys[0] not in DAYS:          # e.g. "Feiertag" in a day list
+        return []
+    a = DAYS[keys[0]]
+    if len(keys) == 1 or keys[1] not in DAYS:
         return [a]
-    b = DAYS[parts[1][:2].lower()]
+    b = DAYS[keys[1]]
     return list(range(a, b + 1)) if b >= a else list(range(a, 8)) + list(range(1, b + 1))
 
 
@@ -80,7 +88,7 @@ def parse_pickup(text):
     sched = {}
     for clause in CLAUSE.finditer(body):
         days = []
-        for token in re.split(r"\s*,\s*", clause.group(1)):
+        for token in re.split(SEP, clause.group(1)):
             if token.strip():
                 days += _expand(token)
         spans = [[int(a) * 60 + int(b or 0), int(c) * 60 + int(d or 0)]
@@ -94,6 +102,17 @@ def parse_pickup(text):
     for day in sched:
         sched[day].sort()
 
+    # A day named with no clock time, where the text says "by arrangement", is
+    # NOT closed — it is unknown. Leaving it out would make the app treat it as
+    # a shut door and skip real work, so give it an open-ended window and say
+    # the parse is inexact. Absence of data must never read as a closed door.
+    named = _days_named(body)
+    missing = sorted(named - set(sched))
+    if missing and VAGUE.search(body):
+        for day in missing:
+            sched[day] = [[0, 24 * 60]]
+        flags.append("open-ended")
+
     leftover = re.sub(r"(?:Uhr|und|u\.)", "", CLAUSE.sub("", body), flags=re.I)
     leftover = re.sub(r"[\s,;.|()–-]+", "", leftover)
     if leftover and not VAGUE.search(body):
@@ -101,6 +120,18 @@ def parse_pickup(text):
     if not sched:
         flags.append("no-times")
     return sched, flags
+
+
+def _days_named(body):
+    """Every weekday the text mentions, whether or not it got a time."""
+    out = set()
+    for a, b in re.findall(r"(Mo|Di|Mi|Do|Fr|Sa|So)\s*[-–]\s*(Mo|Di|Mi|Do|Fr|Sa|So)", body):
+        x, y = DAYS[a.lower()], DAYS[b.lower()]
+        out |= set(range(x, y + 1)) if y >= x else set(range(x, 8)) | set(range(1, y + 1))
+    rest = re.sub(r"(Mo|Di|Mi|Do|Fr|Sa|So)\s*[-–]\s*(Mo|Di|Mi|Do|Fr|Sa|So)", " ", body)
+    for tok in re.findall(r"\b(Mo|Di|Mi|Do|Fr|Sa|So)\b", rest):
+        out.add(DAYS[tok.lower()])
+    return out
 
 
 # ---------------------------------------------------------------- scraping
@@ -195,6 +226,9 @@ def apply_to_payload():
         loc["hours_text"] = text or None
         sched, flags = parse_pickup(text)
         loc["hours"] = {str(k): v for k, v in sorted(sched.items())} if sched else None
+        # an inexact parse must show her the original German, not a tidy summary
+        loc["hours_exact"] = bool(sched) and not any(
+            f == "open-ended" or f.startswith("residue") for f in flags)
         if sched:
             stats["schedule"] += 1
         elif "by-arrangement" in flags:

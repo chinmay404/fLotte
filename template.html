@@ -160,6 +160,8 @@ svg{display:block}
 .hoursline svg{width:13px;height:13px;flex:none}
 .hoursline.none{color:var(--line-tx,#9AA0A6);font-style:italic}
 .hoursline.shut{color:var(--red);font-weight:500}
+.hoursline.raw{align-items:flex-start;color:var(--sub)}
+.hoursline.raw svg{margin-top:1px}
 .late{color:var(--red);font-weight:500}
 .modeline{display:flex;gap:14px;flex-wrap:wrap;margin:8px 0 0 34px;font-size:12.5px;
   color:var(--sub)}
@@ -907,6 +909,7 @@ en:{
   // modes / hours
   noRoute:'no route', unavailable:'unavailable', notFound:'not found',
   hoursOpen:'open {range}', hoursClosed:'closed today', hoursNone:'hours not published',
+  hoursRaw:'hours: {text}',
   hoursTooLate:' · shut by the time you arrive',
   // board
   departures:'Departures', legInGoogle:'This leg in Google ↗', refresh:'Refresh',
@@ -979,6 +982,7 @@ de:{
   tryAgain:'Erneut versuchen',
   noRoute:'keine Verbindung', unavailable:'nicht verfügbar', notFound:'nicht gefunden',
   hoursOpen:'offen {range}', hoursClosed:'heute geschlossen', hoursNone:'keine Öffnungszeiten angegeben',
+  hoursRaw:'Zeiten: {text}',
   hoursTooLate:' · bei deiner Ankunft geschlossen',
   departures:'Abfahrten', legInGoogle:'Diese Etappe in Google ↗', refresh:'Aktualisieren',
   boardWalk:'Zu Fuß', boardBike:'Mit dem Rad',
@@ -2192,6 +2196,12 @@ function optHTML(o, n){
            they belong on the card — and "not published" is said out loud
            rather than left blank, which would read as "open". */
         if(isAdhoc(loc)) return '<div class="hoursline none">' + T('adhocNoHours') + '</div>';
+        /* When the German did not parse cleanly — alternating shifts, "see the
+           notice on site", a day that is only by arrangement — show her the
+           original words instead of a tidy summary that would hide the caveat. */
+        if(loc.hours && loc.hours_exact === false && loc.hours_text)
+          return '<div class="hoursline raw">' + IC.clock +
+            T('hoursRaw', {text: esc(loc.hours_text.slice(0, 120))}) + '</div>';
         var lbl = hoursLabel(loc, depBaseMs());
         if(lbl === null) return '<div class="hoursline none">' + T('hoursNone') + '</div>';
         var shut = lbl === T('hoursClosed');
