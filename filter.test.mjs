@@ -8,7 +8,7 @@ const { ok, done } = harness('filter');
 const P = payload();
 
 const sb = sandbox(
-  ['haystack', 'itemPasses', 'locPasses', 'eligible', 'filtersActive', 'eligibleItems',
+  ['haystack', 'isAdhoc', 'itemPasses', 'locPasses', 'eligible', 'filtersActive', 'eligibleItems',
    'valuesFor', 'countFor'],
   { LOCATIONS: P.locations },
   chunk(/var ITEM_FACETS = \[[\s\S]*?filters\[f\.key\] = new Set\(\); \}\);/, 'facets'));

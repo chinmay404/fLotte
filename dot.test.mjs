@@ -34,8 +34,8 @@ const db = fn('drawBase');
 ok(/bindTooltip\(tipHTML\(loc, null\)/.test(db), 'drawBase binds the tooltip to a dot');
 ok(/radius: 13/.test(db), 'a padded hit target exists — 3.5px is not a thumb target');
 ok(/fillOpacity:0/.test(db), 'the hit target is invisible');
-ok(/if\(!picking\) hit\.openTooltip\(\)/.test(db),
-  '"Choose on map" still wins: a dot tap can set the start point');
+ok(/if\(!picking && !addingStop\) hit\.openTooltip\(\)/.test(db),
+  'arming the map for a start point or a new stop still wins over the tooltip');
 ok(!/bubblingMouseEvents\s*:\s*false/.test(db),
   'dot events keep bubbling so the map pick handler still fires');
 ok(/interactive:false/.test(db), 'the drawn dot stays inert; the halo takes the events');

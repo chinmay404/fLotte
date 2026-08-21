@@ -12,14 +12,15 @@ const sb = sandbox(
    'defectiveAt', 'defectStations', 'tourRemaining', 'roundCosting', 'costingLabel',
    'transitSec', 'timeFor', 'bestMode', 'orderModeMismatch', 'missionHTML'],
   {
-    IC: { wrench: '<svg viewBox="0 0 24 24"><path d="M4 12h16"/></svg>' },
+    IC: { wrench: '<svg viewBox="0 0 24 24"><path d="M4 12h16"/></svg>',
+              pin: '<svg viewBox="0 0 24 24"><path d="M12 2v20"/></svg>' },
     LOCATIONS: [
       { _i: 0, location_name: 'Station A', items: [{ id: 1 }, { id: 2 }, { id: 3 }] },
       { _i: 1, location_name: 'Station B', items: [{ id: 4 }, { id: 5 }] },
       { _i: 2, location_name: 'Station C', items: [{ id: 6 }] },
     ],
     defects: new Set([1, 2, 3, 4, 5, 6]), repaired: new Set(),
-    mission: true, tour: null, trip: [], options: [], modePref: 'bike',
+    mission: true, addingStop: false, tour: null, trip: [], options: [], modePref: 'bike',
     Date: class extends Date {
       constructor(...a) {
         return a.length ? new (Date.bind.apply(Date, [null, ...a]))() : new Date(clockMs);

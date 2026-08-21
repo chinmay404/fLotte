@@ -222,6 +222,10 @@ kbd{font-size:10.5px;border:1px solid var(--line);border-bottom-width:2px;border
 .mission b{font-weight:500}
 .mission .link{margin-left:auto;color:var(--red)}
 .mission .link:hover{background:rgba(217,48,37,.08)}
+.mission .addstop{margin-left:auto;display:inline-flex;align-items:center;gap:5px}
+.mission .addstop svg{width:13px;height:13px;color:currentColor}
+.mission .addstop + .link{margin-left:0}
+.mission .addstop.on{background:var(--red);color:#fff}
 /* always its own row: the main line is crowded enough */
 .mission > .ordernote{flex:1 0 100%;padding-top:2px;font-size:12px;color:var(--sub)}
 .mission > .ordernote b{color:var(--ink)}
@@ -758,6 +762,7 @@ var scanInfo = null;      // last transit scan: {ok, added}
 var expanded = null;
 var modePref = 'best';    // best | walk | bike | transit
 var busy = false, token = 0, picking = false;
+var addingStop = false;   // map click adds an off-map repair stop
 var ANIM = true, BOARD_ANIM = true, lastAnimToken = -1, lastExpanded = null;
 var view = 'plan';        // plan | catalogue
 var farKm = null;         // set when the start point is suspiciously far from every station
@@ -774,6 +779,75 @@ function saveDefects(){
     localStorage.setItem('flotte-defects', JSON.stringify(Array.from(defects)));
     localStorage.setItem('flotte-repaired', JSON.stringify(Array.from(repaired)));
   }catch(e){}
+}
+/* ---- stops that are not fLotte stations --------------------------------
+   A bike can be too broken to return to its station, so the repair happens
+   wherever it actually is. LOCATIONS[i] is the universal key everywhere — the
+   tour order, the option cards, the map layers — so an ad-hoc stop is modelled
+   as a synthetic station holding one synthetic flagged bike. Everything
+   downstream then works untouched: defectStations, tourRemaining, the Done
+   button, the solver, the map.
+
+   Item ids are NEGATIVE integers. The click handlers coerce data-done with a
+   unary +, so a string id would arrive as NaN, and negatives cannot collide
+   with fLotte's WordPress post ids.
+
+   Nothing is ever spliced out of LOCATIONS during a session: that would shift
+   every _i after it and silently corrupt tour.order and trip[].i. A finished
+   stop simply stops being flagged, and is not restored on the next load. */
+var adhocSeq = 0;
+function isAdhoc(loc){ return !!(loc && loc.adhoc); }
+function adhocStations(){ return LOCATIONS.filter(isAdhoc); }
+function makeAdhoc(lat, lon, label, id){
+  adhocSeq = Math.min(adhocSeq, id || 0) - (id ? 0 : 1);
+  var iid = id || adhocSeq;
+  return {
+    location_name: label, street: T('adhocSub'), zip: '', city: '',
+    district: [], region: [], lat: lat, lon: lon,
+    closed_days: false, hours: null, hours_text: null,   // no door, so always open
+    adhoc: true,
+    items: [{id: iid, name: label, short_desc: '', status: 'adhoc', thumbnail: null,
+             type: [], drive: [], features: [], project: [],
+             district: [], region: [], timeframes: [], adhoc: true}]
+  };
+}
+function saveAdhoc(){
+  try{
+    // only stops with work outstanding are worth carrying to the next session
+    var keep = adhocStations().filter(function(l){ return defectiveAt(l).length; })
+      .map(function(l){
+        return {id: l.items[0].id, lat: l.lat, lon: l.lon, label: l.location_name};
+      });
+    localStorage.setItem('flotte-adhoc', JSON.stringify(keep));
+  }catch(e){}
+}
+/* Must run BEFORE _i is handed out at boot, or the indices shift under us. */
+function restoreAdhoc(){
+  var rows = [];
+  try{ rows = JSON.parse(localStorage.getItem('flotte-adhoc') || '[]'); }catch(e){}
+  if(!Array.isArray(rows)) return;
+  rows.forEach(function(r){
+    if(typeof r.lat !== 'number' || typeof r.lon !== 'number') return;
+    var id = typeof r.id === 'number' && r.id < 0 ? r.id : null;
+    var loc = makeAdhoc(r.lat, r.lon, String(r.label || T('adhocDefault')), id);
+    if(id != null) adhocSeq = Math.min(adhocSeq, id);
+    LOCATIONS.push(loc);
+    defects.add(loc.items[0].id);        // it only persisted because it was flagged
+  });
+}
+function addAdhocAt(lat, lon){
+  var label = String(prompt(T('adhocPrompt'), T('adhocDefault')) || '').trim();
+  addingStop = false;
+  if(!label){ drawBase(); paint(); return; }
+  var loc = makeAdhoc(lat, lon, label);
+  loc._i = LOCATIONS.length;
+  LOCATIONS.push(loc);
+  defects.add(loc.items[0].id);
+  saveDefects(); saveAdhoc();
+  if(!mission) mission = true;
+  view = 'plan';
+  drawBase();
+  if(trip.length) nextHop(); else paint();
 }
 function defectiveAt(loc){
   return loc.items.filter(function(it){ return defects.has(it.id); });
@@ -855,7 +929,11 @@ en:{
   cargoBike:'cargo bike', done:'Done',
   buried:{one:'<b>1</b> flagged bike hidden by the current filter — still counted in the round.',
           other:'<b>{n}</b> flagged bikes hidden by the current filter — still counted in the round.'},
-  roadDown:'Road routing is unavailable right now ({status}). '
+  roadDown:'Road routing is unavailable right now ({status}). ',
+  addStop:'Add a stop', addStopArmed:'Tap the map…', addStopCancel:'Cancel',
+  adhocPrompt:'What is at this stop?', adhocDefault:'Stranded bike',
+  adhocSub:'added by you — not a fLotte station',
+  adhocNoHours:'no fixed hours'
 },
 de:{
   tally:'<b id="t-stations">{st}</b> Standorte · <b id="t-bikes">{bk}</b> freie Lastenräder',
@@ -922,7 +1000,11 @@ de:{
   cargoBike:'Lastenrad', done:'Fertig',
   buried:{one:'<b>1</b> gemeldetes Rad ist durch den Filter verborgen — zählt weiter zur Runde.',
           other:'<b>{n}</b> gemeldete Räder sind durch den Filter verborgen — zählen weiter zur Runde.'},
-  roadDown:'Die Straßen-Routenberechnung ist gerade nicht verfügbar ({status}). '
+  roadDown:'Die Straßen-Routenberechnung ist gerade nicht verfügbar ({status}). ',
+  addStop:'Stopp hinzufügen', addStopArmed:'Auf die Karte tippen…', addStopCancel:'Abbrechen',
+  adhocPrompt:'Was ist an diesem Stopp?', adhocDefault:'Liegengebliebenes Rad',
+  adhocSub:'von dir hinzugefügt — kein fLotte-Standort',
+  adhocNoHours:'keine festen Zeiten'
 }
 };
 /* ---------- language ----------
@@ -961,7 +1043,9 @@ function T(key, p){
 function tallyText(){
   var el = document.querySelector('.tally');
   if(!el) return;
-  el.innerHTML = T('tally', {st: eligible().length, bk: eligibleItems().length});
+  el.innerHTML = T('tally', {
+    st: eligible().filter(function(l){ return !isAdhoc(l); }).length,
+    bk: eligibleItems().filter(function(r){ return !r.it.adhoc; }).length});
 }
 function applyStaticText(){
   var set = function(sel, txt){
@@ -1038,6 +1122,7 @@ function haystack(loc){
   return loc._hay;
 }
 function itemPasses(it, skip){
+  if(it.adhoc) return true;              // a stranded bike has no catalogue facets
   for(var i=0;i<ITEM_FACETS.length;i++){
     var k = ITEM_FACETS[i].key;
     if(k === skip) continue;
@@ -1048,6 +1133,8 @@ function itemPasses(it, skip){
 }
 function locPasses(loc, skip){
   if(filters.q && haystack(loc).indexOf(filters.q) === -1) return false;
+  // searchable by name, but never filtered away by a facet she did not set on it
+  if(isAdhoc(loc)) return true;
   if(skip !== 'district' && filters.district.size &&
      !loc.district.some(function(d){ return filters.district.has(d); })) return false;
   if(skip !== 'region' && filters.region.size &&
@@ -1182,6 +1269,7 @@ function drawBase(){
   if(trip.length && view === 'plan') return;
   eligible().forEach(function(loc){
     var bad = defectiveAt(loc).length > 0;
+    if(isAdhoc(loc) && !bad) return;      // dealt with: it stops being a place
     var hot = bad && (mission || view === 'catalogue');
     if(mission && view === 'plan' && !bad) return;   // round prep: flagged only
     /* A dot is the only thing on screen for ~245 stations, so it has to answer
@@ -1205,7 +1293,7 @@ function drawBase(){
     /* Events keep bubbling to the map on purpose: while "Choose on map" is
        armed, a tap on a dot must still set the start point, and map's own
        handler already ignores clicks when it is not. */
-    hit.on('click', function(){ if(!picking) hit.openTooltip(); });
+    hit.on('click', function(){ if(!picking && !addingStop) hit.openTooltip(); });
     dots.addLayer(hit);
   });
 }
@@ -1930,7 +2018,7 @@ function exitMission(){
 function markRepaired(id){
   defects.delete(id);
   repaired.add(id);
-  saveDefects();
+  saveDefects(); saveAdhoc();
   var loc = LOCATIONS.filter(function(l){
     return l.items.some(function(it){ return it.id === id; });
   })[0];
@@ -2103,6 +2191,7 @@ function optHTML(o, n){
         /* Hours are the reason a nearer station can be the wrong next stop, so
            they belong on the card — and "not published" is said out loud
            rather than left blank, which would read as "open". */
+        if(isAdhoc(loc)) return '<div class="hoursline none">' + T('adhocNoHours') + '</div>';
         var lbl = hoursLabel(loc, depBaseMs());
         if(lbl === null) return '<div class="hoursline none">' + T('hoursNone') + '</div>';
         var shut = lbl === T('hoursClosed');
@@ -2202,6 +2291,8 @@ function missionHTML(){
     T('roundLeft', {bikes: T('nBikes', {n: bikes}),
                     stations: T('nStations', {n: left.length})}) + plan +
     (repaired.size ? T('nRepaired', {n: repaired.size}) : '') + '</span>' +
+    '<button class="link addstop' + (addingStop ? ' on' : '') + '" type="button" ' +
+      'id="addstop">' + IC.pin + (addingStop ? T('addStopArmed') : T('addStop')) + '</button>' +
     '<button class="link" type="button" id="exitm">' + T('exit') + '</button>' +
     (function(){
       var out = tour && tour.dropped && tour.dropped.length ? tour.dropped : null;
@@ -2549,6 +2640,13 @@ function wireList(){
   var flow = document.getElementById('flow');
   var el;
   if((el = document.getElementById('exitm'))) el.addEventListener('click', exitMission);
+  if((el = document.getElementById('addstop'))) el.addEventListener('click', function(){
+    addingStop = !addingStop;
+    picking = false;
+    map.getContainer().style.cursor = addingStop ? 'crosshair' : '';
+    if(addingStop) sheetTo('peek');       // she needs to see the map to tap it
+    paint();
+  });
   if((el = document.getElementById('back')))  el.addEventListener('click', back);
   if((el = document.getElementById('reset'))) el.addEventListener('click', reset);
   if((el = document.getElementById('copy')))  el.addEventListener('click', copyPlan);
@@ -2616,6 +2714,7 @@ function wireList(){
 }
 
 map.on('click', function(e){
+  if(addingStop){ addAdhocAt(e.latlng.lat, e.latlng.lng); return; }
   if(!picking) return;
   start(e.latlng.lat, e.latlng.lng, T('chosenPoint'));
 });
@@ -2692,6 +2791,7 @@ qEl.addEventListener('input', function(){
 });
 
 /* ---------- boot ---------- */
+restoreAdhoc();                 // append before any _i is handed out
 LOCATIONS.forEach(function(l, i){ l._i = i; });
 document.documentElement.setAttribute('lang', LANG);
 buildFacets(); drawBase(); applyStaticText(); paint();

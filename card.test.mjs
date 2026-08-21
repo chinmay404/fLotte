@@ -9,7 +9,7 @@ const BASE = Date.parse('2026-08-17T10:00:00Z');
 
 const sb = sandbox(
   ['esc', 'safeColor', 'mins', 'km', 'clock', 'inMin', 'transitSec', 'timeFor',
-   'bestMode', 'stripHTML', 'hintHTML', 'depHTML', 'mv', 'thumbOK', 'hoursToday', 'windowsFor', 'windowsCover',
+   'bestMode', 'stripHTML', 'hintHTML', 'depHTML', 'mv', 'thumbOK', 'isAdhoc', 'hoursToday', 'windowsFor', 'windowsCover',
    'hoursLabel', 'hhmmOf', 'optHTML'],
   {
     IC: { walk: '<ICON-walk>', bike: '<ICON-bike>', tram: '<ICON-tram>', right: '<ICON-right>',

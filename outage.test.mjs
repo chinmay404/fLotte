@@ -12,7 +12,7 @@ let responder = null;
 const sb = sandbox(
   ['esc', 'safeColor', 'mins', 'km', 'clock', 'inMin', 'sleep', 'here', 'fetchT',
    'transitFor', 'transitSec', 'timeFor', 'bestMode', 'stripHTML', 'hintHTML',
-   'depHTML', 'mv', 'thumbOK', 'hoursToday', 'windowsFor', 'windowsCover',
+   'depHTML', 'mv', 'thumbOK', 'isAdhoc', 'hoursToday', 'windowsFor', 'windowsCover',
    'hoursLabel', 'hhmmOf', 'optHTML'],
   {
     VBB: 'https://vbb.test', ALTS: 3, VBB_TIMEOUT: 50,
