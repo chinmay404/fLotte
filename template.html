@@ -1596,6 +1596,37 @@ function previewOf(i){
    FASTER than the real ride is the dangerous kind — it sends her to a station
    she cannot actually reach before it shuts. Apply the detour factor and label
    every number it produces as an estimate. */
+/* ---- the precomputed station matrix -------------------------------------
+   After the first hop every node in the round's matrix is one of the 250 known
+   stations, so that matrix is fixed and ships in the payload as packed uint16
+   seconds. It makes the visiting order independent of any live routing service
+   — which matters, because the one we use has been down twice this month.
+
+   Decoded lazily: 250x250x2 is half a megabyte of typed array, and someone who
+   never starts a round should not pay for it. 65535 means unreachable. */
+var MATRIX = PAYLOAD.matrix || null;
+var matCache = {};
+function matrixFor(costing){
+  if(!MATRIX || !MATRIX[costing]) return null;
+  if(matCache[costing]) return matCache[costing];
+  try{
+    var bin = atob(MATRIX[costing]);
+    var out = new Uint16Array(bin.length / 2);
+    for(var i = 0; i < out.length; i++)
+      out[i] = bin.charCodeAt(i*2) | (bin.charCodeAt(i*2 + 1) << 8);
+    matCache[costing] = out;
+    return out;
+  }catch(e){ return null; }
+}
+/* Seconds between two stations, or null when we have no answer for that pair. */
+function matrixSec(costing, a, b){
+  var t = matrixFor(costing);
+  if(!t || a == null || b == null) return null;
+  var n = MATRIX.n;
+  if(a < 0 || b < 0 || a >= n || b >= n) return null;   // an ad-hoc stop is not in it
+  var v = t[a * n + b];
+  return v >= 65535 ? null : v;
+}
 var DETOUR = 1.3;
 var ROAD_SPD = {pedestrian: 750, bicycle: 240};   // seconds per km
 var roadEstimated = false;   // the whole list is straight-line right now
@@ -1847,8 +1878,26 @@ async function ensureTour(my){
   }
   var pts = [{lat:here().lat, lon:here().lon}].concat(
     rem.map(function(l){ return {lat:l.lat, lon:l.lon}; }));
-  var mat = null, estimated = false;
-  if(pts.length <= TOUR_MAX + 1){
+  /* node 0 is where she is now: a station from hop 2 onward, and then the whole
+     matrix is station-to-station and already in the payload */
+  var idx = [here().i == null ? null : here().i].concat(
+    rem.map(function(l){ return l._i; }));
+  var mat = null, estimated = false, offline = false;
+  if(MATRIX && idx.every(function(k){ return k != null && k < MATRIX.n; })){
+    var m2 = [], ok = true;
+    for(var a2 = 0; a2 < idx.length && ok; a2++){
+      var row = [];
+      for(var b2 = 0; b2 < idx.length; b2++){
+        if(a2 === b2){ row.push(0); continue; }
+        var v2 = matrixSec(costing, idx[a2], idx[b2]);
+        if(v2 == null){ ok = false; break; }
+        row.push(v2);
+      }
+      m2.push(row);
+    }
+    if(ok){ mat = m2; offline = true; }
+  }
+  if(!mat && pts.length <= TOUR_MAX + 1){
     try{
       var r = await fetchT(VALHALLA, {
         method:'POST', headers:{'Content-Type':'application/json'},
@@ -1920,7 +1969,7 @@ async function ensureTour(my){
       });
       return out;
     })() : null,
-    timed: timed, baseMs: baseMs,
+    timed: timed, baseMs: baseMs, offline: offline,
     altTotals: altTotals,
     estimated: estimated, costing: costing, legShapes: prevShapes
   };
@@ -2998,7 +3047,10 @@ window.__flotte = {
                 best: timeFor(o, 'best'), transit: timeFor(o, 'transit')};
       }),
       tour: tour ? {order: tour.order, totalSec: tour.totalSec, estimated: tour.estimated,
-                    costing: tour.costing} : null,
+                    costing: tour.costing, offline: !!tour.offline,
+                    dropped: tour.dropped || []} : null,
+      matrix: MATRIX ? {n: MATRIX.n, decoded: Object.keys(matCache)} : null,
+      roadEstimated: roadEstimated,
       lineCounts: {trip: tripLines.getLayers().length,
                    tour: tourLines.getLayers().length,
                    preview: lines.getLayers().length},
