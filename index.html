@@ -1134,6 +1134,23 @@ function esc(s){
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
   });
 }
+/* VBB sends line colours; BVG sends none. With no colour every leg fell back
+   to the same navy, so a U8 and an S7 were drawn identically and a change of
+   vehicle was invisible — on the map and in the line badges alike.
+
+   These are distinguishing colours, not Berlin's official line liveries: we
+   cannot fetch those, and inventing an "official" colour that is wrong would be
+   worse than an obviously arbitrary one. Same line name always gets the same
+   colour, so the badge in the list and the line on the map agree. */
+var LINE_COLORS = ['#0067AC','#BE1414','#7B2E8E','#00808C','#EE7400',
+                   '#3F51B5','#C2185B','#6B7A00','#8B5A2B','#1B7F79'];
+function lineColor(name, given){
+  var ok = safeColor(given, null);
+  if(ok) return ok;                       // trust the operator when it tells us
+  var s2 = String(name || ''), h = 0;
+  for(var i = 0; i < s2.length; i++) h = (h * 31 + s2.charCodeAt(i)) >>> 0;
+  return LINE_COLORS[h % LINE_COLORS.length];
+}
 function safeColor(c, fb){ return /^#[0-9a-fA-F]{3,8}$/.test(String(c)) ? c : fb; }
 function mins(sec){
   if(sec == null) return '—';
@@ -1470,17 +1487,29 @@ function drawJourney(legs, fallbackTo){
   lines.clearLayers();
   if(!trip.length) return;
   var from = here(), cursor = [from.lat, from.lon];
+  var prevCol = null, prevEnd = null;
   (legs || []).forEach(function(leg){
     var real = leg.shape && leg.shape.length > 1;
     var pts = real ? leg.shape
             : [cursor, leg.endLat != null ? [leg.endLat, leg.endLon] : fallbackTo];
     if(!pts || pts.length < 2) return;
     if(real){
-      lines.addLayer(leg.walking
-        ? L.polyline(pts, {color:'#57A300', weight:4, dashArray:'1 8', opacity:.9, lineCap:'round'})
-        : L.polyline(pts, {color: safeColor(leg.bg, '#004B7C'), weight:5, opacity:.95}));
+      if(leg.walking){
+        lines.addLayer(L.polyline(pts,
+          {color:'#57A300', weight:4, dashArray:'1 8', opacity:.9, lineCap:'round'}));
+      }else{
+        var col = lineColor(leg.line, leg.bg);
+        // two lines that hash alike would hide the change; nudge the second
+        if(col === prevCol)
+          col = LINE_COLORS[(LINE_COLORS.indexOf(col) + 3) % LINE_COLORS.length];
+        lines.addLayer(L.polyline(pts, {color: col, weight:5, opacity:.95}));
+        // where she gets off one vehicle and onto the next
+        if(prevEnd) lines.addLayer(L.circleMarker(prevEnd,
+          {radius:6, color:'#fff', weight:2.5, fillColor:'#202124', fillOpacity:1}));
+        prevCol = col; prevEnd = pts[pts.length-1];
+      }
     }else{
-      // VBB gave us the leg but no geometry: show the hop, not a fake track
+      // the leg exists but has no geometry: show the hop, not a fake track
       lines.addLayer(crowLine(pts[0], pts[1]));
     }
     cursor = pts[pts.length-1];
@@ -1537,7 +1566,8 @@ function drawTripLines(){
         if(leg.shape && leg.shape.length > 1){
           tripLines.addLayer(leg.walking
             ? L.polyline(leg.shape, {color:'#57A300', weight:3.5, dashArray:'1 7', opacity:.75, lineCap:'round'})
-            : L.polyline(leg.shape, {color: safeColor(leg.bg, '#004B7C'), weight:4, opacity:.8}));
+            : L.polyline(leg.shape,
+                {color: lineColor(leg.line, leg.bg), weight:4, opacity:.8}));
         }
       });
     }else if(s.shape && s.shape.length > 1){
@@ -2369,7 +2399,7 @@ function stripHTML(legs, depIso){
       else if(!n || n === legs.length-1) bits.push('<span>' + IC.walk + '</span>');
       else bits.pop();
     }else{
-      bits.push('<span class="lb" style="background:' + safeColor(L.bg, '#004B7C') +
+      bits.push('<span class="lb" style="background:' + lineColor(L.line, L.bg) +
         ';color:' + safeColor(L.fg, '#fff') + '">' + esc(L.line || '?') + '</span>');
     }
   });

@@ -2,13 +2,13 @@
    comparing view. Before this was enforced, every card listed walk + bike +
    transit at once with a faint tint on the active one, so picking Walk still
    showed you three routes.  Run: node card.test.mjs                           */
-import { fn, engineSrc, sandbox, harness, i18nSrc } from './testkit.mjs';
+import { fn, engineSrc, sandbox, harness, i18nSrc, chunk as chunkOf } from './testkit.mjs';
 
 const { ok, done } = harness('card');
 const BASE = Date.parse('2026-08-17T10:00:00Z');
 
 const sb = sandbox(
-  ['esc', 'safeColor', 'mins', 'km', 'clock', 'inMin', 'transitSec', 'timeFor',
+  ['esc', 'safeColor', 'lineColor', 'mins', 'km', 'clock', 'inMin', 'transitSec', 'timeFor',
    'bestMode', 'stripHTML', 'hintHTML', 'depHTML', 'mv', 'thumbOK', 'isAdhoc', 'hoursToday', 'windowsFor', 'windowsCover',
    'hoursLabel', 'hhmmOf', 'optHTML'],
   {
@@ -23,7 +23,7 @@ const sb = sandbox(
     defects: new Set(), repaired: new Set(), badThumb: {},
     mission: false, tour: null, ANIM: false, BOARD_ANIM: false,
     expanded: null, modePref: 'best', Date,
-  }, engineSrc() + '\n' + i18nSrc());
+  }, engineSrc() + '\n' + i18nSrc() + '\n' + chunkOf(/var LINE_COLORS = \[[\s\S]*?\];/, 'palette'));
 
 const journey = {
   dep: '2026-08-17T10:05:00Z', arr: '2026-08-17T10:20:00Z',

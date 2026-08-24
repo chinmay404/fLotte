@@ -10,7 +10,7 @@ let calls = [];
 let responder = null;
 
 const sb = sandbox(
-  ['esc', 'safeColor', 'mins', 'km', 'clock', 'inMin', 'sleep', 'here', 'fetchT',
+  ['esc', 'safeColor', 'lineColor', 'mins', 'km', 'clock', 'inMin', 'sleep', 'here', 'fetchT',
    'vbbGet', 'transitFor', 'transitSec', 'timeFor', 'bestMode', 'stripHTML', 'hintHTML',
    'depHTML', 'mv', 'thumbOK', 'isAdhoc', 'hoursToday', 'windowsFor', 'windowsCover',
    'hoursLabel', 'hhmmOf', 'optHTML'],
@@ -32,7 +32,7 @@ const sb = sandbox(
     // a real fetch honours the abort signal; so must this one
     fetch: (url, o) => { calls.push(url); return responder(url, o); },
     AbortController, setTimeout, clearTimeout, Date,
-  }, engineSrc() + '\n' + i18nSrc());
+  }, engineSrc() + '\n' + i18nSrc() + '\n' + chunkOf(/var LINE_COLORS = \[[\s\S]*?\];/, 'palette'));
 
 const res = (status, body) => Promise.resolve({
   ok: status >= 200 && status < 300, status, json: () => Promise.resolve(body),
@@ -132,6 +132,34 @@ const card = transit => {
   ok(/kind:'down'\}/.test(loop), 'skipped stations are marked down, not left pending');
   ok(/scanInfo && !scanInfo\.ok/.test(TEMPLATE),
     'a failed transit scan is surfaced, not silently dropped');
+}
+
+/* ---- a change of vehicle must be visible ---- */
+{
+  // BVG sends no line colours at all, so everything fell back to one navy
+  ok(sb.lineColor('U8', null) !== sb.lineColor('S7', null),
+    'two different lines get two different colours when none is supplied',
+    [sb.lineColor('U8', null), sb.lineColor('S7', null)]);
+  ok(sb.lineColor('U8', null) === sb.lineColor('U8', null),
+    'and the same line always gets the same one, so map and badge agree');
+  ok(sb.lineColor('U8', '#ABCDEF') === '#ABCDEF',
+    'an operator-supplied colour is trusted over ours');
+  ok(sb.lineColor('U8', 'not-a-colour') === sb.lineColor('U8', null),
+    'and junk falls through to ours rather than into the CSS');
+  ok(/^#[0-9A-Fa-f]{6}$/.test(sb.lineColor('', null)), 'even a nameless line gets a colour');
+
+  const jr = fn('drawJourney');
+  ok(/lineColor\(leg\.line, leg\.bg\)/.test(jr), 'the map colours each leg by its line');
+  ok(/if\(col === prevCol\)/.test(jr),
+    'and nudges a collision so two adjacent lines never look identical');
+  ok(/L\.circleMarker\(prevEnd/.test(jr),
+    'an interchange is marked where one vehicle ends and the next begins');
+  ok(/if\(prevEnd\)/.test(jr),
+    'but not before the first vehicle, where there is nothing to change from');
+  ok(/leg\.walking/.test(jr), 'walking legs stay green and dashed, not line-coloured');
+
+  ok(/lineColor\(L\.line, L\.bg\)/.test(fn('stripHTML')),
+    'the badges in the list use the same colour as the map');
 }
 
 /* ---- failover between the two deployments ---- */
