@@ -954,7 +954,8 @@ en:{
           other:'<b>{n}</b> flagged bikes hidden by the current filter — still counted in the round.'},
   roadDown:'Road routing is unavailable right now ({status}).',
   roadTimeout:'Road routing did not answer in time. It is a free public service and is overloaded at the moment — walking and cycling times need it, so try again in a minute.',
-  roadNet:'Could not reach the road routing service. Check your connection and try again.',
+  roadNet:'Could not reach the road routing service — it may be down.',
+  roadEst:'Road routing is down, so these are straight-line estimates, not real cycling or walking routes. The order and the opening hours still hold; the times will be rough.',
   addStop:'Add a stop', addStopArmed:'Tap the map…', addStopCancel:'Cancel',
   adhocPrompt:'What is at this stop?', adhocDefault:'Stranded bike',
   adhocSub:'added by you — not a fLotte station',
@@ -1030,7 +1031,8 @@ de:{
           other:'<b>{n}</b> gemeldete Räder sind durch den Filter verborgen — zählen weiter zur Runde.'},
   roadDown:'Die Straßen-Routenberechnung ist gerade nicht verfügbar ({status}).',
   roadTimeout:'Die Straßen-Routenberechnung hat nicht rechtzeitig geantwortet. Sie ist ein kostenloser öffentlicher Dienst und gerade überlastet — Zeiten zu Fuß und mit dem Rad brauchen sie, versuche es in einer Minute erneut.',
-  roadNet:'Die Straßen-Routenberechnung war nicht erreichbar. Prüfe deine Verbindung und versuche es erneut.',
+  roadNet:'Die Straßen-Routenberechnung war nicht erreichbar — sie ist möglicherweise ausgefallen.',
+  roadEst:'Die Straßen-Routenberechnung ist ausgefallen — das sind Luftlinien-Schätzungen, keine echten Rad- oder Fußwege. Reihenfolge und Öffnungszeiten stimmen weiterhin, die Zeiten sind ungefähr.',
   addStop:'Stopp hinzufügen', addStopArmed:'Auf die Karte tippen…', addStopCancel:'Abbrechen',
   adhocPrompt:'Was ist an diesem Stopp?', adhocDefault:'Liegengebliebenes Rad',
   adhocSub:'von dir hinzugefügt — kein fLotte-Standort',
@@ -1589,6 +1591,22 @@ function previewOf(i){
 }
 
 /* ---------- routing ---------- */
+/* Straight-line fallback for when the road router is down. Berlin street
+   distance runs ~1.3x the crow-flies distance, and an estimate that reads
+   FASTER than the real ride is the dangerous kind — it sends her to a station
+   she cannot actually reach before it shuts. Apply the detour factor and label
+   every number it produces as an estimate. */
+var DETOUR = 1.3;
+var ROAD_SPD = {pedestrian: 750, bicycle: 240};   // seconds per km
+var roadEstimated = false;   // the whole list is straight-line right now
+function beelineKm(aLat, aLon, bLat, bLon){
+  return FlotteEngine.haversineKm(aLat, aLon, bLat, bLon) * DETOUR;
+}
+function beelineSec(aLat, aLon, bLat, bLon, costing){
+  return Math.round(beelineKm(aLat, aLon, bLat, bLon) *
+                    (ROAD_SPD[costing] || ROAD_SPD.bicycle));
+}
+
 /* fetch has no default timeout, and an overloaded VBB or Valhalla holds the
    socket open for 30s+ before answering 503. Three retries across five
    stations is then minutes of "Checking departures…" on a phone at a
@@ -1847,9 +1865,8 @@ async function ensureTour(my){
   }
   if(my !== token) return;
   // fill gaps (or the whole matrix) from beeline estimates, honestly labelled
-  var spd = costing === 'pedestrian' ? 750 : 240;   // sec per km
   function est(a, b){
-    return Math.round(FlotteEngine.haversineKm(pts[a].lat, pts[a].lon, pts[b].lat, pts[b].lon) * spd);
+    return beelineSec(pts[a].lat, pts[a].lon, pts[b].lat, pts[b].lon, costing);
   }
   if(!mat){
     estimated = true;
@@ -1962,13 +1979,26 @@ async function nextHop(){
   if(mission){ await ensureTour(my); if(my !== token) return; }
 
   var walk, bike;
+  roadEstimated = false;
   try{
     var pair = await Promise.all([matrix('pedestrian', pool), matrix('bicycle', pool)]);
     walk = pair[0]; bike = pair[1];
   }catch(e){
     if(my !== token) return;
-    busy = false; paint(e.message);
-    return;
+    /* The road router being down must not empty the screen. Everything else
+       still works — which bikes are flagged, where they are, the visiting
+       order, opening hours — so fall back to straight-line estimates and say
+       so, rather than showing her an error and nothing to act on. */
+    roadEstimated = true;
+    var f = here();
+    walk = pool.map(function(l){
+      return {sec: beelineSec(f.lat, f.lon, l.lat, l.lon, 'pedestrian'),
+              km: beelineKm(f.lat, f.lon, l.lat, l.lon)};
+    });
+    bike = pool.map(function(l){
+      return {sec: beelineSec(f.lat, f.lon, l.lat, l.lon, 'bicycle'),
+              km: beelineKm(f.lat, f.lon, l.lat, l.lon)};
+    });
   }
   if(my !== token) return;
 
@@ -2637,6 +2667,10 @@ function paint(errMsg){
   }
   // a failed reachable-from silently drops the stations only transit serves
   // well, which is the whole reason the scan exists — do not hide that
+  if(roadEstimated && options.length){
+    html += '<div class="mission">' + IC.route + '<span>' + T('roadEst') + '</span>' +
+      '<button class="link" id="roadretry" type="button">' + T('tryAgain') + '</button></div>';
+  }
   if(scanInfo && !scanInfo.ok && !mission){
     html += '<div class="mission">' + IC.tram + '<span>' + T('scanFailed') + '</span>' +
       '<button class="link" id="rescan" type="button">' + T('tryAgain') + '</button></div>';
@@ -2779,6 +2813,7 @@ function wireList(){
   if((el = document.getElementById('gmaps'))) el.addEventListener('click', openGmaps);
   if((el = document.getElementById('retry'))) el.addEventListener('click', nextHop);
   if((el = document.getElementById('rescan'))) el.addEventListener('click', nextHop);
+  if((el = document.getElementById('roadretry'))) el.addEventListener('click', nextHop);
   if((el = document.getElementById('farfix'))) el.addEventListener('click', reset);
   Array.prototype.forEach.call(flow.querySelectorAll('[data-mode]'), function(t){
     t.addEventListener('click', function(){
