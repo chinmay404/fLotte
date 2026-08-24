@@ -238,7 +238,7 @@ kbd{font-size:10.5px;border:1px solid var(--line);border-bottom-width:2px;border
 /* ============ bike catalogue (Google list style) ============ */
 .cat-bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;
   padding:12px 16px;background:var(--bg);border-bottom:1px solid var(--line)}
-.cat-search{position:relative;flex:1}
+.cat-search{position:relative;flex:1;min-width:0}
 .cat-search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);
   width:16px;height:16px;color:var(--sub);pointer-events:none}
 .cat-search input{width:100%;padding:9px 14px 9px 38px;border:none;border-radius:20px;
@@ -260,17 +260,30 @@ kbd{font-size:10.5px;border:1px solid var(--line);border-bottom-width:2px;border
 .bikerow{display:flex;align-items:center;gap:14px;width:100%;padding:10px 16px;
   border-bottom:1px solid var(--line);transition:background var(--t)}
 .bikerow:hover{background:var(--alt)}
+/* The station the map is pointing at. Deliberately NOT --blue: despite the
+   name that token is green (#57A300), the same accent used for "selected" and
+   for times, so a highlight in it would read as a state rather than a pointer.
+   --navy is the only real blue in the palette. */
+.bikerow.lit{background:#EAF1F8;box-shadow:inset 3px 0 0 var(--navy)}
+.mapchip{color:var(--navy)}
+.flashbar{position:fixed;left:50%;bottom:22px;transform:translate(-50%,14px);
+  z-index:200;max-width:min(92vw,420px);padding:10px 16px;border-radius:20px;
+  background:var(--ink);color:#fff;font-size:13px;text-align:center;
+  opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+.flashbar.on{opacity:.94;transform:translate(-50%,0)}
+@media (prefers-reduced-motion: reduce){.flashbar{transition:none}}
 .bikerow img,.bikerow .ph{width:40px;height:40px;border-radius:50%;object-fit:cover;
   flex:none;border:1px solid var(--line);background:var(--alt)}
 .bikerow .ph{display:flex;align-items:center;justify-content:center;color:var(--sub)}
 .bikerow .ph svg{width:18px;height:18px}
 .bk-body{flex:1;min-width:0}
-.bk-name{font-size:14px;font-weight:500}
+.bk-name{display:block;font-size:14px;font-weight:500;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bk-name .fixtag{margin-left:8px;font-size:11px;font-weight:500;color:var(--red);
   background:var(--red-bg);border-radius:10px;padding:1px 8px}
 .bk-name .fixtag.ok{color:var(--sub);background:var(--alt)}
-.bk-sub{font-size:12.5px;color:var(--sub);white-space:nowrap;overflow:hidden;
-  text-overflow:ellipsis}
+.bk-sub{display:block;font-size:12.5px;color:var(--sub);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
 .bk-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
 .tick{display:flex;align-items:center;justify-content:center;flex:none;width:24px;
   height:24px;border-radius:50%;border:2px solid var(--line);color:transparent;
@@ -365,6 +378,7 @@ details.filters summary svg{width:16px;height:16px}
   #map{position:fixed;top:48px;left:0;right:0;bottom:0;width:auto;height:auto;z-index:5}
   .leaflet-control-zoom{display:none}
   .leaflet-bottom.leaflet-right{bottom:calc(174px + env(safe-area-inset-bottom))}
+  #flow{overflow-x:hidden}
   .panel{position:fixed;left:0;right:0;bottom:0;z-index:30;
     height:calc(100vh - 56px);height:calc(100dvh - 56px);
     border-radius:18px 18px 0 0;box-shadow:0 -6px 24px rgba(60,64,67,.28);
@@ -765,8 +779,12 @@ var expanded = null;
 var modePref = 'best';    // best | walk | bike | transit
 var busy = false, token = 0, picking = false;
 var addingStop = false;   // map click adds an off-map repair stop
+var linked = null;        // station index currently linked between list and map
+var dotOf = {};           // station index -> its map circle, so one can be restyled
+var inView = null;        // map bounds while the Bikes list is filtered to them
+var viewFilter = true;    // Bikes list follows the map, Airbnb-style
 var ANIM = true, BOARD_ANIM = true, lastAnimToken = -1, lastExpanded = null;
-var view = 'plan';        // plan | catalogue
+var view = 'catalogue';  // catalogue | plan — the round starts by choosing bikes
 var farKm = null;         // set when the start point is suspiciously far from every station
 var mission = false;      // repair round: only stations holding flagged bikes
 var catQ = '';
@@ -910,6 +928,8 @@ en:{
   noRoute:'no route', unavailable:'unavailable', notFound:'not found',
   hoursOpen:'open {range}', hoursClosed:'closed today', hoursNone:'hours not published',
   hoursRaw:'hours: {text}',
+  hiddenByMap:{one:'1 more outside the map', other:'{n} more outside the map'},
+  notInList:'That station is filtered out of the list right now.',
   hoursTooLate:' · shut by the time you arrive',
   // board
   departures:'Departures', legInGoogle:'This leg in Google ↗', refresh:'Refresh',
@@ -983,6 +1003,8 @@ de:{
   noRoute:'keine Verbindung', unavailable:'nicht verfügbar', notFound:'nicht gefunden',
   hoursOpen:'offen {range}', hoursClosed:'heute geschlossen', hoursNone:'keine Öffnungszeiten angegeben',
   hoursRaw:'Zeiten: {text}',
+  hiddenByMap:{one:'1 weiterer außerhalb der Karte', other:'{n} weitere außerhalb der Karte'},
+  notInList:'Dieser Standort ist gerade aus der Liste gefiltert.',
   hoursTooLate:' · bei deiner Ankunft geschlossen',
   departures:'Abfahrten', legInGoogle:'Diese Etappe in Google ↗', refresh:'Aktualisieren',
   boardWalk:'Zu Fuß', boardBike:'Mit dem Rad',
@@ -1268,6 +1290,7 @@ window.addEventListener('resize', function(){ if(mqMobile.matches && sheetEl.sty
 
 function drawBase(){
   dots.clearLayers();
+  dotOf = {};
   /* an active trip declutters the map: only the route, its pins and the
      current candidates remain — the other ~245 dots leave entirely */
   if(trip.length && view === 'plan') return;
@@ -1281,14 +1304,17 @@ function drawBase(){
        hits that — so an invisible 13px halo underneath carries the tooltip and
        the tap. fill-opacity 0 still hit-tests under SVG visiblePainted, because
        the test is whether `fill` is set, not whether you can see it. */
-    dots.addLayer(L.circleMarker([loc.lat, loc.lon], {
+    var dot = L.circleMarker([loc.lat, loc.lon], {
       radius: hot ? 6 : 3.5,
       weight: hot ? 2.5 : 1.5,
       color:'#fff',
       fillColor: hot ? '#EE7400' : colorOf(loc.district[0]),
       fillOpacity:.95,
       interactive:false
-    }));
+    });
+    dot._base = {r: hot ? 6 : 3.5, w: hot ? 2.5 : 1.5};
+    dotOf[loc._i] = dot;
+    dots.addLayer(dot);
     var hit = L.circleMarker([loc.lat, loc.lon], {
       radius: 13, stroke:false, fill:true, fillOpacity:0, fillColor:'#000'
     });
@@ -1297,9 +1323,62 @@ function drawBase(){
     /* Events keep bubbling to the map on purpose: while "Choose on map" is
        armed, a tap on a dot must still set the start point, and map's own
        handler already ignores clicks when it is not. */
-    hit.on('click', function(){ if(!picking && !addingStop) hit.openTooltip(); });
+    hit.on('click', function(){
+      if(picking || addingStop) return;
+      hit.openTooltip();
+      linkTo(loc._i, 'map');        // and show me where this one is in the list
+    });
+    hit.on('mouseover', function(){ if(!picking && !addingStop) linkTo(loc._i, 'map'); });
     dots.addLayer(hit);
   });
+}
+/* ---- one station, lit in both places ------------------------------------
+   The map and the list are two views of the same 250 stations, so pointing at
+   a station in either should say where it is in the other. Only the one circle
+   is restyled — redrawing 250 of them on every hover would stutter. */
+function litDot(i, on){
+  var d = dotOf[i];
+  if(!d || !d._base) return;
+  d.setStyle({radius: on ? d._base.r + 5 : d._base.r,
+              weight: on ? 3 : d._base.w,
+              color: on ? '#202124' : '#fff'});
+  if(on && d.bringToFront) d.bringToFront();
+}
+function linkTo(i, from){
+  if(linked === i) return;
+  if(linked != null) litDot(linked, false);
+  linked = i;
+  if(i != null) litDot(i, true);
+  if(from === 'map' && view === 'catalogue') revealRow(i);
+}
+/* Scroll the list to a station and flash it, without repainting the whole view. */
+function revealRow(i){
+  var flow = document.getElementById('flow');
+  if(!flow) return;
+  var row = flow.querySelector('.bikerow[data-loc="' + i + '"]');
+  if(!row){
+    // it is in the data but filtered or out of view — say so rather than do nothing
+    flash(T('notInList'));
+    return;
+  }
+  row.scrollIntoView({block:'center', behavior: reduce ? 'auto' : 'smooth'});
+  Array.prototype.forEach.call(flow.querySelectorAll('.bikerow.lit'), function(r){
+    r.classList.remove('lit');
+  });
+  row.classList.add('lit');
+}
+var flashT = null;
+function flash(msg){
+  var el = document.getElementById('flashbar');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'flashbar'; el.className = 'flashbar';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.add('on');
+  clearTimeout(flashT);
+  flashT = setTimeout(function(){ el.classList.remove('on'); }, 2600);
 }
 function tipHTML(loc, o){
   var shown = o ? timeFor(o, modePref) : null;
@@ -2324,11 +2403,12 @@ function missionHTML(){
 function renderNav(){
   var nav = document.getElementById('nav');
   nav.innerHTML =
-    '<button type="button" data-view="plan" aria-selected="' + (view === 'plan') + '">' +
-      IC.route + T('navPlan') + '</button>' +
+    // pick the bikes, then get the route — so Bikes comes first
     '<button type="button" data-view="catalogue" aria-selected="' + (view === 'catalogue') + '">' +
       IC.bike + T('navBikes') +
-      (defects.size ? ' <span class="count">' + defects.size + '</span>' : '') + '</button>';
+      (defects.size ? ' <span class="count">' + defects.size + '</span>' : '') + '</button>' +
+    '<button type="button" data-view="plan" aria-selected="' + (view === 'plan') + '">' +
+      IC.route + T('navPlan') + '</button>';
   Array.prototype.forEach.call(nav.querySelectorAll('button'), function(b){
     b.addEventListener('click', function(){
       view = b.getAttribute('data-view');
@@ -2343,7 +2423,16 @@ function paintCatalogue(flow){
   // the filter drawer narrows the whole dataset, this list included; catQ then
   // searches within what the filters already allow
   var allowed = eligibleItems(), shown = {}, rows = [];
-  allowed.forEach(function(r){
+  /* Airbnb-style: pan or zoom the map and the list narrows to what is on screen.
+     Bounds never touch the round — only what she is browsing. */
+  var bounded = allowed;
+  if(viewFilter && inView){
+    bounded = allowed.filter(function(r){
+      return isAdhoc(r.loc) || inView.contains([r.loc.lat, r.loc.lon]);
+    });
+  }
+  var hiddenByMap = allowed.length - bounded.length;
+  bounded.forEach(function(r){
     shown[r.it.id] = true;
     if(!q || (r.it.name + ' ' + r.it.short_desc + ' ' + r.loc.location_name + ' ' +
         r.loc.district[0]).toLowerCase().indexOf(q) !== -1) rows.push(r);
@@ -2367,12 +2456,16 @@ function paintCatalogue(flow){
       '<button class="link" id="rand5" type="button">' + T('flagRandom') + '</button>' +
       (defects.size ? '<button class="link" id="clearall" type="button">' + T('clearAll') + '</button>' : '') +
       (filtersActive() ? '<button class="link" id="clearf" type="button">' + T('clearFilters') + '</button>' : '') +
+      (hiddenByMap > 0
+        ? '<button class="link mapchip" id="mapall" type="button">' +
+          T('hiddenByMap', {n: hiddenByMap}) + '</button>'
+        : '') +
     '</div>' +
     (buried ? '<div class="buried">' + T('buried', {n: buried}) + '</div>' : '') +
     rows.map(function(r){
       var bad = defects.has(r.it.id), done = repaired.has(r.it.id);
       return '<button class="bikerow" type="button" data-id="' + r.it.id + '"' +
-        ' aria-pressed="' + bad + '">' +
+        ' data-loc="' + r.loc._i + '" aria-pressed="' + bad + '">' +
         (thumbOK(r.it.thumbnail)
           ? '<img src="' + esc(r.it.thumbnail) + '" alt="" loading="lazy" width="40" height="40"' +
             (done ? ' style="filter:grayscale(1);opacity:.55"' : '') +
@@ -2421,6 +2514,16 @@ function paintCatalogue(flow){
   });
   var cf = document.getElementById('clearf');
   if(cf) cf.addEventListener('click', clearFilters);
+  var ma = document.getElementById('mapall');
+  if(ma) ma.addEventListener('click', function(){
+    // show everything again by fitting the map around it, so the two stay honest
+    inView = null; paint();
+  });
+  Array.prototype.forEach.call(flow.querySelectorAll('.bikerow'), function(b){
+    var li = +b.getAttribute('data-loc');
+    b.addEventListener('mouseenter', function(){ linkTo(li, 'list'); });
+    b.addEventListener('focus', function(){ linkTo(li, 'list'); });
+  });
   var ca = document.getElementById('clearall');
   if(ca) ca.addEventListener('click', function(){
     defects.clear(); repaired.clear(); saveDefects(); drawBase(); paint();
@@ -2723,6 +2826,18 @@ function wireList(){
   });
 }
 
+/* The list follows the map. Debounced because a pan fires continuously and
+   repainting 267 rows per frame would stutter on a phone. */
+var moveT = null;
+map.on('moveend zoomend', function(){
+  if(view !== 'catalogue' || !viewFilter) return;
+  clearTimeout(moveT);
+  moveT = setTimeout(function(){
+    if(view !== 'catalogue') return;
+    inView = map.getBounds();
+    paint();
+  }, 180);
+});
 map.on('click', function(e){
   if(addingStop){ addAdhocAt(e.latlng.lat, e.latlng.lng); return; }
   if(!picking) return;
