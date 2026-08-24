@@ -952,7 +952,9 @@ en:{
   cargoBike:'cargo bike', done:'Done',
   buried:{one:'<b>1</b> flagged bike hidden by the current filter — still counted in the round.',
           other:'<b>{n}</b> flagged bikes hidden by the current filter — still counted in the round.'},
-  roadDown:'Road routing is unavailable right now ({status}). ',
+  roadDown:'Road routing is unavailable right now ({status}).',
+  roadTimeout:'Road routing did not answer in time. It is a free public service and is overloaded at the moment — walking and cycling times need it, so try again in a minute.',
+  roadNet:'Could not reach the road routing service. Check your connection and try again.',
   addStop:'Add a stop', addStopArmed:'Tap the map…', addStopCancel:'Cancel',
   adhocPrompt:'What is at this stop?', adhocDefault:'Stranded bike',
   adhocSub:'added by you — not a fLotte station',
@@ -1026,7 +1028,9 @@ de:{
   cargoBike:'Lastenrad', done:'Fertig',
   buried:{one:'<b>1</b> gemeldetes Rad ist durch den Filter verborgen — zählt weiter zur Runde.',
           other:'<b>{n}</b> gemeldete Räder sind durch den Filter verborgen — zählen weiter zur Runde.'},
-  roadDown:'Die Straßen-Routenberechnung ist gerade nicht verfügbar ({status}). ',
+  roadDown:'Die Straßen-Routenberechnung ist gerade nicht verfügbar ({status}).',
+  roadTimeout:'Die Straßen-Routenberechnung hat nicht rechtzeitig geantwortet. Sie ist ein kostenloser öffentlicher Dienst und gerade überlastet — Zeiten zu Fuß und mit dem Rad brauchen sie, versuche es in einer Minute erneut.',
+  roadNet:'Die Straßen-Routenberechnung war nicht erreichbar. Prüfe deine Verbindung und versuche es erneut.',
   addStop:'Stopp hinzufügen', addStopArmed:'Auf die Karte tippen…', addStopCancel:'Abbrechen',
   adhocPrompt:'Was ist an diesem Stopp?', adhocDefault:'Liegengebliebenes Rad',
   adhocSub:'von dir hinzugefügt — kein fLotte-Standort',
@@ -1601,14 +1605,23 @@ function fetchT(url, opts, ms){
     function(e){ clearTimeout(timer); throw e; });
 }
 async function matrix(costing, targets){
-  var r = await fetchT(VALHALLA, {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
-      sources:[{lat:here().lat, lon:here().lon}],
-      targets: targets.map(function(l){ return {lat:l.lat, lon:l.lon}; }),
-      costing: costing
-    })
-  }, ROAD_TIMEOUT);
+  var r;
+  try{
+    r = await fetchT(VALHALLA, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        sources:[{lat:here().lat, lon:here().lon}],
+        targets: targets.map(function(l){ return {lat:l.lat, lon:l.lon}; }),
+        costing: costing
+      })
+    }, ROAD_TIMEOUT);
+  }catch(e){
+    /* This message is shown to someone standing at a junction. The browser's
+       own wording for an aborted fetch is "This operation was aborted", which
+       tells her nothing and reads like a bug in the app rather than a public
+       service being overloaded. Name what happened and what to do. */
+    throw new Error(e && e.name === 'AbortError' ? T('roadTimeout') : T('roadNet'));
+  }
   if(!r.ok) throw new Error(T('roadDown', {status: r.status}));
   return (await r.json()).sources_to_targets[0].map(function(x){
     return x && typeof x.time === 'number'

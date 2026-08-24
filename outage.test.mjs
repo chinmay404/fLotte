@@ -2,7 +2,7 @@
    no CORS headers and holds the socket ~30s, which the browser reports as a CORS
    error and the app used to render as "No transit route found" — sending a
    mechanic walking past a working tram.  Run: node outage.test.mjs            */
-import { fn, engineSrc, sandbox, harness, TEMPLATE, i18nSrc } from './testkit.mjs';
+import { fn, chunk as chunkOf, engineSrc, i18nSrc, sandbox, harness, TEMPLATE } from './testkit.mjs';
 
 const { ok, done } = harness('outage');
 
@@ -130,6 +130,22 @@ const card = transit => {
   ok(/kind:'down'\}/.test(loop), 'skipped stations are marked down, not left pending');
   ok(/scanInfo && !scanInfo\.ok/.test(TEMPLATE),
     'a failed transit scan is surfaced, not silently dropped');
+}
+
+/* ---- the road matrix must fail in words she can act on ---- */
+{
+  const m = fn('matrix');
+  ok(/catch\(e\)\{/.test(m), 'matrix catches its own network failures');
+  ok(/AbortError.*T\('roadTimeout'\)/.test(m.replace(/\n/g, ' ')),
+    'a timeout is named as a timeout, not "This operation was aborted"');
+  ok(/T\('roadNet'\)/.test(m), 'and an unreachable service says so');
+  ok(/T\('roadDown', \{status/.test(m), 'while an HTTP error still carries its status');
+  // the strings must actually exist in both languages, or T() falls back silently
+  const tbl = sandbox([], {}, chunkOf(/var STR = \{[\s\S]*?\n\};/));
+  for (const k of ['roadTimeout', 'roadNet', 'roadDown'])
+    ok(tbl.STR.en[k] && tbl.STR.de[k], `"${k}" is defined in both languages`);
+  ok(!/operation was aborted/i.test(JSON.stringify(tbl.STR)),
+    'the raw browser wording is never a user-facing string');
 }
 
 /* ---- dead thumbnails are not re-requested every repaint ---- */
