@@ -1654,6 +1654,22 @@ function fetchT(url, opts, ms){
     function(e){ clearTimeout(timer); throw e; });
 }
 async function matrix(costing, targets){
+  /* Once she has set off, "from where I am now" IS a station, so every pair in
+     this call is already in the shipped matrix and no network is needed. Only
+     the very first hop — from her own start point — has to be asked for. This
+     is the same table ensureTour uses, so the card times and the visiting order
+     can never disagree about a leg. */
+  var from = here();
+  if(MATRIX && from.i != null){
+    var rows = [], all = true;
+    for(var t0 = 0; t0 < targets.length && all; t0++){
+      var sec0 = matrixSec(costing, from.i, targets[t0]._i);
+      if(sec0 == null){ all = false; break; }
+      rows.push({sec: sec0,
+                 km: beelineKm(from.lat, from.lon, targets[t0].lat, targets[t0].lon)});
+    }
+    if(all) return rows;
+  }
   var r;
   try{
     r = await fetchT(VALHALLA, {

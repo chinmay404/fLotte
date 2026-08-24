@@ -81,6 +81,23 @@ const mk = (matrix) => sandbox(['matrixFor', 'matrixSec'],
     'and the remaining holes are filled by estimate and labelled as such');
 }
 
+/* ---- the card times use it too, from hop 2 onward ---- */
+{
+  const m = fn('matrix');
+  ok(/MATRIX && from\.i != null/.test(m),
+    'once she is standing at a station, the call is answered from the table');
+  ok(/matrixSec\(costing, from\.i, targets\[t0\]\._i\)/.test(m),
+    'row = where she is, column = each candidate station');
+  ok(/if\(all\) return rows;/.test(m),
+    'and it only short-circuits when every target was found');
+  ok(/if\(sec0 == null\)\{ all = false; break; \}/.test(m),
+    'one missing pair falls through to the live call rather than inventing a time');
+  ok(m.indexOf('MATRIX && from.i != null') < m.indexOf('await fetchT'),
+    'the table is consulted BEFORE the network, not as a fallback');
+  ok(/beelineKm\(from\.lat/.test(m),
+    'distance is a beeline estimate — the table stores times, not kilometres');
+}
+
 /* ---- an off-map stop has no row, so it must fall through ---- */
 {
   const sb = mk({ n: 3, bicycle: pack(GRID) });
