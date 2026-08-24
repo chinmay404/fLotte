@@ -68,13 +68,17 @@ const mk = (matrix) => sandbox(['matrixFor', 'matrixSec'],
   const body = fn('ensureTour');
   ok(/var idx = \[here\(\)\.i == null \? null : here\(\)\.i\]/.test(body),
     'node 0 is checked for being a station');
-  ok(/idx\.every\(function\(k\)\{ return k != null && k < MATRIX\.n; \}\)/.test(body),
-    'the shipped matrix is used only when every node is in it');
   ok(/offline = true/.test(body), 'and the plan records that it needed no network');
-  ok(/if\(!mat && pts\.length <= TOUR_MAX \+ 1\)/.test(body),
+  ok(/if\(\(!mat \|\| !offline\) && pts\.length <= TOUR_MAX \+ 1\)/.test(body),
     'the live call is the fallback now, not the first choice');
-  ok(/if\(v2 == null\)\{ ok = false; break; \}/.test(body),
-    'a single missing pair falls back rather than inventing a leg');
+  // per-cell, not all-or-nothing: on the first plan node 0 is her start point,
+  // but every station-to-station cell is still in the shipped matrix
+  ok(/row\.push\(null\); holes\+\+/.test(body),
+    'a pair the matrix lacks becomes a hole, not an invented number');
+  ok(/if\(filled > holes\)/.test(body),
+    'the matrix is used when it supplies the bulk of the cells');
+  ok(/mat\[i\]\[j\] == null\)\{ estimated = true; mat\[i\]\[j\] = est\(i, j\)/.test(body),
+    'and the remaining holes are filled by estimate and labelled as such');
 }
 
 /* ---- an off-map stop has no row, so it must fall through ---- */

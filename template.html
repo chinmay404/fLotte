@@ -1883,21 +1883,28 @@ async function ensureTour(my){
   var idx = [here().i == null ? null : here().i].concat(
     rem.map(function(l){ return l._i; }));
   var mat = null, estimated = false, offline = false;
-  if(MATRIX && idx.every(function(k){ return k != null && k < MATRIX.n; })){
-    var m2 = [], ok = true;
-    for(var a2 = 0; a2 < idx.length && ok; a2++){
+  /* Fill from the shipped matrix cell by cell rather than all-or-nothing. On
+     the very first plan node 0 is her own start point, which is not in the
+     matrix — but nodes 1..n all are, and that is the whole station-to-station
+     block, i.e. nearly every cell. Estimating only the start row keeps the
+     first plan almost exact even with the road router down; requiring every
+     node to be a station threw all of that away. */
+  if(MATRIX){
+    var m2 = [], holes = 0, filled = 0;
+    for(var a2 = 0; a2 < idx.length; a2++){
       var row = [];
       for(var b2 = 0; b2 < idx.length; b2++){
         if(a2 === b2){ row.push(0); continue; }
-        var v2 = matrixSec(costing, idx[a2], idx[b2]);
-        if(v2 == null){ ok = false; break; }
-        row.push(v2);
+        var v2 = (idx[a2] != null && idx[b2] != null)
+          ? matrixSec(costing, idx[a2], idx[b2]) : null;
+        if(v2 == null){ row.push(null); holes++; } else { row.push(v2); filled++; }
       }
       m2.push(row);
     }
-    if(ok){ mat = m2; offline = true; }
+    // worth using only if the matrix supplied the bulk of it
+    if(filled > holes){ mat = m2; offline = true; }
   }
-  if(!mat && pts.length <= TOUR_MAX + 1){
+  if((!mat || !offline) && pts.length <= TOUR_MAX + 1){
     try{
       var r = await fetchT(VALHALLA, {
         method:'POST', headers:{'Content-Type':'application/json'},
