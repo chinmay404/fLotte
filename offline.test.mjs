@@ -153,4 +153,36 @@ const mk = (matrix) => sandbox(['matrixFor', 'matrixSec'],
     'the state hook reports whether the plan needed the network');
 }
 
+/* ---- a straight line must never be dressed as a route ---- */
+{
+  const road = fn('drawRoad');
+  ok(/if\(pts && pts\.length > 1\)/.test(road),
+    'a real shape is required before drawing the route styling');
+  ok(/crowLine\(fromPt, toPt\)/.test(road),
+    'and a missing shape falls back to the direct-line styling');
+  ok(!/pts \|\| \[fromPt, toPt\]/.test(road),
+    'the old "route styling or a beeline, whichever" is gone');
+
+  const crow = fn('crowLine');
+  ok(/#9AA0A6/.test(crow), 'the direct line is grey, not the route green');
+  ok(/weight:2\.5/.test(crow), 'and thinner than any real route (3.5 to 5)');
+  ok(/dashArray:'2 10'/.test(crow), 'and widely dashed, unlike the fine walk dash');
+
+  const jr = fn('drawJourney');
+  ok(/var real = leg\.shape && leg\.shape\.length > 1;/.test(jr),
+    'a transit leg checks for real geometry');
+  ok(/crowLine\(pts\[0\], pts\[1\]\)/.test(jr),
+    'a leg with no geometry draws a direct line, not a fake tram track');
+  ok(/crowLine\(\[from\.lat, from\.lon\], fallbackTo\)/.test(jr),
+    'and so does a journey with no legs at all');
+  ok(!/lines\.addLayer\(L\.polyline\(\[\[from\.lat/.test(jr),
+    'the old green walking fallback is gone');
+
+  // the two layers that draw nothing must keep drawing nothing
+  ok(/no shape yet \(or fetch failed\): draw nothing/.test(fn('drawTripLines')),
+    'the committed trip still draws nothing without a shape');
+  ok(/if\(shp && shp\.length > 1\)/.test(fn('drawTour')),
+    'and so does the planned round');
+}
+
 done();

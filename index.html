@@ -1461,18 +1461,22 @@ function drawJourney(legs, fallbackTo){
   if(!trip.length) return;
   var from = here(), cursor = [from.lat, from.lon];
   (legs || []).forEach(function(leg){
-    var pts = leg.shape && leg.shape.length ? leg.shape
+    var real = leg.shape && leg.shape.length > 1;
+    var pts = real ? leg.shape
             : [cursor, leg.endLat != null ? [leg.endLat, leg.endLon] : fallbackTo];
-    if(pts && pts.length > 1){
+    if(!pts || pts.length < 2) return;
+    if(real){
       lines.addLayer(leg.walking
         ? L.polyline(pts, {color:'#57A300', weight:4, dashArray:'1 8', opacity:.9, lineCap:'round'})
         : L.polyline(pts, {color: safeColor(leg.bg, '#004B7C'), weight:5, opacity:.95}));
-      cursor = pts[pts.length-1];
+    }else{
+      // VBB gave us the leg but no geometry: show the hop, not a fake track
+      lines.addLayer(crowLine(pts[0], pts[1]));
     }
+    cursor = pts[pts.length-1];
   });
   if(!legs || !legs.length){
-    lines.addLayer(L.polyline([[from.lat, from.lon], fallbackTo],
-      {color:'#57A300', weight:4, dashArray:'1 8', opacity:.9, lineCap:'round'}));
+    lines.addLayer(crowLine([from.lat, from.lon], fallbackTo));
   }
 }
 /* Valhalla encodes shapes as polyline6 */
@@ -1563,11 +1567,31 @@ async function drawTour(){
         {color:'#57A300', weight:4, opacity:.65, dashArray:'6 9', lineCap:'round'}));
   }
 }
+/* A straight line between two points is not a route. Drawn in the route's own
+   colours it would pass a guess off as a way she can ride — the same mistake as
+   reporting a service outage as "no route found". One muted, widely dashed
+   style everywhere, so a direct line can never be mistaken for a road.
+   drawTripLines and drawTour draw nothing at all in this case. */
+function crowLine(a, b){
+  return L.polyline([a, b],
+    {color:'#9AA0A6', weight:2.5, opacity:.85, dashArray:'2 10', lineCap:'round'});
+}
 function drawRoad(pts, mode, fromPt, toPt){
   lines.clearLayers();
-  lines.addLayer(L.polyline(pts || [fromPt, toPt], mode === 'walk'
-    ? {color:'#57A300', weight:4, dashArray:'1 8', opacity:.95, lineCap:'round'}
-    : {color:'#57A300', weight:5, opacity:.9}));
+  if(pts && pts.length > 1){
+    lines.addLayer(L.polyline(pts, mode === 'walk'
+      ? {color:'#57A300', weight:4, dashArray:'1 8', opacity:.95, lineCap:'round'}
+      : {color:'#57A300', weight:5, opacity:.9}));
+    return;
+  }
+  /* No shape came back. What we can draw is a straight line between two points,
+     which is NOT a route — and drawing it in the route's own green would pass a
+     guess off as a road she can ride, the same mistake as reporting an outage as
+     "no route". Muted, thin, widely dashed: it reads as direction and distance
+     only, and never as a way to go. drawTripLines and drawTour already draw
+     nothing at all in this case. */
+  if(!fromPt || !toPt) return;
+  lines.addLayer(crowLine(fromPt, toPt));
 }
 function previewOf(i){
   var o = optOf(i);
