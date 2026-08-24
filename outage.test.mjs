@@ -11,11 +11,13 @@ let responder = null;
 
 const sb = sandbox(
   ['esc', 'safeColor', 'mins', 'km', 'clock', 'inMin', 'sleep', 'here', 'fetchT',
-   'transitFor', 'transitSec', 'timeFor', 'bestMode', 'stripHTML', 'hintHTML',
+   'vbbGet', 'transitFor', 'transitSec', 'timeFor', 'bestMode', 'stripHTML', 'hintHTML',
    'depHTML', 'mv', 'thumbOK', 'isAdhoc', 'hoursToday', 'windowsFor', 'windowsCover',
    'hoursLabel', 'hhmmOf', 'optHTML'],
   {
-    VBB: 'https://vbb.test', ALTS: 3, VBB_TIMEOUT: 50,
+    VBB_HOSTS: ['https://vbb.test', 'https://bvg.test'],
+    VBB: 'https://vbb.test', vbbHost: null, vbbLimited: false,
+    ALTS: 3, VBB_TIMEOUT: 50,
     IC: { walk: '<ICON-walk>', bike: '<ICON-bike>', tram: '<ICON-tram>', right: '<ICON-right>',
           clock: '<ICON-clock>' },
     LOCATIONS: [{ location_name: 'Manege gGmbH', street: 'Rixdorfer Str. 1',
@@ -60,7 +62,7 @@ const card = transit => {
   const r = await sb.transitFor(sb.LOCATIONS[0]);
   ok(r.kind === 'down', '503 => kind "down", NOT "none"', r);
   ok(r.err !== 'no route', '503 is never reported as "no route"', r.err);
-  ok(calls.length === 3, '503 is retried three times', calls.length);
+  ok(calls.length === 6, '503 is retried three times across both hosts', calls.length);
   const h = card(r);
   ok(h.includes('Could not reach the departure service'), 'card names the service failure');
   ok(h.includes('<b>not</b> a "no route" answer'),
@@ -76,7 +78,7 @@ const card = transit => {
   calls = [];
   const r = await sb.transitFor(sb.LOCATIONS[0]);
   ok(r.kind === 'down', 'a thrown fetch => kind "down"', r);
-  ok(calls.length === 3, 'a thrown fetch is retried three times', calls.length);
+  ok(calls.length === 6, 'a thrown fetch tries both hosts, three times', calls.length);
   ok(card(r).includes('Could not reach the departure service'),
     'a CORS failure reads as a service failure, not an absence');
 }
@@ -93,7 +95,7 @@ const card = transit => {
   const r = await sb.transitFor(sb.LOCATIONS[0]);
   ok(r.kind === 'down', 'a hanging request ends as "down"', r);
   ok(Date.now() - t0 < 5000, 'the request aborts on the timeout instead of hanging');
-  ok(calls.length === 3, 'each abort counts as a try', calls.length);
+  ok(calls.length === 6, 'each abort counts as a try, on both hosts', calls.length);
   ok(/AbortController/.test(fn('fetchT')), 'fetchT uses an AbortController');
   ok(!/[^T]\bfetch\(/.test(TEMPLATE.replace(/return fetch\(url, o\)/, '')),
     'every network call in the app goes through fetchT');
@@ -130,6 +132,55 @@ const card = transit => {
   ok(/kind:'down'\}/.test(loop), 'skipped stations are marked down, not left pending');
   ok(/scanInfo && !scanInfo\.ok/.test(TEMPLATE),
     'a failed transit scan is surfaced, not silently dropped');
+}
+
+/* ---- failover between the two deployments ---- */
+{
+  // VBB dead at the TLS layer, BVG healthy: the answer must still arrive
+  responder = (url) => url.startsWith('https://vbb.test')
+    ? Promise.reject(new TypeError('Load failed'))
+    : res(200, { journeys: [{ legs: [
+        { departure: '2026-08-17T10:05:00Z', arrival: '2026-08-17T10:20:00Z',
+          line: { name: 'U8' }, origin: { name: 'A' },
+          destination: { name: 'B', location: { latitude: 1, longitude: 2 } } }] }] });
+  sb.vbbHost = null; sb.vbbLimited = false;
+  calls = [];
+  let r = await sb.transitFor(sb.LOCATIONS[0]);
+  ok(r.journeys && r.journeys.length === 1,
+    'a dead primary host falls over to the secondary', r.err);
+  ok(sb.vbbHost === 'https://bvg.test', 'and latches onto the one that answered');
+  ok(sb.vbbLimited === true, 'noting that its coverage is narrower');
+
+  // latched: the next call tries the working host first, not the dead one
+  calls = [];
+  await sb.transitFor(sb.LOCATIONS[0]);
+  ok(calls[0].startsWith('https://bvg.test'),
+    'the next request goes straight to the host that works');
+  ok(calls.length === 1, 'and does not probe the dead one again', calls.length);
+
+  // an empty answer from the Berlin-only host is NOT proof there is no route
+  responder = (url) => url.startsWith('https://vbb.test')
+    ? Promise.reject(new TypeError('Load failed'))
+    : res(200, { journeys: [] });
+  sb.vbbHost = null; sb.vbbLimited = false;
+  r = await sb.transitFor(sb.LOCATIONS[0]);
+  ok(r.kind === 'down',
+    'an empty result from the narrower host is "cannot say", not "no route"', r);
+  ok(!card(r).includes('No transit route found'),
+    'so the card does not claim none exists');
+
+  // the full-coverage host CAN say none
+  responder = () => res(200, { journeys: [] });
+  sb.vbbHost = null; sb.vbbLimited = false;
+  r = await sb.transitFor(sb.LOCATIONS[0]);
+  ok(r.kind === 'none', 'but the full-region host may answer "no route"', r);
+
+  // both down means down
+  responder = () => Promise.reject(new TypeError('Load failed'));
+  sb.vbbHost = null; sb.vbbLimited = false;
+  r = await sb.transitFor(sb.LOCATIONS[0]);
+  ok(r.kind === 'down', 'both hosts failing is still an outage, not an absence');
+  sb.vbbHost = null; sb.vbbLimited = false;
 }
 
 /* ---- a mode that never shows transit must never ask for it ---- */

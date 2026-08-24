@@ -734,7 +734,17 @@ var TOTAL_ITEMS = LOCATIONS.reduce(function(a, l){ return a + l.items.length; },
 
 var VALHALLA = 'https://valhalla1.openstreetmap.de/sources_to_targets';
 var VALHALLA_ROUTE = 'https://valhalla1.openstreetmap.de/route';
-var VBB      = 'https://v6.vbb.transport.rest';
+/* Two deployments of the same API. VBB covers Berlin AND Brandenburg; BVG is
+   Berlin only. They fail independently — today VBB's certificate broke while
+   BVG was fine — so try VBB first for the wider coverage and fall back.
+
+   vbb-hafas talks to VBB's own HAFAS backend directly, which would skip both:
+   but fahrinfo.vbb.de returns no Access-Control-Allow-Origin at all, so a
+   browser blocks it. A CORS proxy is exactly what these hosts are. */
+var VBB_HOSTS = ['https://v6.vbb.transport.rest', 'https://v6.bvg.transport.rest'];
+var VBB      = VBB_HOSTS[0];
+var vbbHost  = null;       // latched to whichever answered, so we stop probing a dead one
+var vbbLimited = false;    // the answer came from the Berlin-only host
 var SHOW     = 5;      // options per hop: 5 transit lookups, not 250
 var ALTS     = 3;      // journey alternatives per station
 var GAP      = 1100;   // ms between VBB calls; parallel requests get 503s
@@ -1717,12 +1727,32 @@ async function matrix(costing, targets){
       ? {sec:x.time, km: typeof x.distance === 'number' ? x.distance : null} : null;
   });
 }
+/* Try each host in turn, preferring whichever answered last. A 5xx or a thrown
+   request moves on to the next; only when all of them fail do we give up. */
+async function vbbGet(path, timeout){
+  var order = vbbHost
+    ? [vbbHost].concat(VBB_HOSTS.filter(function(h){ return h !== vbbHost; }))
+    : VBB_HOSTS.slice();
+  var lastRes = null;
+  for(var i = 0; i < order.length; i++){
+    try{
+      var r = await fetchT(order[i] + path, null, timeout);
+      if(r.status >= 500 || r.status === 429){ lastRes = r; continue; }
+      vbbHost = order[i];
+      vbbLimited = order[i] !== VBB_HOSTS[0];
+      return r;
+    }catch(e){ /* TLS, DNS, abort — try the next host */ }
+  }
+  if(lastRes) return lastRes;
+  throw new Error('vbb unreachable');
+}
 async function transitFor(loc){
   var from = here();
-  var url = VBB + '/journeys?from.latitude=' + from.lat + '&from.longitude=' + from.lon +
-    '&from.address=' + encodeURIComponent(from.label) +
+  var url = '/journeys?from.latitude=' + from.lat + '&from.longitude=' + from.lon +
+    // BVG rejects coordinates with no address, so never send an empty one
+    '&from.address=' + encodeURIComponent(from.label || 'Start') +
     '&to.latitude=' + loc.lat + '&to.longitude=' + loc.lon +
-    '&to.address=' + encodeURIComponent(loc.location_name) +
+    '&to.address=' + encodeURIComponent(loc.location_name || 'Stop') +
     '&results=' + ALTS + '&stopovers=false&polylines=true';
   // hop 2+ is reached later — ask for departures from the projected arrival
   var base = depBaseMs();
@@ -1733,11 +1763,16 @@ async function transitFor(loc){
      "no route" sends a user walking 40 minutes past a working tram. */
   for(var tries = 0; tries < 3; tries++){
     try{
-      var r = await fetchT(url, null, VBB_TIMEOUT);
+      var r = await vbbGet(url, VBB_TIMEOUT);
       if(r.status === 503 || r.status === 429){ await sleep(2200 * (tries+1)); continue; }
       if(!r.ok) return {err:'HTTP ' + r.status, kind:'down'};
       var js = (await r.json()).journeys;
-      if(!js || !js.length) return {err:'no route', kind:'none'};
+      /* An empty answer from the Berlin-only host is NOT proof there is no
+         route: the station may simply be outside its area. Only the full-region
+         host can say "none" with authority. */
+      if(!js || !js.length)
+        return vbbLimited ? {err:'outside coverage', kind:'down'}
+                          : {err:'no route', kind:'none'};
       return {journeys: js.map(function(j){
         var legs = j.legs;
         return {
@@ -2037,10 +2072,10 @@ async function transitScan(my, all){
   var from = here();
   var rows = null;
   try{
-    var r = await fetchT(VBB + '/stops/reachable-from?latitude=' + from.lat +
+    var r = await vbbGet('/stops/reachable-from?latitude=' + from.lat +
       '&longitude=' + from.lon + '&address=' + encodeURIComponent(from.label || 'Start') +
       '&maxDuration=' + Math.min(60, Math.ceil(cutoff / 60)) + '&maxTransfers=2',
-      null, VBB_TIMEOUT);
+      VBB_TIMEOUT);
     if(r.ok) rows = (await r.json()).reachable;
   }catch(e){}
   if(my !== token) return;
@@ -2848,8 +2883,8 @@ function wireStart(last){
     if(q.length < 3){ sugs.innerHTML = ''; return; }
     timer = setTimeout(function(){
       var my = ++seq;
-      fetchT(VBB + '/locations?query=' + encodeURIComponent(q) +
-            '&results=5&addresses=true&poi=true&stops=true', null, VBB_TIMEOUT)
+      vbbGet('/locations?query=' + encodeURIComponent(q) +
+            '&results=5&addresses=true&poi=true&stops=true', VBB_TIMEOUT)
         .then(function(r){ return r.ok ? r.json() : []; })
         .then(function(list){
           if(my !== seq) return;
