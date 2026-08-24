@@ -642,63 +642,6 @@
     ]
   },
   {
-    "location_name": "Spielhaus Goldbeckweg",
-    "lat": 52.5426731,
-    "lon": 13.2305322,
-    "street": "Goldbeckweg 6",
-    "zip": "13599",
-    "city": "Berlin-Haselhorst",
-    "closed_days": false,
-    "district": [
-      "Spandau"
-    ],
-    "region": [
-      "West"
-    ],
-    "items": [
-      {
-        "id": 41960,
-        "name": "Bärbel",
-        "short_desc": " PedalPower Berliner Lastenrad mit Kinderbank",
-        "link": "https://flotte-berlin.de/cb_item/baerbel/",
-        "thumbnail": "https://flotte-berlin.de/wp-content/uploads/2018/10/Bärbel-150x150.jpg",
-        "status": "publish",
-        "type": [
-          "Cargo Trike"
-        ],
-        "drive": [],
-        "features": [
-          "Kinderbank",
-          "Kinderbank plus"
-        ],
-        "project": [
-          "fLotte kommunal"
-        ],
-        "district": [
-          "Spandau"
-        ],
-        "region": [
-          "West"
-        ],
-        "timeframes": [
-          {
-            "date_start": "2018-11-08",
-            "date_end": "2026-08-23"
-          }
-        ],
-        "unknown_terms": [
-          135,
-          171,
-          202,
-          27,
-          72,
-          49,
-          240
-        ]
-      }
-    ]
-  },
-  {
     "location_name": "SUZ Spandau - Gartenarbeitsschule Hakenfelde",
     "lat": 52.5684772,
     "lon": 13.214983,
@@ -8926,61 +8869,6 @@
     ]
   },
   {
-    "location_name": "Kietz Klub Köpenick",
-    "lat": 52.428915,
-    "lon": 13.5950014,
-    "street": "Köpenzeile 117",
-    "zip": "12557",
-    "city": "Berlin-Wendenschloß",
-    "closed_days": "a:6:{i:0;s:1:\"1\";i:1;s:1:\"3\";i:2;s:1:\"4\";i:3;s:1:\"5\";i:4;s:1:\"6\";i:5;s:1:\"7\";}",
-    "district": [
-      "Treptow-Köpenick"
-    ],
-    "region": [
-      "Süd-Ost"
-    ],
-    "items": [
-      {
-        "id": 41711,
-        "name": "RadWende",
-        "short_desc": "BBF Toronto ohne Kinderbank",
-        "link": "https://flotte-berlin.de/cb_item/radwende/",
-        "thumbnail": "https://flotte-berlin.de/wp-content/uploads/2023/02/Radwende-150x150.jpg",
-        "status": "publish",
-        "type": [
-          "Cargo Trike"
-        ],
-        "drive": [],
-        "features": [],
-        "project": [
-          "fLotte kommunal"
-        ],
-        "district": [
-          "Treptow-Köpenick"
-        ],
-        "region": [
-          "Süd-Ost"
-        ],
-        "timeframes": [
-          {
-            "date_start": "2023-02-09",
-            "date_end": "2026-09-30"
-          }
-        ],
-        "unknown_terms": [
-          299,
-          135,
-          171,
-          132,
-          27,
-          88,
-          240,
-          128
-        ]
-      }
-    ]
-  },
-  {
     "location_name": "BENN Wittenau-Süd",
     "lat": 52.57789187935469,
     "lon": 13.333134949207306,
@@ -14955,6 +14843,64 @@
           88,
           203,
           240
+        ]
+      }
+    ]
+  },
+  {
+    "location_name": "Kietz Klub Köpenick",
+    "lat": 52.428915,
+    "lon": 13.5950014,
+    "street": "Köpenzeile 117",
+    "zip": "12557",
+    "city": "Berlin-Wendenschloß",
+    "closed_days": false,
+    "district": [
+      "Treptow-Köpenick"
+    ],
+    "region": [
+      "Süd-Ost"
+    ],
+    "items": [
+      {
+        "id": 41933,
+        "name": "Biene",
+        "short_desc": "Bakfiets CargoBike Classic Long mit Kinderbank",
+        "link": "https://flotte-berlin.de/cb_item/biene/",
+        "thumbnail": "https://flotte-berlin.de/wp-content/uploads/2019/04/Biene-150x150.jpg",
+        "status": "publish",
+        "type": [
+          "Cargo Bike"
+        ],
+        "drive": [],
+        "features": [
+          "Kinderbank"
+        ],
+        "project": [
+          "fLotte kommunal"
+        ],
+        "district": [
+          "Treptow-Köpenick"
+        ],
+        "region": [
+          "Süd-Ost"
+        ],
+        "timeframes": [
+          {
+            "date_start": "2026-08-21",
+            "date_end": "2099-12-31"
+          }
+        ],
+        "unknown_terms": [
+          43,
+          71,
+          135,
+          171,
+          132,
+          27,
+          88,
+          240,
+          128
         ]
       }
     ]
