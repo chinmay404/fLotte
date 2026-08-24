@@ -132,6 +132,27 @@ const card = transit => {
     'a failed transit scan is surfaced, not silently dropped');
 }
 
+/* ---- a mode that never shows transit must never ask for it ---- */
+{
+  const body = fn('nextHop');
+  ok(/var wantsTransit = modePref === 'best' \|\| modePref === 'transit';/.test(body),
+    'nextHop decides up front whether departures are wanted at all');
+  ok(/for\(var k = 0; wantsTransit && k < options\.length; k\+\+\)/.test(body),
+    'the per-station departure loop is skipped under Walk and Bike');
+  ok(/if\(wantsTransit && !\(mission && tour\)\)/.test(body),
+    'and so is the reachable-from scan');
+  // the card genuinely does not show it in those modes, or skipping would hide data
+  const card = fn('optHTML');
+  ok(/compare \|\| modePref === 'transit' \? transitBit : ''/.test(card),
+    'because a Walk or Bike card renders no transit row in the first place');
+  // switching into a mode that shows it must go and get it
+  const mode = TEMPLATE.match(/\[data-mode\][\s\S]{0,900}?\n  \}\);/)[0];
+  ok(/modePref === 'best' \|\| modePref === 'transit'/.test(mode) && /nextHop\(\); return;/.test(mode),
+    'switching to Best or Transit re-runs the hop to fetch departures');
+  ok(/options\.some\(function\(o\)\{ return !o\.transit; \}\)/.test(mode),
+    'but only when they are actually missing');
+}
+
 /* ---- the road matrix must fail in words she can act on ---- */
 {
   const m = fn('matrix');

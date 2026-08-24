@@ -2108,8 +2108,13 @@ async function nextHop(){
   }
   paint(); drawTrip(); frame();
 
+  /* Walk and Bike never render a transit row, so asking VBB for one is pure
+     waste: five stations x three retries of a service she cannot see the answer
+     from. It is also where every console error in a bike round comes from.
+     Switching to Best or Transit re-runs this hop and fetches then. */
+  var wantsTransit = modePref === 'best' || modePref === 'transit';
   // in a round the candidate set is the plan itself — no scan needed
-  if(!(mission && tour)){
+  if(wantsTransit && !(mission && tour)){
     await transitScan(my, all);
     if(my !== token) return;
     paint(); drawTrip();
@@ -2119,7 +2124,7 @@ async function nextHop(){
      costs 3 timeouts plus backoff, so proving it station by station is minutes
      of spinner for a user standing at a junction — stop and let them retry. */
   var downStreak = 0;
-  for(var k = 0; k < options.length; k++){
+  for(var k = 0; wantsTransit && k < options.length; k++){
     if(my !== token) return;
     if(options[k].transit) continue;
     if(downStreak >= 2){
@@ -2893,6 +2898,11 @@ function wireList(){
       // switching road mode invalidates the round: a bicycle order is not a
       // walking order, so re-solve rather than leave a stale sequence on screen
       if(mission && tour && trip.length && roundCosting() !== tour.costing){
+        nextHop(); return;
+      }
+      // Best and Transit need departures a road mode never fetched
+      if((modePref === 'best' || modePref === 'transit') && trip.length && !busy &&
+         options.some(function(o){ return !o.transit; })){
         nextHop(); return;
       }
       paint(); drawTrip();
