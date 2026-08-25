@@ -1,0 +1,114 @@
+name: Refresh data & deploy
+
+# Nightly: re-scrape bike/station locations from flotte-berlin.de and rebuild
+# index.html. Sundays: also re-scrape opening hours (slow, ~8 min, polite
+# 1.5s-per-request pace). Every run gates on the full test suite before
+# anything is committed or published, so a broken scrape leaves the last good
+# build in place. Pushes to main skip the scrape and just test + deploy.
+
+on:
+  schedule:
+    - cron: '23 3 * * 1-6' # nightly - locations, bikes
+    - cron: '23 3 * * 0' # Sunday - locations, bikes, opening hours
+  workflow_dispatch:
+    inputs:
+      scrape_hours:
+        description: 'Also re-scrape opening hours (~8 min)'
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: refresh-deploy
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Scrape locations and rebuild page
+        if: github.event_name != 'push'
+        env:
+          PYTHONUTF8: '1'
+        run: |
+          pip install requests
+          python enrich.py --html
+
+      - name: Re-scrape opening hours (Sundays / on request)
+        if: github.event.schedule == '23 3 * * 0' || inputs.scrape_hours
+        env:
+          PYTHONUTF8: '1'
+        run: python hours.py --scrape
+
+      # Only needed when stations appear that the harvest has never seen; the
+      # remap covers everything else. Slow (~50 polite calls), so Sundays only.
+      - name: Re-harvest the station matrix (Sundays / on request)
+        if: github.event.schedule == '23 3 * * 0' || inputs.scrape_hours
+        env:
+          PYTHONUTF8: '1'
+        run: python matrix.py --harvest
+
+      # enrich.py --html rebuilds the payload without hours, so they must be
+      # re-applied from flotte_hours.json after every rebuild.
+      - name: Re-apply opening hours
+        if: github.event_name != 'push'
+        env:
+          PYTHONUTF8: '1'
+        run: python hours.py --apply
+
+      # Same story as the hours: enrich.py --html rebuilds the payload without the
+      # station matrix, so it has to be re-applied too. --apply remaps it by
+      # station NAME, so stations coming or going between harvests is fine; a
+      # station the harvest has never seen falls back to live routing.
+      - name: Re-apply the station matrix
+        if: github.event_name != 'push'
+        env:
+          PYTHONUTF8: '1'
+        run: python matrix.py --apply
+
+      - name: Tests gate the publish
+        run: node test.mjs
+
+      - name: Commit refreshed data
+        if: github.event_name != 'push'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --quiet || git commit -m 'Refresh station/bike data (scheduled)'
+          git push
+
+      - name: Stage site
+        run: |
+          mkdir _site
+          cp index.html _site/
+
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4

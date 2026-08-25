@@ -40,10 +40,17 @@ session = requests.Session()
 
 def fetch_map(page_url):
     """Return (settings, rows). nonce / map id / ajax url all come from the page."""
-    html = session.get(page_url, headers=HEADERS).text
+    page = session.get(page_url, headers=HEADERS)
+    html = page.text
     match = re.search(r"cb_map\.settings\s*=\s*(\{.*?\});", html, re.S)
     if not match:
-        raise SystemExit(f"No cb_map.settings block on {page_url} — the site changed.")
+        # Distinguish "the site changed" from "this network is blocked":
+        # the same request works from a residential IP but hosting firewalls
+        # may serve datacenter IPs (e.g. GitHub Actions) a challenge page.
+        snippet = re.sub(r"\s+", " ", html[:400])
+        raise SystemExit(
+            f"No cb_map.settings block on {page_url} "
+            f"(HTTP {page.status_code}, {len(html)} bytes). Start of response:\n{snippet}")
     settings = json.loads(match.group(1))
     response = session.post(
         settings["data_url"],

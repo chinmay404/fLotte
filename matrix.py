@@ -151,14 +151,40 @@ def apply_to_payload():
     match = re.search(r'(<script id="payload" type="application/json">)(.*?)(</script>)',
                       page, re.S)
     data = json.loads(match.group(2))
-    if len(data["locations"]) != n:
-        raise SystemExit(f"station count changed ({len(data['locations'])} vs {n}) — re-harvest")
-    for i, name in enumerate(m["names"]):
-        if data["locations"][i]["location_name"] != name:
-            raise SystemExit(f"station {i} changed name — the matrix rows would be wrong; re-harvest")
-    data["matrix"] = {"n": n,
-                      "bicycle": _pack(m["grid"]["bicycle"], n),
-                      "pedestrian": _pack(m["grid"]["pedestrian"], n)}
+
+    # The matrix is indexed by position, but fLotte add and drop stations, so
+    # position is not stable across a data refresh. Remap by NAME instead of
+    # refusing: a station the harvest knows keeps its real times, one it does
+    # not gets the unreachable sentinel and simply falls through to the live
+    # path in the app. Otherwise every nightly refresh would break the matrix.
+    old_ix = {name: i for i, name in enumerate(m["names"])}
+    cur = [l["location_name"] for l in data["locations"]]
+    n2 = len(cur)
+    keep = [old_ix.get(name) for name in cur]
+    known = sum(1 for k in keep if k is not None)
+    missing = [name for name, k in zip(cur, keep) if k is None]
+    if known < n2 * 0.5:
+        raise SystemExit(
+            f"only {known}/{n2} stations are in the harvest — too stale to use, re-harvest")
+
+    grids = {}
+    for profile, grid in m["grid"].items():
+        out = []
+        for a in keep:
+            if a is None:
+                out.append([UNREACHABLE] * n2)
+                continue
+            row = grid[a]
+            out.append([UNREACHABLE if b is None else row[b] for b in keep])
+        grids[profile] = out
+
+    data["matrix"] = {"n": n2,
+                      "bicycle": _pack(grids["bicycle"], n2),
+                      "pedestrian": _pack(grids["pedestrian"], n2)}
+    print(f"  {known}/{n2} stations matched the harvest by name")
+    if missing:
+        print(f"  {len(missing)} new since the last harvest, will use live routing: "
+              + ", ".join(missing[:4]) + ("…" if len(missing) > 4 else ""))
     body = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
     with open(PAGE, "w", encoding="utf-8") as fh:
         fh.write(page[:match.start(2)] + body + page[match.end(2):])
