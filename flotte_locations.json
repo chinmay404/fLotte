@@ -4227,63 +4227,6 @@
     ]
   },
   {
-    "location_name": "Jugendcafé am Dorfteich",
-    "lat": 52.39223615,
-    "lon": 13.410556557372836,
-    "street": "Alt-Lichtenrade 103",
-    "zip": "12309",
-    "city": "Berlin-Lichtenrade",
-    "closed_days": "a:3:{i:0;s:1:\"1\";i:1;s:1:\"5\";i:2;s:1:\"6\";}",
-    "district": [
-      "Tempelhof-Schöneberg"
-    ],
-    "region": [
-      "Süd"
-    ],
-    "items": [
-      {
-        "id": 41851,
-        "name": "LiBike",
-        "short_desc": "Bakfiets CargoBike Classic Long mit 1 Kinderbank",
-        "link": "https://flotte-berlin.de/cb_item/libike/",
-        "thumbnail": "https://flotte-berlin.de/wp-content/uploads/2020/04/Libike-150x150.jpg",
-        "status": "publish",
-        "type": [
-          "Cargo Bike"
-        ],
-        "drive": [],
-        "features": [
-          "Kinderbank"
-        ],
-        "project": [
-          "fLotte kommunal"
-        ],
-        "district": [
-          "Tempelhof-Schöneberg"
-        ],
-        "region": [
-          "Süd"
-        ],
-        "timeframes": [
-          {
-            "date_start": "2020-10-06",
-            "date_end": "2026-08-24"
-          }
-        ],
-        "unknown_terms": [
-          71,
-          135,
-          171,
-          134,
-          27,
-          88,
-          240,
-          110
-        ]
-      }
-    ]
-  },
-  {
     "location_name": "Kinder- und Jugendzentrum Schöneiche",
     "lat": 52.46519465,
     "lon": 13.715913249880616,
