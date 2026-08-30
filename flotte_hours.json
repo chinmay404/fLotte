@@ -107,7 +107,7 @@
  {
   "slug": "planty-skies",
   "title": "Planty Skies",
-  "hours_text": "Mi-Fr 12:30-18:30, Sa 12:30-17:30, außer an gesetzl. Feiertagen"
+  "hours_text": "Mi 10:15-14:15, Do + Fr 12:30-18:30, Sa 12:30-17:30, außer an gesetzl. Feiertagen"
  },
  {
   "slug": "benn-buch",
@@ -582,7 +582,7 @@
  {
   "slug": "kietz-klub-koepenick",
   "title": "Kietz Klub Köpenick",
-  "hours_text": "Di 15:00-18:00 Uhr, außer an gesetzl. Feiertagen"
+  "hours_text": "Mo-Fr 15:00-18:00 Uhr, außer an gesetzl. Feiertagen"
  },
  {
   "slug": "be4energy-gmbh",
@@ -647,7 +647,7 @@
  {
   "slug": "haus-am-mierendorffplatz",
   "title": "Haus am Mierendorffplatz",
-  "hours_text": "Mo + Di 12:00-17:30, Mi 12:00-16:30, Do + Fr 10:00-14:00, außer an gesetzl. Feiertagen abweichende Verleihzeiten im August: Mo + Di 12:00-17:30, Mi 14:00-16:30, Do + Fr 10:00-14:00"
+  "hours_text": "Mo + Di 12:00-17:30, Mi 12:00-16:30, Do + Fr 10:00-14:00, außer an gesetzl. Feiertagen"
  },
  {
   "slug": "volkshochschule-berlin-mitte",
@@ -682,7 +682,7 @@
  {
   "slug": "zukunftshaus-wedding",
   "title": "Zukunftshaus Wedding",
-  "hours_text": "Mo 13:00-15:30, Di-Do 10:00-15:30, außer an gesetzl. Feiertagen geänderte Öffnungszeiten vom 10.-27.8.: Mo 13:00-15:30, Di+Do 10:00-12:30, Mi 13:00-15:30 Bitte teile uns am Tag vor der Abholung telefonisch mit, wann du das Rad abholst."
+  "hours_text": "Mo 13:00-15:30, Di-Do 10:00-15:30, außer an gesetzl. Feiertagen Bitte teile uns am Tag vor der Abholung telefonisch mit, wann du das Rad abholst."
  },
  {
   "slug": "nachbarschaftsetage-fabrik-osloer-strasse-e-v",
@@ -1082,7 +1082,7 @@
  {
   "slug": "jugendcafe-am-dorfteich",
   "title": "Jugendcafé am Dorfteich",
-  "hours_text": "Di, Mi, Do, So 14:00-17:30, außer an gesetzl. Feiertagen"
+  "hours_text": null
  },
  {
   "slug": "jugendverkehrsschule-tempelhof",
@@ -1142,7 +1142,7 @@
  {
   "slug": "werk116",
   "title": "WERK116",
-  "hours_text": "Mo-Fr 10:00-13:00, 14:30-18:00, Sa 10:00-13:30, außer an gesetzl. Feiertagen in den Sommerferien abweichende Zeiten (9.7.-24.8.): Mo-Fr 14:30-18:00, Sa 10:00-13:30 Bitte informiert euch kurzfristig über etwaige Änderungen der Öffnungszeiten des Bücherladens unter werk116.de"
+  "hours_text": "Mo-Fr 10:00-13:00, 14:30-18:00, Sa 10:00-13:30, außer an gesetzl. Feiertagen Bitte informiert euch kurzfristig über etwaige Änderungen der Öffnungszeiten des Bücherladens unter werk116.de"
  },
  {
   "slug": "benn-nachbarschaftsbuero-britz",
@@ -1252,7 +1252,7 @@
  {
   "slug": "kinderfreizeithaus-kleine-ritterburg",
   "title": "Kinderfreizeithaus „Kleine Ritterburg“",
-  "hours_text": "Di-Fr 13:00-17:00, außer an gesetzl. Feiertagen abweichende Verleihzeiten vom 28.7.-7.8.: Di-Fr 12:00-16:00"
+  "hours_text": "Di-Fr 13:00-17:00, außer an gesetzl. Feiertagen"
  },
  {
   "slug": "familienzentrum-menschenskinder",
@@ -1452,7 +1452,7 @@
  {
   "slug": "spielhaus-goldbeckweg",
   "title": "Spielhaus Goldbeckweg",
-  "hours_text": "Mo-Fr 12:00-17:00, außer an gesetzl. Feiertagen"
+  "hours_text": null
  },
  {
   "slug": "suz-spandau-gartenarbeitsschule-hakenfelde",
