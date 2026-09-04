@@ -1589,7 +1589,6 @@
           158,
           27,
           193,
-          88,
           240
         ]
       }
@@ -9171,7 +9170,6 @@
           171,
           134,
           27,
-          88,
           204,
           240
         ]
@@ -13279,6 +13277,7 @@
         "unknown_terms": [
           135,
           134,
+          345,
           27,
           26,
           73,
@@ -13466,7 +13465,7 @@
     "street": "Yorckstraße 25",
     "zip": "10965",
     "city": "Berlin-Kreuzberg",
-    "closed_days": "a:3:{i:0;s:1:\"2\";i:1;s:1:\"6\";i:2;s:1:\"7\";}",
+    "closed_days": false,
     "district": [
       "Friedrichshain-Kreuzberg"
     ],
@@ -14735,7 +14734,7 @@
         ],
         "timeframes": [
           {
-            "date_start": "2026-08-21",
+            "date_start": "2026-09-01",
             "date_end": "2099-12-31"
           }
         ],
@@ -14748,6 +14747,64 @@
           27,
           240,
           128
+        ]
+      }
+    ]
+  },
+  {
+    "location_name": "Naturschutzstation Hahneberg",
+    "lat": 52.5237164,
+    "lon": 13.143807,
+    "street": "Heerstraße 549",
+    "zip": "13593",
+    "city": "Berlin-Staaken",
+    "closed_days": false,
+    "district": [
+      "Spandau"
+    ],
+    "region": [
+      "West"
+    ],
+    "items": [
+      {
+        "id": 41960,
+        "name": "Bärbel",
+        "short_desc": " PedalPower Berliner Lastenrad mit Kinderbank",
+        "link": "https://flotte-berlin.de/cb_item/baerbel/",
+        "thumbnail": "https://flotte-berlin.de/wp-content/uploads/2018/10/Bärbel-150x150.jpg",
+        "status": "publish",
+        "type": [
+          "Cargo Trike"
+        ],
+        "drive": [],
+        "features": [
+          "Kinderbank",
+          "Kinderbank plus"
+        ],
+        "project": [
+          "fLotte kommunal"
+        ],
+        "district": [
+          "Spandau"
+        ],
+        "region": [
+          "West"
+        ],
+        "timeframes": [
+          {
+            "date_start": "2026-09-01",
+            "date_end": "2099-12-31"
+          }
+        ],
+        "unknown_terms": [
+          135,
+          171,
+          202,
+          27,
+          88,
+          72,
+          49,
+          240
         ]
       }
     ]
