@@ -92,8 +92,8 @@ const mk = (matrix) => sandbox(['matrixFor', 'matrixSec'],
     'and it only short-circuits when every target was found');
   ok(/if\(sec0 == null\)\{ all = false; break; \}/.test(m),
     'one missing pair falls through to the live call rather than inventing a time');
-  ok(m.indexOf('MATRIX && from.i != null') < m.indexOf('await fetchT'),
-    'the table is consulted BEFORE the network, not as a fallback');
+  ok(m.indexOf('MATRIX && from.i != null') < m.indexOf('await Promise.all'),
+    'the table is consulted BEFORE the network is even dispatched, not as a fallback');
   ok(/beelineKm\(from\.lat/.test(m),
     'distance is a beeline estimate — the table stores times, not kilometres');
 }

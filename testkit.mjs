@@ -11,8 +11,12 @@ import { readFileSync } from 'node:fs';
 import { createContext, runInContext, Script } from 'node:vm';
 
 const HERE = new URL('.', import.meta.url);
-export const TEMPLATE = readFileSync(new URL('template.html', HERE), 'utf8');
-export const PAGE = readFileSync(new URL('index.html', HERE), 'utf8');
+/* A Windows checkout (core.autocrlf) hands us CRLF; the \n-anchored chunk
+   regexes must not care which line endings the working tree happens to have. */
+const read = (name) =>
+  readFileSync(new URL(name, HERE), 'utf8').replace(/\r\n/g, '\n');
+export const TEMPLATE = read('template.html');
+export const PAGE = read('index.html');
 
 /* Blank out strings, comments and regex literals so their braces don't count. */
 function stripCode(line) {

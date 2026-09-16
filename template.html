@@ -1734,12 +1734,29 @@ async function matrix(costing, targets){
     }
     if(all) return rows;
   }
+  /* Valhalla's public server rejects any matrix of more than 100 locations
+     (error 150), and the browse view asks for every station at once — more
+     than double that. Batch the targets and ask in parallel: the server
+     answers six 1x99 requests in about a second. Promise.all keeps the
+     all-or-nothing contract a single request had — one failed batch fails
+     the call and the caller falls back to estimates for the whole list,
+     never to a list that is half real and half beeline with no way to tell. */
+  var chunks = [];
+  for(var b = 0; b < targets.length; b += MATRIX_BATCH)
+    chunks.push(targets.slice(b, b + MATRIX_BATCH));
+  var parts = await Promise.all(chunks.map(function(chunk){
+    return matrixChunk(costing, from, chunk);
+  }));
+  return Array.prototype.concat.apply([], parts);
+}
+var MATRIX_BATCH = 99;   // 1 source + 99 targets = Valhalla's 100-location cap
+async function matrixChunk(costing, from, targets){
   var r;
   try{
     r = await fetchT(VALHALLA, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        sources:[{lat:here().lat, lon:here().lon}],
+        sources:[{lat:from.lat, lon:from.lon}],
         targets: targets.map(function(l){ return {lat:l.lat, lon:l.lon}; }),
         costing: costing
       })

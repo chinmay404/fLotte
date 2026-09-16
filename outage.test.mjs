@@ -234,7 +234,7 @@ const card = transit => {
 
 /* ---- the road matrix must fail in words she can act on ---- */
 {
-  const m = fn('matrix');
+  const m = fn('matrixChunk');   // the per-batch fetch, where the failures live
   ok(/catch\(e\)\{/.test(m), 'matrix catches its own network failures');
   ok(/AbortError.*T\('roadTimeout'\)/.test(m.replace(/\n/g, ' ')),
     'a timeout is named as a timeout, not "This operation was aborted"');
