@@ -224,9 +224,6 @@ svg{display:block}
 .retry{margin-top:10px;display:inline-block;padding:8px 18px;border:1px solid var(--line);
   border-radius:20px;font-weight:500;color:var(--blue);transition:background var(--tfast),transform var(--tfast)}
 @media (hover:hover) and (pointer:fine){.retry:hover{background:var(--blue-bg)}}
-.kbd-hint{padding:8px 16px 14px;font-size:11.5px;color:var(--sub)}
-kbd{font-size:10.5px;border:1px solid var(--line);border-bottom-width:2px;border-radius:3px;
-  padding:0 4px;background:var(--bg)}
 
 /* ============ mission banner ============ */
 .mission{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;
@@ -402,8 +399,7 @@ details.filters[open] .filter-body{animation:rise .2s cubic-bezier(.23,1,.32,1) 
   .panel.anim{transition:transform .3s cubic-bezier(.2,.7,.2,1)}
   .grab{display:flex}
   .peekbar{display:flex}
-  .kbd-hint{display:none}
-  .opt-main{padding:16px}
+    .opt-main{padding:16px}
   .opt-name{font-size:16px}
   .mtab{min-height:44px;padding:9px 16px}
   .link{padding:10px 12px}
@@ -945,7 +941,6 @@ en:{
   go:'Go', goOn:'Go — continue from here', orderTag:'next in round order',
   scanTag:'transit find', wholeRound:'whole round if taken first: <b class="num">{t}</b>',
   vsPlan:' · <span class="late">+{d} vs plan</span>', tiesPlan:' · ties the plan',
-  kbdHint:'<kbd>1</kbd>–<kbd>{n}</kbd> open · <kbd>Enter</kbd> go · <kbd>Esc</kbd> close',
   farStart:'Your start point is {dist} from the nearest station — location services can miss by a lot. If that seems wrong, restart and choose a point on the map.',
   veryFar:'very far', aboutKm:'~<b class="num">{km} km</b>',
   scanFailed:'Could not search transit-served stations, so this list is the road-nearest few only — a stop that just a tram or U-Bahn reaches well may be missing.',
@@ -1024,7 +1019,6 @@ de:{
   go:'Los', goOn:'Los — von hier weiter', orderTag:'nächster in der Runde',
   scanTag:'ÖPNV-Fund', wholeRound:'ganze Runde, wenn zuerst: <b class="num">{t}</b>',
   vsPlan:' · <span class="late">+{d} gegenüber dem Plan</span>', tiesPlan:' · gleich wie der Plan',
-  kbdHint:'<kbd>1</kbd>–<kbd>{n}</kbd> öffnen · <kbd>Enter</kbd> los · <kbd>Esc</kbd> schließen',
   farStart:'Dein Startpunkt ist {dist} vom nächsten Standort entfernt — die Ortung kann sich stark irren. Wenn das falsch aussieht, starte neu und wähle einen Punkt auf der Karte.',
   veryFar:'sehr weit', aboutKm:'~<b class="num">{km} km</b>',
   scanFailed:'Standorte mit guter ÖPNV-Anbindung konnten nicht gesucht werden — diese Liste enthält nur die auf der Straße nächsten. Ein Stopp, den nur Tram oder U-Bahn gut erreicht, kann fehlen.',
@@ -2930,7 +2924,6 @@ function paint(errMsg){
       Math.round(checked/Math.max(options.length,1)*100) + '%"></i></div>';
     // numbers are the round order in a round, the time rank otherwise
     html += list.map(optHTML).join('');
-    html += '<div class="kbd-hint">' + T('kbdHint', {n: Math.min(list.length, 9)}) + '</div>';
   }
   flow.innerHTML = html;
   wireList();
