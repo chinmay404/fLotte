@@ -22,6 +22,9 @@
   --sh1:0 1px 2px rgba(60,64,67,.30),0 1px 3px 1px rgba(60,64,67,.15);
   --sh2:0 1px 3px rgba(60,64,67,.30),0 4px 8px 3px rgba(60,64,67,.15);
   --t:260ms cubic-bezier(.25,.6,.3,1);
+  /* micro-interactions (hover tint, press) are seen tens of times a day:
+     much faster than --t, with a sharper ease-out so feedback lands instantly */
+  --tfast:120ms cubic-bezier(.23,1,.32,1);
 }
 @keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
 *{box-sizing:border-box}
@@ -30,8 +33,16 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);
   font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;
   display:flex;flex-direction:column;overflow:hidden}
 button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer;
-  text-align:left}
+  text-align:left;-webkit-tap-highlight-color:transparent}
 :focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
+/* every pressable answers the press: scale confirms the tap the instant it
+   lands, before any work happens. Rows (.bikerow,.dep,.sug) flash their
+   background instead — a full-width row shrinking reads as a glitch. */
+.langbtn:active,.chip:not([disabled]):active,.chipbtn:active,.mtab:active,
+.link:active,.donebtn:active,.go:active,.run:active,.retry:active,.resume:active{
+  transform:scale(.97)}
+.bikerow:active,.dep:active,.sug:active,.opt-main:active,
+details.filters summary:active{background:var(--alt)}
 svg{display:block}
 .num{font-variant-numeric:tabular-nums}
 
@@ -44,12 +55,13 @@ svg{display:block}
 .tally{font-size:12px;color:var(--sub)}
 .langbtn{margin-left:auto;padding:5px 10px;border:1px solid var(--line);
   border-radius:14px;background:var(--bg);font:inherit;font-size:12px;
-  font-weight:600;color:var(--sub);cursor:pointer;letter-spacing:.5px}
-.langbtn:hover{color:var(--ink);background:var(--alt)}
+  font-weight:600;color:var(--sub);cursor:pointer;letter-spacing:.5px;
+  transition:background var(--tfast),color var(--tfast),transform var(--tfast)}
+@media (hover:hover) and (pointer:fine){.langbtn:hover{color:var(--ink);background:var(--alt)}}
 .tabsnav{display:flex;height:56px}
 .tabsnav button{position:relative;display:flex;align-items:center;gap:8px;padding:0 16px;
-  font-size:14px;font-weight:500;color:var(--sub);transition:color var(--t)}
-.tabsnav button:hover{color:var(--ink);background:var(--alt)}
+  font-size:14px;font-weight:500;color:var(--sub);transition:color var(--tfast)}
+@media (hover:hover) and (pointer:fine){.tabsnav button:hover{color:var(--ink);background:var(--alt)}}
 .tabsnav button[aria-selected="true"]{color:var(--blue)}
 .tabsnav button[aria-selected="true"]::after{content:"";position:absolute;left:8px;right:8px;
   bottom:0;height:3px;border-radius:3px 3px 0 0;background:var(--blue)}
@@ -80,21 +92,22 @@ svg{display:block}
   box-shadow:var(--sh2);animation:rise .24s cubic-bezier(.25,.6,.3,1) both}
 .sugs:empty{display:none}
 .sug{display:flex;align-items:center;gap:14px;width:100%;padding:11px 16px;
-  font-size:14px;transition:background var(--t)}
-.sug:hover,.sug:focus-visible{background:var(--alt)}
+  font-size:14px;transition:background var(--tfast)}
+.sug:focus-visible{background:var(--alt)}
+@media (hover:hover) and (pointer:fine){.sug:hover{background:var(--alt)}}
 .sug svg{width:16px;height:16px;color:var(--sub);flex:none}
 .sug small{display:block;font-size:12px;color:var(--sub)}
 .startrow{display:flex;gap:10px;margin-top:16px}
 .chipbtn{display:flex;align-items:center;gap:8px;padding:9px 16px;border:1px solid var(--line);
   border-radius:20px;background:var(--bg);font-size:14px;font-weight:500;color:var(--blue);
-  min-height:40px;transition:background var(--t),border-color var(--t)}
-.chipbtn:hover{background:#F6FAFE;border-color:#D2E3FC}
+  min-height:40px;transition:background var(--tfast),border-color var(--tfast),transform var(--tfast)}
+@media (hover:hover) and (pointer:fine){.chipbtn:hover{background:#F6FAFE;border-color:#D2E3FC}}
 .chipbtn.on{background:var(--blue-bg);border-color:#D2E3FC}
 .chipbtn svg{width:16px;height:16px}
 .resume{display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:8px 14px;
   border:1px solid var(--line);border-radius:20px;font-size:13px;color:var(--sub);
-  transition:background var(--t)}
-.resume:hover{background:var(--alt)}
+  transition:background var(--tfast),transform var(--tfast)}
+@media (hover:hover) and (pointer:fine){.resume:hover{background:var(--alt)}}
 .resume svg{width:14px;height:14px}
 .note{margin-top:12px;font-size:12px;color:var(--sub);line-height:1.6;min-height:1em}
 
@@ -105,8 +118,8 @@ svg{display:block}
   letter-spacing:.5px}
 .trip-links{display:flex;gap:4px}
 .link{padding:6px 10px;border-radius:16px;font-size:13px;font-weight:500;color:var(--blue);
-  transition:background var(--t)}
-.link:hover{background:var(--blue-bg)}
+  transition:background var(--tfast),transform var(--tfast)}
+@media (hover:hover) and (pointer:fine){.link:hover{background:var(--blue-bg)}}
 .chain{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px}
 .stop-chip{display:inline-flex;align-items:center;gap:8px;max-width:100%;
   padding:5px 12px 5px 6px;border:1px solid var(--line);border-radius:16px;
@@ -124,8 +137,8 @@ svg{display:block}
 /* ============ mode tabs (Google directions row) ============ */
 .modes-row{display:flex;gap:6px;padding:12px 16px 4px}
 .mtab{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:18px;
-  font-size:13px;font-weight:500;color:var(--sub);transition:background var(--t),color var(--t)}
-.mtab:hover{background:var(--alt)}
+  font-size:13px;font-weight:500;color:var(--sub);transition:background var(--tfast),color var(--tfast),transform var(--tfast)}
+@media (hover:hover) and (pointer:fine){.mtab:hover{background:var(--alt)}}
 .mtab[aria-selected="true"]{background:var(--blue-bg);color:var(--blue-tx)}
 .mtab svg{width:16px;height:16px}
 
@@ -136,7 +149,7 @@ svg{display:block}
 .progress i{display:block;height:100%;background:var(--blue);width:0;transition:width var(--t)}
 .opt{border-bottom:1px solid var(--line);animation:rise .32s cubic-bezier(.25,.6,.3,1) both}
 .opt-main{display:block;width:100%;padding:14px 16px}
-.opt-main:hover{background:var(--alt)}
+@media (hover:hover) and (pointer:fine){.opt-main:hover{background:var(--alt)}}
 .opt-top{display:flex;align-items:center;gap:12px}
 .opt-rank{display:flex;align-items:center;justify-content:center;flex:none;
   width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:500;color:#fff}
@@ -181,8 +194,8 @@ svg{display:block}
 .bike.ok b,.bike.ok span{color:var(--sub);font-weight:500}
 .donebtn{display:inline-flex;align-items:center;margin-left:6px;padding:4px 12px;
   border-radius:13px;background:var(--brand);color:#143700;font-size:11.5px;
-  font-weight:600;cursor:pointer;transition:background var(--t)}
-.donebtn:hover{background:#8FD41A}
+  font-weight:600;cursor:pointer;transition:background var(--tfast),transform var(--tfast)}
+@media (hover:hover) and (pointer:fine){.donebtn:hover{background:#8FD41A}}
 
 /* departures (expanded card) */
 .board{background:var(--alt);border-top:1px solid var(--line);
@@ -192,7 +205,7 @@ svg{display:block}
   text-transform:uppercase;letter-spacing:.5px}
 .dep{display:block;width:100%;padding:10px 16px;border-top:1px solid var(--line)}
 .dep:first-of-type{border-top:none}
-.dep:hover{background:#F1F3F4}
+@media (hover:hover) and (pointer:fine){.dep:hover{background:#F1F3F4}}
 .dep[aria-selected="true"]{box-shadow:inset 3px 0 0 var(--blue);background:#F1F3F4}
 .dep-when{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .dep-clock{font-size:14px;font-weight:500}
@@ -203,14 +216,14 @@ svg{display:block}
 .dep .hintline{margin:5px 0 0}
 .go{display:flex;align-items:center;justify-content:center;gap:8px;margin:12px 16px 14px;
   padding:11px 22px;border-radius:22px;background:var(--brand);color:#143700;font-size:14px;
-  font-weight:600;min-height:44px;box-shadow:var(--sh1);transition:background var(--t)}
-.go:hover{background:#8FD41A}
+  font-weight:600;min-height:44px;box-shadow:var(--sh1);transition:background var(--tfast),transform var(--tfast)}
+@media (hover:hover) and (pointer:fine){.go:hover{background:#8FD41A}}
 .go svg{width:16px;height:16px}
 .board .note{padding:2px 16px 12px;margin:0}
 .spin{padding:18px 16px;font-size:13px;color:var(--sub)}
 .retry{margin-top:10px;display:inline-block;padding:8px 18px;border:1px solid var(--line);
-  border-radius:20px;font-weight:500;color:var(--blue)}
-.retry:hover{background:var(--blue-bg)}
+  border-radius:20px;font-weight:500;color:var(--blue);transition:background var(--tfast),transform var(--tfast)}
+@media (hover:hover) and (pointer:fine){.retry:hover{background:var(--blue-bg)}}
 .kbd-hint{padding:8px 16px 14px;font-size:11.5px;color:var(--sub)}
 kbd{font-size:10.5px;border:1px solid var(--line);border-bottom-width:2px;border-radius:3px;
   padding:0 4px;background:var(--bg)}
@@ -223,7 +236,7 @@ kbd{font-size:10.5px;border:1px solid var(--line);border-bottom-width:2px;border
 .mission svg{width:16px;height:16px;color:var(--red);flex:none}
 .mission b{font-weight:500}
 .mission .link{margin-left:auto;color:var(--red)}
-.mission .link:hover{background:rgba(217,48,37,.08)}
+@media (hover:hover) and (pointer:fine){.mission .link:hover{background:rgba(217,48,37,.08)}}
 .mission .addstop{margin-left:auto;display:inline-flex;align-items:center;gap:5px}
 .mission .addstop svg{width:13px;height:13px;color:currentColor}
 .mission .addstop + .link{margin-left:0}
@@ -246,8 +259,8 @@ kbd{font-size:10.5px;border:1px solid var(--line);border-bottom-width:2px;border
 .cat-search input:focus{outline:none;background:var(--bg);box-shadow:var(--sh1)}
 .run{display:flex;align-items:center;gap:8px;padding:9px 18px;border-radius:20px;
   background:var(--brand);color:#143700;font-size:14px;font-weight:600;min-height:40px;
-  white-space:nowrap;box-shadow:var(--sh1);transition:background var(--t)}
-.run:hover{background:#8FD41A}
+  white-space:nowrap;box-shadow:var(--sh1);transition:background var(--tfast),transform var(--tfast)}
+@media (hover:hover) and (pointer:fine){.run:hover{background:#8FD41A}}
 .run[disabled]{background:var(--alt);color:var(--sub);box-shadow:none;cursor:not-allowed}
 .run svg{width:15px;height:15px}
 .cat-tools{display:flex;align-items:center;gap:4px;padding:10px 16px 4px;font-size:12.5px;
@@ -258,8 +271,8 @@ kbd{font-size:10.5px;border:1px solid var(--line);border-bottom-width:2px;border
   font-size:12.5px;color:var(--ink)}
 .buried b{font-weight:600}
 .bikerow{display:flex;align-items:center;gap:14px;width:100%;padding:10px 16px;
-  border-bottom:1px solid var(--line);transition:background var(--t)}
-.bikerow:hover{background:var(--alt)}
+  border-bottom:1px solid var(--line);transition:background var(--tfast)}
+@media (hover:hover) and (pointer:fine){.bikerow:hover{background:var(--alt)}}
 /* The station the map is pointing at. Deliberately NOT --blue: despite the
    name that token is green (#57A300), the same accent used for "selected" and
    for times, so a highlight in it would read as a state rather than a pointer.
@@ -287,7 +300,7 @@ kbd{font-size:10.5px;border:1px solid var(--line);border-bottom-width:2px;border
 .bk-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
 .tick{display:flex;align-items:center;justify-content:center;flex:none;width:24px;
   height:24px;border-radius:50%;border:2px solid var(--line);color:transparent;
-  transition:all var(--t)}
+  transition:background var(--t),border-color var(--t),color var(--t)}
 .bikerow[aria-pressed="true"] .tick{background:var(--red);border-color:var(--red);color:#fff}
 .tick svg{width:13px;height:13px}
 
@@ -296,8 +309,11 @@ details.filters{border-bottom:1px solid var(--line);background:var(--bg)}
 details.filters summary{display:flex;align-items:center;gap:8px;padding:13px 16px;
   cursor:pointer;font-size:13px;font-weight:500;color:var(--sub);list-style:none}
 details.filters summary::-webkit-details-marker{display:none}
-details.filters summary:hover{color:var(--ink);background:var(--alt)}
+@media (hover:hover) and (pointer:fine){details.filters summary:hover{color:var(--ink);background:var(--alt)}}
 details.filters summary svg{width:16px;height:16px}
+/* <details> pops open with no transition; let the body rise like everything
+   else does. Close stays instant — exits should be faster than entries. */
+details.filters[open] .filter-body{animation:rise .2s cubic-bezier(.23,1,.32,1) both}
 .filter-body{padding:0 16px 18px}
 .fsearch{width:100%;padding:9px 14px;border:1px solid var(--line);border-radius:20px;
   background:var(--bg);font:inherit;font-size:14px}
@@ -307,8 +323,8 @@ details.filters summary svg{width:16px;height:16px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{display:inline-flex;align-items:center;padding:5px 12px;border-radius:16px;
   border:1px solid var(--line);background:var(--bg);font-size:13px;min-height:30px;
-  transition:all var(--t)}
-.chip:hover{background:var(--alt)}
+  transition:background var(--tfast),border-color var(--tfast),color var(--tfast),transform var(--tfast)}
+@media (hover:hover) and (pointer:fine){.chip:hover{background:var(--alt)}}
 .chip[aria-pressed="true"]{background:var(--blue-bg);border-color:#D2E3FC;color:var(--blue-tx);
   font-weight:500}
 .chip-n{font-size:11px;color:var(--sub);margin-left:6px}
