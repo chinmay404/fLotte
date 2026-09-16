@@ -1241,8 +1241,12 @@ function countFor(key, value){
 /* ---------- map ---------- */
 var map = L.map('map', {scrollWheelZoom:true}).setView([52.5075, 13.404], 11);
 /* near-monochrome ground: the route, line colours and district pins are the
-   only saturated things on screen */
-L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+   only saturated things on screen. CARTO watermarks keyless tiles with
+   "API KEY REQUIRED" since late 2026, so the key rides along; it is a free
+   basemap key (5M tiles/month) and lives in a public page by design — the
+   browser has to send it with every tile. The attribution is the licence. */
+var CARTO_KEY = 'cb1_3myq_1_42aeb9446326c0639260b8a7';
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=' + CARTO_KEY, {
   maxZoom:20, subdomains:'abcd',
   attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a> · data: fLotte Berlin'
 }).addTo(map);
