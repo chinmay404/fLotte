@@ -39,10 +39,13 @@ const sb = sandbox(['beelineKm', 'beelineSec'], {},
   ok(/roadEstimated = true/.test(body), 'a road failure is recorded, not fatal');
   ok(!/busy = false; paint\(e\.message\);\s*\n\s*return;/.test(body),
     'it no longer bails out and shows only an error');
-  ok(/beelineSec\(f\.lat, f\.lon, l\.lat, l\.lon, 'pedestrian'\)/.test(body),
-    'walk times fall back to straight lines');
-  ok(/beelineSec\(f\.lat, f\.lon, l\.lat, l\.lon, 'bicycle'\)/.test(body),
-    'and so do bike times');
+  // one estimator, called per costing — the three modes cannot drift apart
+  ok(/beelineSec\(f\.lat, f\.lon, l\.lat, l\.lon, costing\)/.test(body),
+    'the fallback estimates through a single shared helper');
+  ok(/walk = beeline\('pedestrian'\)/.test(body), 'walk times fall back to straight lines');
+  ok(/bike = beeline\('bicycle'\)/.test(body), 'and so do bike times');
+  ok(/car = wantsCar \? beeline\('auto'\) : null/.test(body),
+    'and car times too, but only when a car row can be shown');
   ok(/roadEstimated = false/.test(body), 'and the flag resets on a good hop');
 }
 

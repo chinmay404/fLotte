@@ -135,7 +135,13 @@ svg{display:block}
 .trip-sum b{color:var(--ink);font-weight:500}
 
 /* ============ mode tabs (Google directions row) ============ */
-.modes-row{display:flex;gap:6px;padding:12px 16px 4px}
+/* five modes overflow a 360px phone, so the row scrolls rather than wraps or
+   shrinks the 44px touch targets. No visible scrollbar: the tabs themselves
+   are the affordance, and a bar under them would read as chrome. */
+.modes-row{display:flex;gap:6px;padding:12px 16px 4px;overflow-x:auto;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.modes-row::-webkit-scrollbar{display:none}
+.mtab{flex:0 0 auto}
 .mtab{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:18px;
   font-size:13px;font-weight:500;color:var(--sub);transition:background var(--tfast),color var(--tfast),transform var(--tfast)}
 @media (hover:hover) and (pointer:fine){.mtab:hover{background:var(--alt)}}
@@ -770,6 +776,7 @@ var IC = {
   pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
   walk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4.5" r="2"/><path d="M12.5 8.5 10 19m2.5-10.5 2 3 3 1m-5-4-3 2-1 3.5m4 .5 3 3 .5 4"/></svg>',
   bike:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M8 17 11 9h4.5M11 9l4 8M15 6h2l1.5 4"/></svg>',
+  car:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M4 17v-4.5L6 8h12l2 4.5V17"/><path d="M4 12.5h16"/><circle cx="7.5" cy="17" r="1.8"/><circle cx="16.5" cy="17" r="1.8"/></svg>',
   tram:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="3" width="12" height="14" rx="2.5"/><path d="M6 11h12M9.5 21l-1 1.5m8.5-1.5 1 1.5M9 21h6"/><path d="M10 7h4"/></svg>',
   zap:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 5 13.5h5L9 22l8-11.5h-5L13 2Z"/></svg>',
   right:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h13m-6-7 7 7-7 7"/></svg>',
@@ -798,7 +805,7 @@ var options = [];         // [{i, walk:{sec,km}, bike:{sec,km}, transit:{journey
 var tour = null;          // repair round plan: {order:[locIdx], totalSec, estimated, costing, legShapes}
 var scanInfo = null;      // last transit scan: {ok, added}
 var expanded = null;
-var modePref = 'best';    // best | walk | bike | transit
+var modePref = 'best';    // best | walk | bike | car | transit
 var busy = false, token = 0, picking = false;
 var addingStop = false;   // map click adds an off-map repair stop
 var linked = null;        // station index currently linked between list and map
@@ -905,7 +912,7 @@ en:{
   filters:'Filters', searchStations:'Search stations',
   searchPlaceholder:'Station, street, postcode, bike',
   navPlan:'Directions', navBikes:'Bikes',
-  mBest:'Best', mWalk:'Walk', mBike:'Bike', mTransit:'Transit',
+  mBest:'Best', mWalk:'Walk', mBike:'Bike', mCar:'Car', mTransit:'Transit',
   // start
   startRoundQ:'Where does the round start?', startQ:'Where are you?',
   startRoundHint:'Set a start point — the round is planned in the best visiting order from there.',
@@ -930,7 +937,7 @@ en:{
   bestOrder:' · best order {mode} ≈ <b class="num">{t}</b> ',
   toLastStop:'to the last stop · there ~<b class="num">{at}</b>', travelWord:'travel',
   estSuffix:' (est.)', nRepaired:' · <b>{n}</b> repaired ✓', exit:'Exit',
-  byBike:'by bike', onFoot:'on foot',
+  byBike:'by bike', onFoot:'on foot', byCar:'by car',
   shutOut:'Shut before you could get there: {names}{more} — still flagged, so they carry over to another run.',
   andMore:' and {n} more',
   mismatch:'Best routes <b>{n}</b> of these {of} stops another way, but the order is solved {mode} throughout — the sequence may not be the fastest for how you actually travel.',
@@ -954,11 +961,12 @@ en:{
   hoursTooLate:' · shut by the time you arrive',
   // board
   departures:'Departures', legInGoogle:'This leg in Google ↗', refresh:'Refresh',
-  boardWalk:'On foot', boardBike:'By bike',
+  boardWalk:'On foot', boardBike:'By bike', boardCar:'By car',
   legAbout:'About <b class="num">{t}</b> over <b class="num">{km}</b> from {label}.',
   legAboutNoKm:'About <b class="num">{t}</b> from {label}.',
   noRoadRoute:'No {mode} route found to this station.',
-  cycling:'cycling', walking:'walking',
+  cycling:'cycling', walking:'walking', driving:'driving',
+  pkWalk:'walking', pkBike:'by bike', pkCar:'by car', pkTransit:'by transit',
   noTransit:'No transit route found — walk or cycle this one.',
   transitDown:'Could not reach the departure service — this is <b>not</b> a "no route" answer, so there may well be one. Walk and bike times are unaffected.',
   checkingDep:'Checking departures…',
@@ -987,7 +995,7 @@ de:{
   filters:'Filter', searchStations:'Standorte suchen',
   searchPlaceholder:'Standort, Straße, PLZ, Rad',
   navPlan:'Route', navBikes:'Räder',
-  mBest:'Beste', mWalk:'Fuß', mBike:'Rad', mTransit:'ÖPNV',
+  mBest:'Beste', mWalk:'Fuß', mBike:'Rad', mCar:'Auto', mTransit:'ÖPNV',
   startRoundQ:'Wo beginnt die Runde?', startQ:'Wo bist du?',
   startRoundHint:'Setze einen Startpunkt — die Runde wird von dort in der besten Reihenfolge geplant.',
   startHint:'Du bekommst die nächsten Lastenrad-Standorte — auch die, die mit dem ÖPNV schneller erreichbar sind — und den kürzesten Weg zu jedem.',
@@ -1009,7 +1017,7 @@ de:{
   bestOrder:' · beste Reihenfolge {mode} ≈ <b class="num">{t}</b> ',
   toLastStop:'bis zum letzten Stopp · dort ~<b class="num">{at}</b>', travelWord:'Fahrzeit',
   estSuffix:' (geschätzt)', nRepaired:' · <b>{n}</b> repariert ✓', exit:'Beenden',
-  byBike:'mit dem Rad', onFoot:'zu Fuß',
+  byBike:'mit dem Rad', onFoot:'zu Fuß', byCar:'mit dem Auto',
   shutOut:'Vor deiner Ankunft geschlossen: {names}{more} — bleiben gemeldet und kommen in eine spätere Runde.',
   andMore:' und {n} weitere',
   mismatch:'„Beste“ führt dich bei <b>{n}</b> von {of} Stopps anders hin, die Reihenfolge ist aber durchgehend {mode} berechnet — sie ist für deine tatsächliche Fahrweise vielleicht nicht die schnellste.',
@@ -1030,11 +1038,12 @@ de:{
   notInList:'Dieser Standort ist gerade aus der Liste gefiltert.',
   hoursTooLate:' · bei deiner Ankunft geschlossen',
   departures:'Abfahrten', legInGoogle:'Diese Etappe in Google ↗', refresh:'Aktualisieren',
-  boardWalk:'Zu Fuß', boardBike:'Mit dem Rad',
+  boardWalk:'Zu Fuß', boardBike:'Mit dem Rad', boardCar:'Mit dem Auto',
   legAbout:'Etwa <b class="num">{t}</b> über <b class="num">{km}</b> ab {label}.',
   legAboutNoKm:'Etwa <b class="num">{t}</b> ab {label}.',
   noRoadRoute:'Keine Route {mode} zu diesem Standort gefunden.',
-  cycling:'mit dem Rad', walking:'zu Fuß',
+  cycling:'mit dem Rad', walking:'zu Fuß', driving:'mit dem Auto',
+  pkWalk:'zu Fuß', pkBike:'mit dem Rad', pkCar:'mit dem Auto', pkTransit:'mit ÖPNV',
   noTransit:'Keine ÖPNV-Verbindung gefunden — fahre oder gehe diese Etappe.',
   transitDown:'Der Abfahrts-Dienst war nicht erreichbar — das ist <b>keine</b> Aussage „keine Verbindung“, es gibt also vermutlich eine. Die Zeiten zu Fuß und mit dem Rad sind davon nicht betroffen.',
   checkingDep:'Prüfe Abfahrten…',
@@ -1562,7 +1571,8 @@ async function fetchShape(from, to, costing){
   }catch(e){ return null; }
 }
 async function roadShape(o, costing){
-  var key = costing === 'pedestrian' ? '_walkShape' : '_bikeShape';
+  var key = costing === 'pedestrian' ? '_walkShape' : costing === 'auto' ? '_carShape'
+          : '_bikeShape';
   if(o[key]) return o[key];
   var loc = LOCATIONS[o.i];
   var pts = await fetchShape(here(), {lat:loc.lat, lon:loc.lon}, costing);
@@ -1659,10 +1669,10 @@ function previewOf(i){
     else lines.clearLayers();   // no fake beeline: five of those all look identical
     return;
   }
-  // walk/bike: beeline immediately, then swap in the real street route
-  drawRoad(o[mode === 'walk' ? '_walkShape' : '_bikeShape'] || null, mode,
+  // a road mode: beeline immediately, then swap in the real street route
+  drawRoad(o[shapeKey(mode)] || null, mode,
     [here().lat, here().lon], [loc.lat, loc.lon]);
-  roadShape(o, mode === 'walk' ? 'pedestrian' : 'bicycle').then(function(pts){
+  roadShape(o, costingOf(mode)).then(function(pts){
     if(my !== previewSeq || !pts) return;
     drawRoad(pts, mode, null, [loc.lat, loc.lon]);
   });
@@ -1706,7 +1716,11 @@ function matrixSec(costing, a, b){
   return v >= 65535 ? null : v;
 }
 var DETOUR = 1.3;
-var ROAD_SPD = {pedestrian: 750, bicycle: 240};   // seconds per km
+/* seconds per km for the straight-line fallback. Car is door-to-door, not
+   cruising speed: ~24 km/h is what Berlin traffic, lights and finding a
+   parking space actually average out to, and quoting a motorway figure here
+   would make driving win comparisons it should lose. */
+var ROAD_SPD = {pedestrian: 750, bicycle: 240, auto: 150};   // seconds per km
 var roadEstimated = false;   // the whole list is straight-line right now
 function beelineKm(aLat, aLon, bLat, bLon){
   return FlotteEngine.haversineKm(aLat, aLon, bLat, bLon) * DETOUR;
@@ -1763,9 +1777,34 @@ async function matrix(costing, targets){
   }));
   return Array.prototype.concat.apply([], parts);
 }
-var MATRIX_BATCH = 99;   // 1 source + 99 targets = Valhalla's 100-location cap
+/* Valhalla's public server caps a matrix at 100 CELLS — sources x targets —
+   not at 100 locations. It answers both with "Exceeded max locations: 100",
+   but 1x100 is accepted and 11x11 is refused, so it is the cell count that
+   binds. Measured against valhalla1.openstreetmap.de. Reading that message
+   literally is what put a 41x41 = 1681-cell request behind a 40-station
+   guard in ensureTour, where it could never have succeeded. */
+/* Valhalla's public server starts refusing once too many requests are in
+   flight at once: measured against valhalla1.openstreetmap.de, 9 parallel all
+   pass and 12 return five 429s. Browse fires one batch per profile per 100
+   stations, so a third travel mode — or simply more stations — walks into
+   that on its own. Cap what we have in flight rather than discovering the
+   limit on someone's phone at a junction. */
+var ROAD_MAX_INFLIGHT = 8;
+var roadInflight = 0, roadQueue = [];
+function roadSlot(){
+  if(roadInflight < ROAD_MAX_INFLIGHT){ roadInflight++; return Promise.resolve(); }
+  return new Promise(function(res){ roadQueue.push(res); });
+}
+function roadRelease(){
+  // hand the slot straight to whoever is waiting, so the count cannot drift
+  var next = roadQueue.shift();
+  if(next) next(); else roadInflight--;
+}
+var MATRIX_CELL_CAP = 100;
+var MATRIX_BATCH = MATRIX_CELL_CAP;   // browse: 1 source x 100 targets
 async function matrixChunk(costing, from, targets){
   var r;
+  await roadSlot();
   try{
     r = await fetchT(VALHALLA, {
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -1781,12 +1820,57 @@ async function matrixChunk(costing, from, targets){
        tells her nothing and reads like a bug in the app rather than a public
        service being overloaded. Name what happened and what to do. */
     throw new Error(e && e.name === 'AbortError' ? T('roadTimeout') : T('roadNet'));
-  }
+  }finally{ roadRelease(); }
   if(!r.ok) throw new Error(T('roadDown', {status: r.status}));
   return (await r.json()).sources_to_targets[0].map(function(x){
     return x && typeof x.time === 'number'
       ? {sec:x.time, km: typeof x.distance === 'number' ? x.distance : null} : null;
   });
+}
+
+/* Plan the requests that fill a set of missing matrix cells, given the cell
+   cap. `holes` is [[row, col], ...]; the rectangle of (rows that need
+   something) x (union of the columns they need) covers every one of them, and
+   splitting that rectangle is what keeps each request legal. The rectangle can
+   be wider than the holes themselves — caller discards the surplus — but one
+   request for a block beats one request per row, which is what a naive
+   per-row plan would cost when the shipped matrix is missing entirely. */
+function matrixPatchPlan(holes){
+  var rows = [], cols = [], seenR = {}, seenC = {}, out = [];
+  holes.forEach(function(h){
+    if(!seenR[h[0]]){ seenR[h[0]] = 1; rows.push(h[0]); }
+    if(!seenC[h[1]]){ seenC[h[1]] = 1; cols.push(h[1]); }
+  });
+  rows.sort(function(a, b){ return a - b; });
+  cols.sort(function(a, b){ return a - b; });
+  for(var c = 0; c < cols.length; c += MATRIX_CELL_CAP){
+    var tt = cols.slice(c, c + MATRIX_CELL_CAP);
+    // floor, so sources x targets can never climb back over the cap
+    var per = Math.max(1, Math.floor(MATRIX_CELL_CAP / tt.length));
+    for(var s2 = 0; s2 < rows.length; s2 += per)
+      out.push({sources: rows.slice(s2, s2 + per), targets: tt});
+  }
+  return out;
+}
+/* One patch request. Same failure wording as matrixChunk: a caller that falls
+   back to straight lines should be able to say which service let it down. */
+async function matrixPatch(costing, pts, req){
+  var r;
+  await roadSlot();
+  try{
+    r = await fetchT(VALHALLA, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        sources: req.sources.map(function(i){ return {lat:pts[i].lat, lon:pts[i].lon}; }),
+        targets: req.targets.map(function(j){ return {lat:pts[j].lat, lon:pts[j].lon}; }),
+        costing: costing
+      })
+    }, ROAD_TIMEOUT);
+  }catch(e){
+    throw new Error(e && e.name === 'AbortError' ? T('roadTimeout') : T('roadNet'));
+  }finally{ roadRelease(); }
+  if(!r.ok) throw new Error(T('roadDown', {status: r.status}));
+  return (await r.json()).sources_to_targets;
 }
 /* Try each host in turn, preferring whichever answered last. A 5xx or a thrown
    request moves on to the next; only when all of them fail do we give up. */
@@ -1891,16 +1975,21 @@ function transitSec(o){
 function timeFor(o, mode){
   if(mode === 'walk') return o.walk ? o.walk.sec : null;
   if(mode === 'bike') return o.bike ? o.bike.sec : null;
+  if(mode === 'car') return o.car ? o.car.sec : null;
   if(mode === 'transit') return transitSec(o);
-  var v = [o.walk && o.walk.sec, o.bike && o.bike.sec, transitSec(o)]
+  var v = [o.walk && o.walk.sec, o.bike && o.bike.sec, o.car && o.car.sec, transitSec(o)]
     .filter(function(x){ return typeof x === 'number'; });
   return v.length ? Math.min.apply(null, v) : null;
 }
+/* Ties break toward the mode that needs least: you always have your legs, a
+   cargo bike is the thing being fetched, and a car has to be parked at the
+   other end. So bike, then walk, then car, then transit. */
 function bestMode(o){
   var b = timeFor(o, 'best');
   if(b == null) return null;
   if(o.bike && o.bike.sec === b) return 'bike';
   if(o.walk && o.walk.sec === b) return 'walk';
+  if(o.car && o.car.sec === b) return 'car';
   return 'transit';
 }
 function optOf(i){ return options.filter(function(x){ return x.i === i; })[0] || null; }
@@ -1935,7 +2024,11 @@ function sorted(){
 /* Repair round: one many-to-many road matrix over [here] + remaining flagged
    stations, solved as an open tour. Recomputed each hop from wherever you
    actually are, so deviating from the plan just replans the rest. */
-var TOUR_MAX = 40;   // stations; above this the matrix call is skipped
+/* How many patch requests a single plan may fire. The browse view already
+   allows a burst of this size, and the shipped matrix means a normal plan
+   needs exactly one. Beyond it we do not ask at all: a donated public server
+   should not take 20 requests so one round can avoid a rough estimate. */
+var TOUR_PATCH_REQS = 6;
 /* ---- opening hours ------------------------------------------------------
    loc.hours is {weekday: [[openMin, closeMin], ...]} in local minutes, 1=Mon.
    null means fLotte publishes none, which must read as "unknown", never as a
@@ -1979,20 +2072,41 @@ function windowsCover(loc, baseMs, sec){
 function hhmmOf(min){
   return ('0' + Math.floor(min/60)).slice(-2) + ':' + ('0' + (min%60)).slice(-2);
 }
-function roundCosting(){ return modePref === 'walk' ? 'pedestrian' : 'bicycle'; }
+/* mode token (what the tabs speak) -> Valhalla costing (what the router
+   speaks). Three call sites used to inline this ternary; a fourth mode is
+   exactly how those drift apart. */
+function costingOf(mode){
+  return mode === 'walk' ? 'pedestrian' : mode === 'car' ? 'auto' : 'bicycle';
+}
+/* where a mode's cached street geometry lives on an option */
+function shapeKey(mode){
+  return mode === 'walk' ? '_walkShape' : mode === 'car' ? '_carShape' : '_bikeShape';
+}
+/* the {sec, km} record for a road mode; null for transit, which is not one */
+function recFor(o, mode){
+  return mode === 'walk' ? o.walk : mode === 'car' ? o.car
+       : mode === 'bike' ? o.bike : null;
+}
+function roundCosting(){
+  if(modePref === 'walk') return 'pedestrian';
+  if(modePref === 'car') return 'auto';
+  return 'bicycle';
+}
 /* The visiting order is solved on a road matrix — VBB is one call per pair at
    GAP ms, so an N x N transit matrix is not affordable. Under Transit that
    makes the order a *bicycle* order, so name the costing the plan was actually
    solved for rather than let it pass as a transit plan. Read from
    tour.costing, never modePref: the two differ until the round re-solves. */
-function costingLabel(c){ return c === 'pedestrian' ? T('onFoot') : T('byBike'); }
+function costingLabel(c){
+  return c === 'pedestrian' ? T('onFoot') : c === 'auto' ? T('byCar') : T('byBike');
+}
 /* Best picks a mode per station, but the visiting order was solved on one road
    matrix — so under Best the sequence can be optimal for a vehicle she is not
    using on every leg. Report it only when the two actually disagree: a quiet
    interface earns its warnings, and a standing banner would just be noise. */
 function orderModeMismatch(){
   if(!mission || !tour || modePref !== 'best') return null;
-  var want = tour.costing === 'pedestrian' ? 'walk' : 'bike';
+  var want = tour.costing === 'pedestrian' ? 'walk' : tour.costing === 'auto' ? 'car' : 'bike';
   var off = options.filter(function(o){
     var m = bestMode(o);
     return m && m !== want;
@@ -2018,55 +2132,78 @@ async function ensureTour(my){
      matrix is station-to-station and already in the payload */
   var idx = [here().i == null ? null : here().i].concat(
     rem.map(function(l){ return l._i; }));
-  var mat = null, estimated = false, offline = false;
+  var mat = [], estimated = false, offline = false;
+  var roadSkipped = false, roadError = null;
   /* Fill from the shipped matrix cell by cell rather than all-or-nothing. On
      the very first plan node 0 is her own start point, which is not in the
      matrix — but nodes 1..n all are, and that is the whole station-to-station
      block, i.e. nearly every cell. Estimating only the start row keeps the
      first plan almost exact even with the road router down; requiring every
-     node to be a station threw all of that away. */
-  if(MATRIX){
-    var m2 = [], holes = 0, filled = 0;
-    for(var a2 = 0; a2 < idx.length; a2++){
-      var row = [];
-      for(var b2 = 0; b2 < idx.length; b2++){
-        if(a2 === b2){ row.push(0); continue; }
-        var v2 = (idx[a2] != null && idx[b2] != null)
-          ? matrixSec(costing, idx[a2], idx[b2]) : null;
-        if(v2 == null){ row.push(null); holes++; } else { row.push(v2); filled++; }
-      }
-      m2.push(row);
+     node to be a station threw all of that away.
+
+     Column 0 stays 0 and is never asked for: the tour starts at node 0 and
+     never returns there, so tourCost and heldKarp only ever read row 0 and
+     the station-to-station block. Buying it would spend cells out of a very
+     tight budget on numbers nothing reads. */
+  var holes = [], holeAt = {};
+  for(var a2 = 0; a2 < idx.length; a2++){
+    var row = [];
+    for(var b2 = 0; b2 < idx.length; b2++){
+      if(a2 === b2 || b2 === 0){ row.push(0); continue; }
+      var v2 = (MATRIX && idx[a2] != null && idx[b2] != null)
+        ? matrixSec(costing, idx[a2], idx[b2]) : null;
+      if(v2 == null){ row.push(null); holes.push([a2, b2]); holeAt[a2 + ':' + b2] = 1; }
+      else row.push(v2);
     }
-    // worth using only if the matrix supplied the bulk of it
-    if(filled > holes){ mat = m2; offline = true; }
+    mat.push(row);
   }
-  if((!mat || !offline) && pts.length <= TOUR_MAX + 1){
-    try{
-      var r = await fetchT(VALHALLA, {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({
-          sources: pts.map(function(p){ return {lat:p.lat, lon:p.lon}; }),
-          targets: pts.map(function(p){ return {lat:p.lat, lon:p.lon}; }),
-          costing: costing
-        })
-      }, ROAD_TIMEOUT);
-      if(r.ok) mat = (await r.json()).sources_to_targets.map(function(row){
-        return row.map(function(x){ return x && typeof x.time === 'number' ? x.time : null; });
-      });
-    }catch(e){}
+  offline = !holes.length;
+  /* Ask the road router for the holes and nothing else. The old code sent the
+     whole (n+1)x(n+1) whenever the shipped matrix did not carry the bulk of
+     it: 1681 cells for a 40-station round against a 100-cell cap, so it could
+     never have succeeded, and an empty catch turned that certain 400 into a
+     silent downgrade to straight lines. On a first plan the holes are exactly
+     row 0 — one request, n cells. */
+  if(holes.length){
+    var reqs = matrixPatchPlan(holes);
+    if(reqs.length > TOUR_PATCH_REQS){
+      roadSkipped = true;
+    }else{
+      try{
+        var parts = await Promise.all(reqs.map(function(q){
+          return matrixPatch(costing, pts, q);
+        }));
+        if(my !== token) return;
+        parts.forEach(function(rows2, n3){
+          var q2 = reqs[n3];
+          rows2.forEach(function(rw, si){
+            rw.forEach(function(cv, ti){
+              var i3 = q2.sources[si], j3 = q2.targets[ti];
+              /* the rectangle can cover cells the shipped matrix already
+                 filled; those keep their own value, so a single plan never
+                 mixes two routing engines' numbers for the same leg */
+              if(holeAt[i3 + ':' + j3] && cv && typeof cv.time === 'number')
+                mat[i3][j3] = cv.time;
+            });
+          });
+        });
+      }catch(e){
+        /* Not swallowed. She already reads the "estimated" wording; this is so
+           anyone reading a report can tell a router that failed from a request
+           we chose never to make. */
+        roadError = (e && e.message) || String(e);
+        if(typeof console !== 'undefined' && console.warn)
+          console.warn('tour road matrix failed, using estimates:', roadError);
+      }
+    }
   }
   if(my !== token) return;
-  // fill gaps (or the whole matrix) from beeline estimates, honestly labelled
+  // whatever is still missing becomes a beeline estimate, honestly labelled
   function est(a, b){
     return beelineSec(pts[a].lat, pts[a].lon, pts[b].lat, pts[b].lon, costing);
   }
-  if(!mat){
-    estimated = true;
-    mat = pts.map(function(_, i){ return pts.map(function(_, j){ return est(i, j); }); });
-  }else{
-    for(var i = 0; i < mat.length; i++) for(var j = 0; j < mat.length; j++)
-      if(mat[i][j] == null){ estimated = true; mat[i][j] = est(i, j); }
-  }
+  for(var i = 0; i < mat.length; i++) for(var j = 1; j < mat.length; j++)
+    if(mat[i][j] == null){ estimated = true; mat[i][j] = est(i, j); }
   /* Opening hours turn this from "shortest ride" into "earliest finish that
      actually gets through the doors". Waiting for a door counts, and a stop
      whose last window shuts before she can reach it is reported, not hidden. */
@@ -2113,6 +2250,7 @@ async function ensureTour(my){
       return out;
     })() : null,
     timed: timed, baseMs: baseMs, offline: offline,
+    roadSkipped: roadSkipped, roadError: roadError,
     altTotals: altTotals,
     estimated: estimated, costing: costing, legShapes: prevShapes
   };
@@ -2170,11 +2308,19 @@ async function nextHop(){
 
   if(mission){ await ensureTour(my); if(my !== token) return; }
 
-  var walk, bike;
+  /* Walk and bike are always wanted: they are the two the peek bar and the
+     round can fall back on. Car is fetched only where it can be seen — under
+     Walk, Bike or Transit nothing renders a car row, so asking for it is a
+     third of the road traffic spent on an answer nobody is shown. Same
+     reasoning as the transit guard below. */
+  var wantsCar = modePref === 'car' || modePref === 'best';
+  var walk, bike, car = null;
   roadEstimated = false;
   try{
-    var pair = await Promise.all([matrix('pedestrian', pool), matrix('bicycle', pool)]);
-    walk = pair[0]; bike = pair[1];
+    var want = [matrix('pedestrian', pool), matrix('bicycle', pool)];
+    if(wantsCar) want.push(matrix('auto', pool));
+    var pair = await Promise.all(want);
+    walk = pair[0]; bike = pair[1]; car = wantsCar ? pair[2] : null;
   }catch(e){
     if(my !== token) return;
     /* The road router being down must not empty the screen. Everything else
@@ -2183,21 +2329,23 @@ async function nextHop(){
        so, rather than showing her an error and nothing to act on. */
     roadEstimated = true;
     var f = here();
-    walk = pool.map(function(l){
-      return {sec: beelineSec(f.lat, f.lon, l.lat, l.lon, 'pedestrian'),
-              km: beelineKm(f.lat, f.lon, l.lat, l.lon)};
-    });
-    bike = pool.map(function(l){
-      return {sec: beelineSec(f.lat, f.lon, l.lat, l.lon, 'bicycle'),
-              km: beelineKm(f.lat, f.lon, l.lat, l.lon)};
-    });
+    var beeline = function(costing){
+      return pool.map(function(l){
+        return {sec: beelineSec(f.lat, f.lon, l.lat, l.lon, costing),
+                km: beelineKm(f.lat, f.lon, l.lat, l.lon)};
+      });
+    };
+    walk = beeline('pedestrian');
+    bike = beeline('bicycle');
+    car = wantsCar ? beeline('auto') : null;
   }
   if(my !== token) return;
 
   var all = pool.map(function(loc, k){
-      return {i: loc._i, walk: walk[k], bike: bike[k], transit: null, selJ: 0};
+      return {i: loc._i, walk: walk[k], bike: bike[k],
+              car: car ? car[k] : null, transit: null, selJ: 0};
     })
-    .filter(function(o){ return o.walk || o.bike; });
+    .filter(function(o){ return o.walk || o.bike || o.car; });
 
   if(mission && tour && tour.order.length){
     // the round IS the list: the optimal order's next stops, in that order
@@ -2293,13 +2441,13 @@ function choose(i){
     hop.rideSec = Math.max(0, (new Date(j.arr) - new Date(j.dep)) / 1000);
     hop.dep = j.dep; hop.arr = j.arr; hop.legs = j.legs;
   }else{
-    var rec = mode === 'bike' ? o.bike : o.walk;
+    var rec = recFor(o, mode) || o.walk;
     hop.sec = rec ? rec.sec : timeFor(o, 'best');
     hop.km = rec ? rec.km : null;
-    var cached = o[mode === 'walk' ? '_walkShape' : '_bikeShape'];
+    var cached = o[shapeKey(mode)];
     if(cached) hop.shape = cached;
     else fetchShape(from, {lat:loc.lat, lon:loc.lon},
-        mode === 'walk' ? 'pedestrian' : 'bicycle')
+        costingOf(mode))
       .then(function(pts){
         if(pts && trip.indexOf(hop) !== -1){ hop.shape = pts; drawTripLines(); }
       });
@@ -2539,6 +2687,11 @@ function optHTML(o, n){
         (compare || modePref === 'bike'
           ? mv(IC.bike, T('mBike'), o.bike && o.bike.sec, mode === 'bike',
               o.bike && km(o.bike.km), !compare) : '') +
+        /* under Best the car row appears only when a car time exists: it is
+           fetched lazily, and an empty row would read as "no car route" */
+        ((compare && o.car) || modePref === 'car'
+          ? mv(IC.car, T('mCar'), o.car && o.car.sec, mode === 'car',
+              o.car && km(o.car.km), !compare) : '') +
         (compare || modePref === 'transit' ? transitBit : '') + '</div>' +
       (function(){
         // price the deviation: what the whole round costs if you start here
@@ -2566,17 +2719,19 @@ function optHTML(o, n){
   if(open){
     html += '<div class="board"' + (BOARD_ANIM ? '' : ' style="animation:none"') + '>';
     // a road mode drills down into that road leg — departures belong to transit
-    if(modePref === 'walk' || modePref === 'bike'){
-      var rec = modePref === 'bike' ? o.bike : o.walk;
+    if(modePref === 'walk' || modePref === 'bike' || modePref === 'car'){
+      var rec = recFor(o, modePref);
       html += '<div class="board-head"><span>' +
-          (modePref === 'bike' ? T('boardBike') : T('boardWalk')) + '</span><span class="trip-links">' +
+          (modePref === 'bike' ? T('boardBike') : modePref === 'car' ? T('boardCar')
+            : T('boardWalk')) + '</span><span class="trip-links">' +
           '<button class="link" type="button" data-gleg="' + o.i + '" data-gmode="' +
-          (modePref === 'bike' ? 'bicycling' : 'walking') +
+          (modePref === 'bike' ? 'bicycling' : modePref === 'car' ? 'driving' : 'walking') +
           '">' + T('legInGoogle') + '</button></span></div>' +
         '<div class="note">' + (rec
           ? T(rec.km != null ? 'legAbout' : 'legAboutNoKm',
               {t: mins(rec.sec), km: km(rec.km), label: esc(here().label)})
-          : T('noRoadRoute', {mode: modePref === 'bike' ? T('cycling') : T('walking')})) +
+          : T('noRoadRoute', {mode: modePref === 'bike' ? T('cycling')
+              : modePref === 'car' ? T('driving') : T('walking')})) +
         '</div>';
     }else if(js && js.length){
       html += '<div class="board-head"><span>' + T('departures') + '</span><span class="trip-links">' +
@@ -2874,7 +3029,8 @@ function paint(errMsg){
   }
   html += '<div class="modes-row" role="tablist" aria-label="Travel mode">' +
     mtab('best', IC.zap, T('mBest')) + mtab('walk', IC.walk, T('mWalk')) +
-    mtab('bike', IC.bike, T('mBike')) + mtab('transit', IC.tram, T('mTransit')) + '</div>';
+    mtab('bike', IC.bike, T('mBike')) + mtab('car', IC.car, T('mCar')) +
+    mtab('transit', IC.tram, T('mTransit')) + '</div>';
 
   if(errMsg){
     html += '<div class="spin">' + esc(errMsg) +
@@ -2896,7 +3052,7 @@ function paint(errMsg){
       var kick = busy ? T('checking')
         : (mission && top.i === tourNext() ? T('nextInRound') : T('fastest'));
       var pkMode = modePref === 'best' ? (bestMode(top) || 'walk') : modePref;
-      var pkRec = pkMode === 'walk' ? top.walk : pkMode === 'bike' ? top.bike : null;
+      var pkRec = recFor(top, pkMode);
       var pkX = pkRec && pkRec.km != null ? ' · ' + km(pkRec.km) : '';
       if(pkMode === 'transit'){
         var pj = top.transit && top.transit.journeys && top.transit.journeys[top.selJ || 0];
@@ -2910,7 +3066,8 @@ function paint(errMsg){
         '<span class="pk-body"><span class="pk-k">' + kick + '</span>' +
         '<b>' + esc(tl.location_name) + '</b>' +
         '<span class="pk-time num">' + mins(timeFor(top, modePref)) +
-          ({walk:' walking', bike:' by bike', transit:' by transit'})[pkMode] + pkX +
+          ' ' + ({walk: T('pkWalk'), bike: T('pkBike'), car: T('pkCar'),
+                  transit: T('pkTransit')})[pkMode] + pkX +
         '</span></span>' +
         '<span class="pk-go">' + T('go') + IC.right + '</span></button>' + html;
     }
@@ -3200,6 +3357,7 @@ window.__flotte = {
       }),
       tour: tour ? {order: tour.order, totalSec: tour.totalSec, estimated: tour.estimated,
                     costing: tour.costing, offline: !!tour.offline,
+                    roadSkipped: !!tour.roadSkipped, roadError: tour.roadError || null,
                     dropped: tour.dropped || []} : null,
       matrix: MATRIX ? {n: MATRIX.n, decoded: Object.keys(matCache)} : null,
       roadEstimated: roadEstimated,

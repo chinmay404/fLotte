@@ -33,7 +33,10 @@ GAP = 1.5           # seconds between page fetches
 # ---------------------------------------------------------------- parsing
 
 DAYS = {"mo": 1, "di": 2, "mi": 3, "do": 4, "fr": 5, "sa": 6, "so": 7}
-DAY = r"(?:Mo|Di|Mi|Do|Fr|Sa|So|Feiertag\w*)"
+# "Täglich 8:00 - 18:00" names no weekday but means all seven. Without it the
+# whole clause is invisible to CLAUSE and the station reads as hours-unknown.
+DAILY = r"(?:t\u00e4glich|taeglich|tgl\.?)"
+DAY = r"(?:Mo|Di|Mi|Do|Fr|Sa|So|Feiertag\w*|" + DAILY + r")"
 # fLotte writes day lists with any of these, not just commas:
 #   "Di + Do", "Sa+So", "Mo/Mi/Do", "Di u. Mi", "Mo und Fr"
 # Missing one silently drops a day, and a dropped day reads as CLOSED, which
@@ -47,16 +50,25 @@ TAIL = re.compile(r"[,.;]?\s*\(?\s*(?:außer|ausser)\s+an\s+(?:gesetzl\w*\.?\s*)
 VAGUE = re.compile(r"nach\s+(?:vorheriger\s+)?(?:individueller\s+)?(?:telefon\w*\s+)?Absprache"
                    r"|Terminvereinbarung|nach\s+Vereinbarung|vormittags|nachmittags"
                    r"|auf\s+Anfrage", re.I)
-RANGE = re.compile(r"(\d{1,2})(?::(\d{2}))?\s*[-–]\s*(\d{1,2})(?::(\d{2}))?")
+# fLotte writes the minute separator as either ":" or "." — "09.30-17.00" is
+# as common as "9:30-17:00". Requiring a colon dropped whole clauses silently.
+# Two digits are required after the separator, so a "Str. 21" cannot match.
+MIN = r"(?:[:.](\d{2}))?"
+_MIN = r"(?:[:.]\d{2})?"
+RANGE = re.compile(rf"(\d{{1,2}}){MIN}\s*[-–]\s*(\d{{1,2}}){MIN}")
 CLAUSE = re.compile(
     rf"((?:{DAY}(?:\s*[-–]\s*{DAY})?)(?:{SEP}{DAY}(?:\s*[-–]\s*{DAY})?)*)"
     rf"\s*(?![-–]\s*{DAY})"
-    r"((?:\s*\d{1,2}(?::\d{2})?\s*[-–]\s*\d{1,2}(?::\d{2})?(?:\s*(?:\||u\.|und|,)\s*)?)+)",
+    # "Mo - Fr von 9-15 Uhr": the preposition sits between days and clock
+    rf"\s*(?:von\s+)?"
+    rf"((?:\s*\d{{1,2}}{_MIN}\s*[-–]\s*\d{{1,2}}{_MIN}(?:\s*(?:\||u\.|und|,)\s*)?)+)",
     re.I)
 
 
 def _expand(token):
     """'Mo-Fr' -> [1,2,3,4,5];  'Sa' -> [6];  'Feiertag' -> [] (not a weekday)"""
+    if re.fullmatch(DAILY, token.strip(), re.I):
+        return [1, 2, 3, 4, 5, 6, 7]
     parts = [t for t in re.split(r"\s*[-–]\s*", token.strip()) if t]
     keys = [p[:2].lower() for p in parts]
     if not keys or keys[0] not in DAYS:          # e.g. "Feiertag" in a day list
@@ -113,7 +125,7 @@ def parse_pickup(text):
             sched[day] = [[0, 24 * 60]]
         flags.append("open-ended")
 
-    leftover = re.sub(r"(?:Uhr|und|u\.)", "", CLAUSE.sub("", body), flags=re.I)
+    leftover = re.sub(r"(?:Uhr|und|u\.|von|" + DAILY + r")", "", CLAUSE.sub("", body), flags=re.I)
     leftover = re.sub(r"[\s,;.|()–-]+", "", leftover)
     if leftover and not VAGUE.search(body):
         flags.append("residue:" + leftover[:40])
@@ -128,6 +140,8 @@ def _days_named(body):
     for a, b in re.findall(r"(Mo|Di|Mi|Do|Fr|Sa|So)\s*[-–]\s*(Mo|Di|Mi|Do|Fr|Sa|So)", body):
         x, y = DAYS[a.lower()], DAYS[b.lower()]
         out |= set(range(x, y + 1)) if y >= x else set(range(x, 8)) | set(range(1, y + 1))
+    if re.search(DAILY, body, re.I):
+        out |= {1, 2, 3, 4, 5, 6, 7}
     rest = re.sub(r"(Mo|Di|Mi|Do|Fr|Sa|So)\s*[-–]\s*(Mo|Di|Mi|Do|Fr|Sa|So)", " ", body)
     for tok in re.findall(r"\b(Mo|Di|Mi|Do|Fr|Sa|So)\b", rest):
         out.add(DAYS[tok.lower()])

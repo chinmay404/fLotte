@@ -39,11 +39,16 @@ const P = payload();
     const m = TAIL.exec(txt);
     const body = m ? txt.slice(0, m.index) : txt;
     const times = new Set();
-    for (const [, a, b] of body.matchAll(/(\d{1,2})(?::(\d{2}))?\s*[-–]/g))
+    // fLotte writes the minute separator as ":" or "." — "09.30-17.00" is as
+    // common as "9:30-17:00", and reading only the colon form made this
+    // verifier derive 0:00 from "11.00" and call a correct schedule unfaithful
+    for (const [, a, b] of body.matchAll(/(\d{1,2})(?:[:.](\d{2}))?\s*[-–]/g))
       times.add(+a * 60 + (+b || 0));
-    for (const [, a, b] of body.matchAll(/[-–]\s*(\d{1,2})(?::(\d{2}))?/g))
+    for (const [, a, b] of body.matchAll(/[-–]\s*(\d{1,2})(?:[:.](\d{2}))?/g))
       times.add(+a * 60 + (+b || 0));
     const days = new Set();
+    // "Täglich 8:00 - 18:00" names no weekday but means all seven
+    if (/t(?:ä|ae)glich|tgl\.?/i.test(body)) [1,2,3,4,5,6,7].forEach(d => days.add(d));
     for (const [, a, b] of body.matchAll(/(Mo|Di|Mi|Do|Fr|Sa|So)\s*[-–]\s*(Mo|Di|Mi|Do|Fr|Sa|So)/g)) {
       const x = DAY[a.toLowerCase()], y = DAY[b.toLowerCase()];
       const seq = y >= x ? Array.from({length: y - x + 1}, (_, k) => x + k)
@@ -69,6 +74,36 @@ const P = payload();
   ok(exact.length > 200, `${exact.length} stations claim an exact schedule`, exact.length);
   eq(bad, [], 'every schedule marked exact really does account for its German text');
   ok(faithful === exact.length, `all ${faithful} exact schedules verified`, { faithful });
+
+  /* Three German forms hours.py used to miss entirely, each costing a station
+     its whole schedule — the app then showed "hours unknown" for a door fLotte
+     publishes concrete times for. Pinned by station so a parser change that
+     drops them again fails here rather than in the field. */
+  const byName = (n) => P.locations.filter(l => l.location_name === n)[0];
+  for (const [name, want, why] of [
+    ['Stadtteilbibliothek Karow',
+     { 1: [[660, 1020]], 2: [[660, 1020]], 4: [[780, 1140]], 5: [[780, 1140]] },
+     'a dot as the minute separator ("Mo+Di 11.00 - 17.00")'],
+    ['Quartiersmanagement Titiseestraße',
+     { 1: [[570, 1020]], 2: [[570, 960]], 3: [[570, 1020]], 4: [[570, 990]], 5: [[570, 780]] },
+     'dotted times, one clause per day'],
+    ['DRK Seniorenzentrum Marie',
+     { 1: [[540, 900]], 2: [[540, 900]], 3: [[540, 900]], 4: [[540, 900]], 5: [[540, 900]] },
+     'a "von" between the days and the clock ("Mo - Fr von 9-15 Uhr")'],
+    ['Diakoniezentrum Heiligensee Informationszentrale',
+     { 1: [[480, 1080]], 2: [[480, 1080]], 3: [[480, 1080]], 4: [[480, 1080]],
+       5: [[480, 1080]], 6: [[480, 1080]], 7: [[480, 1080]] },
+     '"Täglich", which names all seven days without naming one'],
+  ]) {
+    const l = byName(name);
+    ok(l, `${name} is still in the payload`);
+    if (l) eq(l.hours, want, `${name}: ${why}`);
+  }
+  // and the ones that genuinely state no clock time stay unknown, not closed
+  for (const n of ['Bahnhof Falkensee', 'TU Berlin - Spreebogen']) {
+    const l = byName(n);
+    if (l) eq(l.hours, null, `${n}: "by arrangement" stays unknown, never a shut door`);
+  }
 
   // the separators that were silently dropping days
   const seps = P.locations.filter(l => l.hours_text &&

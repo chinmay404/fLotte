@@ -68,15 +68,22 @@ const mk = (matrix) => sandbox(['matrixFor', 'matrixSec'],
   const body = fn('ensureTour');
   ok(/var idx = \[here\(\)\.i == null \? null : here\(\)\.i\]/.test(body),
     'node 0 is checked for being a station');
-  ok(/offline = true/.test(body), 'and the plan records that it needed no network');
-  ok(/if\(\(!mat \|\| !offline\) && pts\.length <= TOUR_MAX \+ 1\)/.test(body),
-    'the live call is the fallback now, not the first choice');
+  ok(/offline = !holes\.length/.test(body),
+    'and the plan records that it needed no network');
+  ok(/matrixPatchPlan\(holes\)/.test(body),
+    'the live call now asks only for the cells the matrix is missing');
+  ok(/reqs\.length > TOUR_PATCH_REQS/.test(body),
+    'and declines to ask at all rather than burst a donated server');
   // per-cell, not all-or-nothing: on the first plan node 0 is her start point,
   // but every station-to-station cell is still in the shipped matrix
-  ok(/row\.push\(null\); holes\+\+/.test(body),
+  ok(/holes\.push\(\[a2, b2\]\)/.test(body),
     'a pair the matrix lacks becomes a hole, not an invented number');
-  ok(/if\(filled > holes\)/.test(body),
-    'the matrix is used when it supplies the bulk of the cells');
+  ok(/if\(a2 === b2 \|\| b2 === 0\)/.test(body),
+    'column 0 is never requested — an open tour never returns to the start');
+  ok(/holeAt\[i3 \+ ':' \+ j3\] && cv/.test(body),
+    'a cell the shipped matrix filled keeps its own value, never a second engine\'s');
+  ok(/roadError = \(e && e\.message\)/.test(body),
+    'and a failed patch is recorded, not swallowed by an empty catch');
   ok(/mat\[i\]\[j\] == null\)\{ estimated = true; mat\[i\]\[j\] = est\(i, j\)/.test(body),
     'and the remaining holes are filled by estimate and labelled as such');
 }

@@ -1,6 +1,8 @@
 /* The live road matrix. Valhalla's public server rejects any matrix request
-   of more than 100 locations (error 150: "Exceeded max locations"), and the
-   browse view asks from "here" to every eligible station — ~250 of them. So
+   of more than 100 CELLS — sources x targets — and reports it as error 150,
+   "Exceeded max locations: 100", which is not what it measures: 1x100 is
+   accepted and 11x11 is refused. The browse view asks from "here" to every
+   eligible station — ~250 of them. So
    matrix() must split the targets into batches under the cap, fire them in
    parallel, and stitch the answers back in target order. One failed batch
    must still fail the whole call: the caller's straight-line fallback is
@@ -23,8 +25,14 @@ function makeFetch(log) {
   };
 }
 
+/* matrixChunk now takes a slot from the shared in-flight gate before it
+   fetches, so a request reaches the stub one microtask after the call rather
+   than synchronously. `tick()` is that microtask — the fan-out itself is
+   unchanged, and the cap assertions below still see every request at once. */
+const tick = () => new Promise((r) => setTimeout(r, 0));
+
 function mk(log) {
-  return sandbox(['matrix', 'matrixChunk'], {
+  return sandbox(['matrix', 'matrixChunk', 'roadSlot', 'roadRelease'], {
     MATRIX: null, matrixSec: () => null,
     here: () => ({ lat: 52.52, lon: 13.405, i: null }),
     beelineKm: () => 1,
@@ -33,31 +41,34 @@ function mk(log) {
     fetchT: makeFetch(log),
     T: (k, v) => k + (v ? ' ' + JSON.stringify(v) : ''),
     Error,
-  }, chunk(/var MATRIX_BATCH = \d+;/, 'MATRIX_BATCH'));
+  }, chunk(/var ROAD_MAX_INFLIGHT = \d+;\nvar roadInflight = 0, roadQueue = \[\];/, 'road gate') +
+     '\n' + chunk(/var MATRIX_CELL_CAP = \d+;\nvar MATRIX_BATCH = [^;]+;/, 'MATRIX_BATCH'));
 }
 
 const stations = (n) => Array.from({ length: n }, (_, i) =>
   ({ _i: i, lat: 52 + i / 1000, lon: 13 + i / 1000 }));
 const cell = (sec) => ({ time: sec, distance: sec / 240 });
 
-/* ---- a small pool stays a single request ---- */
+/* ---- a pool at exactly the cell cap stays a single request ---- */
 {
   const log = [];
-  const p = mk(log).matrix('bicycle', stations(99));
-  eq(log.length, 1, '99 targets go out as one request');
-  eq(log[0].body.targets.length, 99, 'with all 99 targets in it');
-  log[0].answer(stations(99).map((_, i) => cell(i)));
-  p.then((rows) => eq(rows.length, 99, 'and 99 rows come back'));
+  const p = mk(log).matrix('bicycle', stations(100));
+  await tick();
+  eq(log.length, 1, '100 targets go out as one request — 1x100 is exactly the cap');
+  eq(log[0].body.targets.length, 100, 'with all 100 targets in it');
+  log[0].answer(stations(100).map((_, i) => cell(i)));
+  p.then((rows) => eq(rows.length, 100, 'and 100 rows come back'));
 }
 
 /* ---- a big pool is batched under Valhalla's 100-location cap ---- */
 {
   const log = [];
   const p = mk(log).matrix('pedestrian', stations(248));
+  await tick();
   eq(log.length, 3, '248 targets fan out into 3 requests at once (parallel, not serial)');
-  ok(log.every((r) => r.body.targets.length + r.body.sources.length <= 100),
-     'every request stays within the 100-location cap',
-     log.map((r) => r.body.targets.length));
+  ok(log.every((r) => r.body.targets.length * r.body.sources.length <= 100),
+     'every request stays within the 100-cell cap (sources x targets)',
+     log.map((r) => r.body.sources.length + 'x' + r.body.targets.length));
   eq(log.reduce((n, r) => n + r.body.targets.length, 0), 248,
      'no target is dropped or duplicated');
   eq(log[1].body.targets[0].lat, stations(248)[log[0].body.targets.length].lat,
@@ -81,6 +92,7 @@ const cell = (sec) => ({ time: sec, distance: sec / 240 });
 {
   const log = [];
   const p = mk(log).matrix('bicycle', stations(150));
+  await tick();
   log[0].answer(log[0].body.targets.map(() => cell(500)));
   log[1].fail(503);
   p.then(

@@ -9,10 +9,10 @@ const BASE = Date.parse('2026-08-17T10:00:00Z');
 
 const sb = sandbox(
   ['esc', 'safeColor', 'lineColor', 'mins', 'km', 'clock', 'inMin', 'transitSec', 'timeFor',
-   'bestMode', 'stripHTML', 'hintHTML', 'depHTML', 'mv', 'thumbOK', 'isAdhoc', 'hoursToday', 'windowsFor', 'windowsCover',
+   'bestMode', 'recFor', 'stripHTML', 'hintHTML', 'depHTML', 'mv', 'thumbOK', 'isAdhoc', 'hoursToday', 'windowsFor', 'windowsCover',
    'hoursLabel', 'hhmmOf', 'optHTML'],
   {
-    IC: { walk: '<ICON-walk>', bike: '<ICON-bike>', tram: '<ICON-tram>', right: '<ICON-right>',
+    IC: { walk: '<ICON-walk>', bike: '<ICON-bike>', car: '<ICON-car>', tram: '<ICON-tram>', right: '<ICON-right>',
           clock: '<ICON-clock>' },
     LOCATIONS: [{ location_name: 'Kiezpirat Nord', street: 'Kastanienallee 12',
                   district: ['Pankow'],
@@ -54,6 +54,29 @@ const modeline = h => (h.match(/<div class="modeline num">([\s\S]*?)<\/div>/) ||
   ok(h.includes('>5 min<'), 'best: headline time is the winner (bike, 5 min)');
   ok(!h.includes('class="strip"'),
     'best: no transit line badges when transit is not the winner');
+}
+
+/* ---- car: shown under Best only once a time exists, always under Car ---- */
+{
+  // the same option with a car time: 4 min, so the car now wins Best
+  const withCar = { ...opt, car: { sec: 240, km: 1.4 } };
+  const ml = modeline(render('best', null, withCar));
+  ok(ml.includes('<ICON-car>'), 'best: a car row appears once a car time is known', ml);
+  ok(ml.includes('4 min'), 'best: with its time', ml);
+  ok(render('best', null, withCar).includes('>4 min<'),
+    'best: and the headline follows the car when it wins');
+
+  /* car is fetched only under Best and Car, so under Best-without-it the row
+     must be absent rather than render as an empty or "no route" line */
+  ok(!modeline(render('best')).includes('<ICON-car>'),
+    'best: no car row at all when no car time was fetched');
+
+  const only = modeline(render('car', null, withCar));
+  ok(only.includes('<ICON-car>') && !only.includes('<ICON-walk>') &&
+     !only.includes('<ICON-bike>') && !only.includes('<ICON-tram>'),
+    'car: the car row only', only);
+  ok(only.includes('<span class="mv-l">Car</span>'), 'car: the row is named', only);
+  ok(only.includes('1.4 km'), 'car: distance rides along', only);
 }
 
 /* ---- a picked mode shows that mode and nothing else ---- */
