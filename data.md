@@ -1,4 +1,4 @@
-Successfully fetched 250 stations!
+Successfully fetched 248 stations!
 
 🚲 Fahrradpraxis Jürgen Albrecht
 📍 Karl-Kunger-Str. 21 (52.4901185, 13.4488498)
@@ -39,10 +39,6 @@ Successfully fetched 250 stations!
 🚲 Anna-Seghers-Bibliothek
 📍 Prerower Platz 2 (Linden-Center) (52.5649951, 13.5062702)
 📦 Bikes: Anna
-----------------------------------------
-🚲 Spielhaus Goldbeckweg
-📍 Goldbeckweg 6 (52.5426731, 13.2305322)
-📦 Bikes: Bärbel
 ----------------------------------------
 🚲 SUZ Spandau - Gartenarbeitsschule Hakenfelde
 📍 Bernkastler Weg 26 (52.5684772, 13.214983)
@@ -252,10 +248,6 @@ Successfully fetched 250 stations!
 📍 Baikalstr. 4 (52.49860564915189, 13.50425720214844)
 📦 Bikes: Sabrina
 ----------------------------------------
-🚲 IdylleCafé / AperitivoBar
-📍 Wilhelminenhofstr. 53 (52.45889902081046, 13.526173532009127)
-📦 Bikes: Wilma, Klara
-----------------------------------------
 🚲 Mittelpunktbibliothek Köpenick
 📍 Alter Markt 2 (52.4457888, 13.5787879)
 📦 Bikes: Goethe
@@ -283,10 +275,6 @@ Successfully fetched 250 stations!
 🚲 Jugendverkehrsschule Tempelhof
 📍 Alt-Mariendorf 43 (52.43920068123411, 13.386004129528645)
 📦 Bikes: Muli 1
-----------------------------------------
-🚲 Jugendcafé am Dorfteich
-📍 Alt-Lichtenrade 103 (52.39223615, 13.410556557372836)
-📦 Bikes: LiBike
 ----------------------------------------
 🚲 Kinder- und Jugendzentrum Schöneiche
 📍 Prager Str. 23 (52.46519465, 13.715913249880616)
@@ -592,10 +580,6 @@ Successfully fetched 250 stations!
 📍 Köpenicker Str. 325 Haus 11 (52.47006349410616, 13.560064120503732)
 📦 Bikes: be4bike
 ----------------------------------------
-🚲 Kietz Klub Köpenick
-📍 Köpenzeile 117 (52.428915, 13.5950014)
-📦 Bikes: RadWende
-----------------------------------------
 🚲 BENN Wittenau-Süd
 📍 Ollenhauerstr. 70 (52.57789187935469, 13.333134949207306)
 📦 Bikes: Karla
@@ -662,7 +646,7 @@ Successfully fetched 250 stations!
 ----------------------------------------
 🚲 St. Elisabethstift
 📍 Eberswalder Str. 17/18 (52.54100733506635, 13.409538285019714)
-📦 Bikes: Babsi
+📦 Bikes: Babsi, Elli
 ----------------------------------------
 🚲 BENN HSH-Nord
 📍 Warnitzer Str. 14 (52.5672716, 13.5187946)
@@ -1000,5 +984,11 @@ Successfully fetched 250 stations!
 📍 Bruno-Möhring-Straße 7-9 (52.4248928, 13.3704932)
 📦 Bikes: Marie-Li
 ----------------------------------------
-PS D:\new\Flotte> 
-
+🚲 Kietz Klub Köpenick
+📍 Köpenzeile 117 (52.428915, 13.5950014)
+📦 Bikes: Biene
+----------------------------------------
+🚲 Naturschutzstation Hahneberg
+📍 Heerstraße 549 (52.5237164, 13.143807)
+📦 Bikes: Bärbel
+----------------------------------------
