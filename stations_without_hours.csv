@@ -1,0 +1,25 @@
+station,district,street,zip,city,bikes,lat,lon,hours_text,category
+BENN Mierendorffinsel,Charl.burg-Wilmersdorf,Quedlinburger Straße 6,10589,Berlin-Charlottenburg,2,52.5233315,13.3137341,,no-hours-published
+BENN Wilmersdorf,Charl.burg-Wilmersdorf,Blissestraße 70,10713,Berlin-Wilmersdorf,2,52.4785,13.320071,,no-hours-published
+Dietrich-Bonhoeffer-Bibliothek,Charl.burg-Wilmersdorf,Brandenburgische Str. 2,10713,Berlin-Wilmersdorf,2,52.4872109,13.3200399,,no-hours-published
+TU Berlin - Spreebogen,Charl.burg-Wilmersdorf,Carnotstr. 1A,10587,Berlin-Charlottenburg,1,52.5229403,13.3200504,"nach telefon. Vereinbarung, möglichst werktags zw. 13 -16 Uhr, außer an gesetzl. Feiertagen",by-arrangement
+nachbarschafft e.V.,Charl.burg-Wilmersdorf,Straße am Schoelerpark 37,10715,Berlin-Wilmersdorf,2,52.4840020368214,13.324131584689345,,no-hours-published
+Bilder-Buch-Laden,Friedrichshain-Kreuzberg,Zossener Str. 6,10961,Berlin-Kreuzberg,2,52.4935091,13.3948364,,no-hours-published
+NHU e.V.,Friedrichshain-Kreuzberg,Urbanstr. 21,10961,Berlin-Kreuzberg,2,52.4929098,13.4076172,,no-hours-published
+IKEA Lichtenberg,Lichtenberg,Landsberger Allee 364,10365,Berlin-Lichtenberg,2,52.5342886,13.5131141,,no-hours-published
+Bezirkssportbund MH -PM-,Marzahn-Hellersdorf,"Haus des Sports, Eisenacher Str. 121",12685,Berlin-Marzahn,1,52.540006000000005,13.570945526301653,Mo-So (außer an gesetzl. Feiertagen) Nur nach vorheriger telefon. Absprache (Telefonr. s. Buchungsbestätigung)!,by-arrangement
+Nachbarschaftstreff Lützowstraße,Mitte,Lützowstr. 27,10785,Berlin-Tiergarten,2,52.50381421879876,13.363237432954234,,no-hours-published
+Stadtteilzentrum Pankow,Pankow,Schönholzer Straße 10,13187,Berlin-Pankow,2,52.569805045863504,13.399541079998018,,no-hours-published
+Fernsehhaus Gaedke,Reinickendorf,Ziekowstr. 114,13509,Berlin-Tegel,2,52.5892836,13.2930869,,no-hours-published
+Quartiersmanagement Auguste-Viktoria-Allee,Reinickendorf,Graf-Haeseler-Str. 17,13403,Berlin-Reinickendorf,1,52.5711266,13.314317,,no-hours-published
+Quartiersmanagement Letteplatz,Reinickendorf,Mickestr. 14,13409,Berlin-Reinickendorf,1,52.5630352,13.3723704,,no-hours-published
+Rathaus Reinickendorf,Reinickendorf,Eichborndamm 217 (Innenhof),13437,Berlin-Wittenau,1,52.58962907101348,13.324592264020827,,no-hours-published
+Stadtteilbibliothek Frohnau,Reinickendorf,Fuchssteinerweg 17,13465,Berlin-Frohnau,1,52.6354867111881,13.295150101821838,,no-hours-published
+Bezirkszentralbibliothek Spandau,Spandau,Carl-Schurz-Str. 13,13597,Berlin-Spandau,2,52.5361334,13.2013864,,no-hours-published
+Naturschutzstation Hahneberg,Spandau,Heerstraße 549,13593,Berlin-Staaken,1,52.5237164,13.143807,,no-hours-published
+agens,Spandau,Altonaer Str. 107,13581,Berlin-Spandau,2,52.5328695,13.1805559,,no-hours-published
+JFZ JeverNeun,Steglitz-Zehlendorf,Jeverstr. 9,12157,Berlin-Steglitz,2,52.4611642,13.3344541,,no-hours-published
+Luther-Gemeinde Schöneberg,Tempelhof-Schöneberg,Bülowstrasse 71-72,10783,Berlin-Schöneberg,2,52.49727505011392,13.36631629597101,,no-hours-published
+Fahrradpraxis Jürgen Albrecht,Treptow-Köpenick,Karl-Kunger-Str. 21,12435,Berlin-Alt-Treptow,2,52.4901185,13.4488498,,no-hours-published
+KIEZKLUB Gerard Philipe,Treptow-Köpenick,Karl-Kunger-Straße 30,12435,Berlin-Alt-Treptow,2,52.488711,13.4506396,,no-hours-published
+Bahnhof Falkensee,Umland,Bahnstraße,14612,Falkensee,1,52.559734,13.090631,Nach Vereinbarung,by-arrangement
