@@ -21,11 +21,28 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
 # standorte's category groups ship with an empty "name"; bezirke's are named.
+# standorte's three category groups ship with an empty "name", so they can
+# only be told apart by id or by content. fLotte regenerates these ids when
+# the groups are edited — they changed once already, which silently turned
+# "type" into a facet called "group_g17886", emptied the bike-type filter and
+# blocked the nightly publish for two days. Ids are kept as a fast path;
+# content is what actually decides, and an unrecognised group is now fatal
+# rather than quietly mislabelled.
 GROUP_KEYS = {
-    "g1614154314348-789248": "type",
+    "g1614154314348-789248": "type",      # retired 2026-09, kept for old dumps
     "g1699291310052-802989": "drive",
     "g1699291327202-54299": "features",
+    "g1788693996994-197436": "type",
+    "g1788694786794-152436": "drive",
+    "g1788694895691-742555": "features",
 }
+# any one of these labels identifies the group it belongs to
+GROUP_SIGNS = {
+    "type": {"cargo bike", "cargo trike", "rikscha", "anhänger", "event bike"},
+    "drive": {"e-rad", "e-bike"},
+    "features": {"kinderbank", "regenverdeck", "longtail", "babytransport"},
+}
+ITEM_GROUPS = ("type", "drive", "features")
 GROUP_NAMES = {
     "Bezirke": "district",
     "Regionen Berlin & Umland": "region",
@@ -67,15 +84,44 @@ def fetch_map(page_url):
     return settings, rows
 
 
+def _group_name(key, group, labels):
+    """Which facet is this? By its own name, then its id, then what is in it."""
+    named = GROUP_NAMES.get(group.get("name", ""), "")
+    if named:
+        return named
+    if key in GROUP_KEYS:
+        return GROUP_KEYS[key]
+    lowered = {l.lower() for l in labels}
+    for facet, signs in GROUP_SIGNS.items():
+        if lowered & signs:
+            return facet
+    return ""
+
+
 def build_decoder(*settings_list):
     """cat_id -> (group, label, color), merged across every map's filter definitions."""
     decoder = {}
+    seen, unknown = set(), []
     for settings in settings_list:
         for key, group in settings.get("filter_cb_item_categories", {}).items():
-            name = GROUP_NAMES.get(group.get("name", ""), "") or GROUP_KEYS.get(key, f"group_{key[:6]}")
-            for element in group.get("elements", []):
-                label = re.sub(r"<[^>]+>", "", element["markup"]).strip()
+            labels = [re.sub(r"<[^>]+>", "", e["markup"]).strip()
+                      for e in group.get("elements", [])]
+            name = _group_name(key, group, labels)
+            if not name:
+                unknown.append((key, labels[:6]))
+                continue
+            seen.add(name)
+            for element, label in zip(group.get("elements", []), labels):
                 decoder[element["cat_id"]] = (name, label, element.get("color") or "")
+    # Loudly, not quietly: an unrecognised group used to become a facet named
+    # "group_<id>", which reads as a successful scrape right up until the bike
+    # filters turn up empty.
+    missing = [g for g in ITEM_GROUPS if g not in seen]
+    if missing or unknown:
+        detail = "".join(f"\n  unrecognised group {k}: {l}" for k, l in unknown)
+        raise SystemExit(
+            f"Category groups changed on flotte-berlin.de. Missing: {missing or 'none'}."
+            f"{detail}\nAdd the new id to GROUP_KEYS or a label to GROUP_SIGNS in enrich.py.")
     return decoder
 
 

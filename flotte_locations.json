@@ -38,7 +38,7 @@
         "timeframes": [
           {
             "date_start": "2018-04-03",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -78,7 +78,7 @@
         "timeframes": [
           {
             "date_start": "2018-04-03",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -134,7 +134,7 @@
         "timeframes": [
           {
             "date_start": "2018-06-11",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -143,7 +143,6 @@
           171,
           134,
           27,
-          88,
           26,
           240
         ]
@@ -191,7 +190,7 @@
         "timeframes": [
           {
             "date_start": "2018-02-13",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -228,7 +227,7 @@
         "timeframes": [
           {
             "date_start": "2024-03-28",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -285,7 +284,7 @@
         "timeframes": [
           {
             "date_start": "2018-11-05",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -342,7 +341,7 @@
         "timeframes": [
           {
             "date_start": "2018-11-08",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -399,7 +398,7 @@
         "timeframes": [
           {
             "date_start": "2018-11-08",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -455,7 +454,7 @@
         "timeframes": [
           {
             "date_start": "2018-11-12",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -511,7 +510,7 @@
         "timeframes": [
           {
             "date_start": "2018-11-01",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -567,7 +566,7 @@
         "timeframes": [
           {
             "date_start": "2018-11-05",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -625,7 +624,7 @@
         "timeframes": [
           {
             "date_start": "2018-10-31",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -682,7 +681,7 @@
         "timeframes": [
           {
             "date_start": "2018-11-13",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -739,7 +738,7 @@
         "timeframes": [
           {
             "date_start": "2018-11-05",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -796,7 +795,7 @@
         "timeframes": [
           {
             "date_start": "2018-10-27",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -852,7 +851,7 @@
         "timeframes": [
           {
             "date_start": "2018-10-29",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -909,7 +908,7 @@
         "timeframes": [
           {
             "date_start": "2018-11-05",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -969,7 +968,7 @@
         "timeframes": [
           {
             "date_start": "2019-03-01",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -1027,7 +1026,7 @@
         "timeframes": [
           {
             "date_start": "2019-03-18",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -1085,7 +1084,7 @@
         "timeframes": [
           {
             "date_start": "2019-04-08",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -1141,7 +1140,7 @@
         "timeframes": [
           {
             "date_start": "2019-08-26",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -1200,7 +1199,7 @@
         "timeframes": [
           {
             "date_start": "2019-08-05",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -1257,7 +1256,7 @@
         "timeframes": [
           {
             "date_start": "2019-09-07",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -1313,7 +1312,7 @@
         "timeframes": [
           {
             "date_start": "2020-03-09",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -1352,7 +1351,7 @@
         "timeframes": [
           {
             "date_start": "2021-12-03",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -1407,7 +1406,7 @@
         "timeframes": [
           {
             "date_start": "2019-09-16",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -1464,7 +1463,7 @@
         "timeframes": [
           {
             "date_start": "2019-09-16",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -1522,7 +1521,7 @@
         "timeframes": [
           {
             "date_start": "2019-10-02",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -1544,7 +1543,7 @@
     "street": "Rostocker Str. 32b",
     "zip": "10553",
     "city": "Berlin-Moabit",
-    "closed_days": "a:2:{i:0;s:1:\"6\";i:1;s:1:\"7\";}",
+    "closed_days": false,
     "district": [
       "Mitte"
     ],
@@ -1579,7 +1578,7 @@
         "timeframes": [
           {
             "date_start": "2019-11-18",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -1635,7 +1634,7 @@
         "timeframes": [
           {
             "date_start": "2019-11-28",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -1692,7 +1691,7 @@
         "timeframes": [
           {
             "date_start": "2019-11-11",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -1749,7 +1748,7 @@
         "timeframes": [
           {
             "date_start": "2020-01-23",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -1805,7 +1804,7 @@
         "timeframes": [
           {
             "date_start": "2019-11-25",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -1862,7 +1861,7 @@
         "timeframes": [
           {
             "date_start": "2019-11-25",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -1918,7 +1917,7 @@
         "timeframes": [
           {
             "date_start": "2019-12-04",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -1975,7 +1974,7 @@
         "timeframes": [
           {
             "date_start": "2019-12-09",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -2033,7 +2032,7 @@
         "timeframes": [
           {
             "date_start": "2020-01-09",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -2091,7 +2090,7 @@
         "timeframes": [
           {
             "date_start": "2020-01-07",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -2149,7 +2148,7 @@
         "timeframes": [
           {
             "date_start": "2020-01-18",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -2207,7 +2206,7 @@
         "timeframes": [
           {
             "date_start": "2019-12-05",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -2246,7 +2245,7 @@
         "timeframes": [
           {
             "date_start": "2026-03-01",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -2302,7 +2301,7 @@
         "timeframes": [
           {
             "date_start": "2019-12-12",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -2359,7 +2358,7 @@
         "timeframes": [
           {
             "date_start": "2020-01-13",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -2416,7 +2415,7 @@
         "timeframes": [
           {
             "date_start": "2020-01-13",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -2473,7 +2472,7 @@
         "timeframes": [
           {
             "date_start": "2020-02-01",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -2529,7 +2528,7 @@
         "timeframes": [
           {
             "date_start": "2020-01-27",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -2587,7 +2586,7 @@
         "timeframes": [
           {
             "date_start": "2020-01-21",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -2645,7 +2644,7 @@
         "timeframes": [
           {
             "date_start": "2020-02-01",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -2701,7 +2700,7 @@
         "timeframes": [
           {
             "date_start": "2020-01-27",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -2760,7 +2759,7 @@
         "timeframes": [
           {
             "date_start": "2020-02-01",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -2817,7 +2816,7 @@
         "timeframes": [
           {
             "date_start": "2020-02-10",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -2858,7 +2857,7 @@
         "timeframes": [
           {
             "date_start": "2024-05-21",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -2915,7 +2914,7 @@
         "timeframes": [
           {
             "date_start": "2020-01-20",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -2974,7 +2973,7 @@
         "timeframes": [
           {
             "date_start": "2020-02-01",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -3031,7 +3030,7 @@
         "timeframes": [
           {
             "date_start": "2020-01-20",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -3087,7 +3086,7 @@
         "timeframes": [
           {
             "date_start": "2020-01-27",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -3144,7 +3143,7 @@
         "timeframes": [
           {
             "date_start": "2020-01-18",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -3201,7 +3200,7 @@
         "timeframes": [
           {
             "date_start": "2020-01-20",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -3255,7 +3254,7 @@
         "timeframes": [
           {
             "date_start": "2020-01-08",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -3312,7 +3311,7 @@
         "timeframes": [
           {
             "date_start": "2020-01-13",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -3371,7 +3370,7 @@
         "timeframes": [
           {
             "date_start": "2020-03-02",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -3428,7 +3427,7 @@
         "timeframes": [
           {
             "date_start": "2020-03-16",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -3488,7 +3487,7 @@
         "timeframes": [
           {
             "date_start": "2020-03-16",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -3544,7 +3543,7 @@
         "timeframes": [
           {
             "date_start": "2020-06-02",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -3601,7 +3600,7 @@
         "timeframes": [
           {
             "date_start": "2020-06-08",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -3658,7 +3657,7 @@
         "timeframes": [
           {
             "date_start": "2020-06-11",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -3714,7 +3713,7 @@
         "timeframes": [
           {
             "date_start": "2020-06-11",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -3771,7 +3770,7 @@
         "timeframes": [
           {
             "date_start": "2020-06-25",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -3828,7 +3827,7 @@
         "timeframes": [
           {
             "date_start": "2020-06-25",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -3885,7 +3884,7 @@
         "timeframes": [
           {
             "date_start": "2020-07-01",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -3942,7 +3941,7 @@
         "timeframes": [
           {
             "date_start": "2020-07-10",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -3998,7 +3997,7 @@
         "timeframes": [
           {
             "date_start": "2020-07-15",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -4055,7 +4054,7 @@
         "timeframes": [
           {
             "date_start": "2020-10-05",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -4112,7 +4111,7 @@
         "timeframes": [
           {
             "date_start": "2020-10-09",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -4169,7 +4168,7 @@
         "timeframes": [
           {
             "date_start": "2020-10-26",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -4227,7 +4226,7 @@
         "timeframes": [
           {
             "date_start": "2020-10-26",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -4284,7 +4283,7 @@
         "timeframes": [
           {
             "date_start": "2020-12-14",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -4340,7 +4339,7 @@
         "timeframes": [
           {
             "date_start": "2020-11-26",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -4379,7 +4378,7 @@
         "timeframes": [
           {
             "date_start": "2024-12-04",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -4435,7 +4434,7 @@
         "timeframes": [
           {
             "date_start": "2021-05-31",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -4492,7 +4491,7 @@
         "timeframes": [
           {
             "date_start": "2021-03-16",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -4549,7 +4548,7 @@
         "timeframes": [
           {
             "date_start": "2020-11-06",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -4608,7 +4607,7 @@
         "timeframes": [
           {
             "date_start": "2021-03-01",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -4664,7 +4663,7 @@
         "timeframes": [
           {
             "date_start": "2021-04-27",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -4722,7 +4721,7 @@
         "timeframes": [
           {
             "date_start": "2021-03-02",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -4779,7 +4778,7 @@
         "timeframes": [
           {
             "date_start": "2021-04-23",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -4837,7 +4836,7 @@
         "timeframes": [
           {
             "date_start": "2021-06-01",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -4879,7 +4878,7 @@
         "timeframes": [
           {
             "date_start": "2023-08-31",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -4937,7 +4936,7 @@
         "timeframes": [
           {
             "date_start": "2021-05-25",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -4996,7 +4995,7 @@
         "timeframes": [
           {
             "date_start": "2021-04-19",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -5053,7 +5052,7 @@
         "timeframes": [
           {
             "date_start": "2021-04-12",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -5114,7 +5113,7 @@
         "timeframes": [
           {
             "date_start": "2021-03-15",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -5171,7 +5170,7 @@
         "timeframes": [
           {
             "date_start": "2021-03-25",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -5227,7 +5226,7 @@
         "timeframes": [
           {
             "date_start": "2021-04-21",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -5267,7 +5266,7 @@
         "timeframes": [
           {
             "date_start": "2026-01-06",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -5325,7 +5324,7 @@
         "timeframes": [
           {
             "date_start": "2021-05-17",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -5382,7 +5381,7 @@
         "timeframes": [
           {
             "date_start": "2021-05-10",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -5439,7 +5438,7 @@
         "timeframes": [
           {
             "date_start": "2021-05-25",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -5497,7 +5496,7 @@
         "timeframes": [
           {
             "date_start": "2021-06-09",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -5552,7 +5551,7 @@
         "timeframes": [
           {
             "date_start": "2021-06-14",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -5591,7 +5590,7 @@
         "timeframes": [
           {
             "date_start": "2025-03-12",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -5649,7 +5648,7 @@
         "timeframes": [
           {
             "date_start": "2021-06-21",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -5705,7 +5704,7 @@
         "timeframes": [
           {
             "date_start": "2021-09-27",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -5762,7 +5761,7 @@
         "timeframes": [
           {
             "date_start": "2021-09-04",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -5819,7 +5818,7 @@
         "timeframes": [
           {
             "date_start": "2021-08-16",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -5875,7 +5874,7 @@
         "timeframes": [
           {
             "date_start": "2021-08-16",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -5916,7 +5915,7 @@
         "timeframes": [
           {
             "date_start": "2026-01-05",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -5972,7 +5971,7 @@
         "timeframes": [
           {
             "date_start": "2021-07-26",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -6029,7 +6028,7 @@
         "timeframes": [
           {
             "date_start": "2021-11-22",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -6086,7 +6085,7 @@
         "timeframes": [
           {
             "date_start": "2021-09-24",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -6142,7 +6141,7 @@
         "timeframes": [
           {
             "date_start": "2021-10-01",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -6199,7 +6198,7 @@
         "timeframes": [
           {
             "date_start": "2023-08-14",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -6254,7 +6253,7 @@
         "timeframes": [
           {
             "date_start": "2022-01-01",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -6292,7 +6291,7 @@
         "timeframes": [
           {
             "date_start": "2022-07-11",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -6349,7 +6348,7 @@
         "timeframes": [
           {
             "date_start": "2021-10-04",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -6408,7 +6407,7 @@
         "timeframes": [
           {
             "date_start": "2021-09-28",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -6466,7 +6465,7 @@
         "timeframes": [
           {
             "date_start": "2021-09-28",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -6524,7 +6523,7 @@
         "timeframes": [
           {
             "date_start": "2021-10-01",
-            "date_end": "2027-02-01"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -6582,7 +6581,7 @@
         "timeframes": [
           {
             "date_start": "2021-11-05",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -6638,7 +6637,7 @@
         "timeframes": [
           {
             "date_start": "2021-11-03",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -6696,7 +6695,7 @@
         "timeframes": [
           {
             "date_start": "2021-11-03",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -6753,7 +6752,7 @@
         "timeframes": [
           {
             "date_start": "2021-11-12",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -6812,7 +6811,7 @@
         "timeframes": [
           {
             "date_start": "2021-11-11",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -6869,7 +6868,7 @@
         "timeframes": [
           {
             "date_start": "2021-12-13",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -6927,7 +6926,7 @@
         "timeframes": [
           {
             "date_start": "2022-02-17",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -6986,7 +6985,7 @@
         "timeframes": [
           {
             "date_start": "2022-02-24",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -7045,7 +7044,7 @@
         "timeframes": [
           {
             "date_start": "2022-02-24",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -7102,7 +7101,7 @@
         "timeframes": [
           {
             "date_start": "2022-03-14",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -7158,7 +7157,7 @@
         "timeframes": [
           {
             "date_start": "2022-04-04",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -7215,7 +7214,7 @@
         "timeframes": [
           {
             "date_start": "2022-02-24",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -7272,7 +7271,7 @@
         "timeframes": [
           {
             "date_start": "2022-05-16",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -7329,7 +7328,7 @@
         "timeframes": [
           {
             "date_start": "2022-03-07",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -7385,7 +7384,7 @@
         "timeframes": [
           {
             "date_start": "2022-08-03",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -7442,7 +7441,7 @@
         "timeframes": [
           {
             "date_start": "2022-02-14",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -7499,7 +7498,7 @@
         "timeframes": [
           {
             "date_start": "2022-04-08",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -7555,7 +7554,7 @@
         "timeframes": [
           {
             "date_start": "2022-04-04",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -7614,7 +7613,7 @@
         "timeframes": [
           {
             "date_start": "2022-04-04",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -7671,7 +7670,7 @@
         "timeframes": [
           {
             "date_start": "2022-04-21",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -7728,7 +7727,7 @@
         "timeframes": [
           {
             "date_start": "2022-05-16",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -7786,7 +7785,7 @@
         "timeframes": [
           {
             "date_start": "2022-05-09",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -7843,7 +7842,7 @@
         "timeframes": [
           {
             "date_start": "2022-05-05",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -7899,7 +7898,7 @@
         "timeframes": [
           {
             "date_start": "2022-05-16",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -7955,7 +7954,7 @@
         "timeframes": [
           {
             "date_start": "2022-06-13",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -8012,7 +8011,7 @@
         "timeframes": [
           {
             "date_start": "2022-06-13",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -8073,7 +8072,7 @@
         "timeframes": [
           {
             "date_start": "2022-07-11",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -8130,7 +8129,7 @@
         "timeframes": [
           {
             "date_start": "2022-07-18",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -8186,7 +8185,7 @@
         "timeframes": [
           {
             "date_start": "2022-07-20",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -8242,7 +8241,7 @@
         "timeframes": [
           {
             "date_start": "2022-08-22",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -8299,7 +8298,7 @@
         "timeframes": [
           {
             "date_start": "2022-09-05",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -8358,7 +8357,7 @@
         "timeframes": [
           {
             "date_start": "2022-08-23",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -8415,7 +8414,7 @@
         "timeframes": [
           {
             "date_start": "2023-01-03",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -8423,7 +8422,6 @@
           171,
           132,
           27,
-          88,
           73,
           240,
           128
@@ -8473,7 +8471,7 @@
         "timeframes": [
           {
             "date_start": "2022-10-25",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -8530,7 +8528,7 @@
         "timeframes": [
           {
             "date_start": "2022-12-01",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -8586,7 +8584,7 @@
         "timeframes": [
           {
             "date_start": "2022-12-05",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -8642,7 +8640,7 @@
         "timeframes": [
           {
             "date_start": "2022-12-02",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -8700,7 +8698,7 @@
         "timeframes": [
           {
             "date_start": "2023-03-09",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -8759,7 +8757,7 @@
         "timeframes": [
           {
             "date_start": "2023-03-13",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -8816,7 +8814,7 @@
         "timeframes": [
           {
             "date_start": "2023-02-27",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -8872,7 +8870,7 @@
         "timeframes": [
           {
             "date_start": "2023-03-13",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -8926,7 +8924,7 @@
         "timeframes": [
           {
             "date_start": "2023-04-03",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -8985,7 +8983,7 @@
         "timeframes": [
           {
             "date_start": "2023-06-05",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -9045,7 +9043,7 @@
         "timeframes": [
           {
             "date_start": "2023-06-06",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -9104,7 +9102,7 @@
         "timeframes": [
           {
             "date_start": "2023-08-14",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -9161,7 +9159,7 @@
         "timeframes": [
           {
             "date_start": "2023-06-12",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -9217,7 +9215,7 @@
         "timeframes": [
           {
             "date_start": "2023-08-08",
-            "date_end": "2027-02-01"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -9274,7 +9272,7 @@
         "timeframes": [
           {
             "date_start": "2023-07-04",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -9332,7 +9330,7 @@
         "timeframes": [
           {
             "date_start": "2023-06-23",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -9375,7 +9373,7 @@
         "timeframes": [
           {
             "date_start": "2025-01-21",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -9433,7 +9431,7 @@
         "timeframes": [
           {
             "date_start": "2023-07-04",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -9495,7 +9493,7 @@
         "timeframes": [
           {
             "date_start": "2023-08-29",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -9553,7 +9551,7 @@
         "timeframes": [
           {
             "date_start": "2023-10-20",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -9576,7 +9574,7 @@
     "street": "Blissestraße 70",
     "zip": "10713",
     "city": "Berlin-Wilmersdorf",
-    "closed_days": "a:4:{i:0;s:1:\"1\";i:1;s:1:\"5\";i:2;s:1:\"6\";i:3;s:1:\"7\";}",
+    "closed_days": false,
     "district": [
       "Charl.burg-Wilmersdorf"
     ],
@@ -9613,7 +9611,7 @@
         "timeframes": [
           {
             "date_start": "2023-08-29",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -9656,7 +9654,7 @@
         "timeframes": [
           {
             "date_start": "2023-08-29",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -9679,7 +9677,7 @@
     "street": "Parchimer Allee 6",
     "zip": "12359",
     "city": "Berlin-Britz",
-    "closed_days": "a:3:{i:0;s:1:\"5\";i:1;s:1:\"6\";i:2;s:1:\"7\";}",
+    "closed_days": false,
     "district": [
       "Neukölln"
     ],
@@ -9713,7 +9711,7 @@
         "timeframes": [
           {
             "date_start": "2023-09-04",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -9735,11 +9733,12 @@
     "street": "Eberswalder Str. 17/18",
     "zip": "10437",
     "city": "Berlin-Prenzlberg",
-    "closed_days": "a:2:{i:0;s:1:\"6\";i:1;s:1:\"7\";}",
+    "closed_days": false,
     "district": [
       "Pankow"
     ],
     "region": [
+      "Nord",
       "Zentrum"
     ],
     "items": [
@@ -9767,7 +9766,7 @@
         "timeframes": [
           {
             "date_start": "2024-03-25",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -9777,6 +9776,45 @@
           233,
           27,
           73,
+          240
+        ]
+      },
+      {
+        "id": 41675,
+        "name": "Elli",
+        "short_desc": "Van Raam Rikscha",
+        "link": "https://flotte-berlin.de/cb_item/elli/",
+        "thumbnail": "https://flotte-berlin.de/wp-content/uploads/2023/09/Ricky-150x150.jpg",
+        "status": "publish",
+        "type": [
+          "Rikscha"
+        ],
+        "drive": [
+          "E-Rad"
+        ],
+        "features": [],
+        "project": [
+          "fLotte SoziaL"
+        ],
+        "district": [
+          "Pankow"
+        ],
+        "region": [
+          "Nord"
+        ],
+        "timeframes": [
+          {
+            "date_start": "2026-10-01",
+            "date_end": "2027-01-30"
+          }
+        ],
+        "unknown_terms": [
+          135,
+          171,
+          233,
+          27,
+          73,
+          204,
           240
         ]
       }
@@ -9826,7 +9864,7 @@
         "timeframes": [
           {
             "date_start": "2023-09-25",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -9883,7 +9921,7 @@
         "timeframes": [
           {
             "date_start": "2023-10-01",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -9940,7 +9978,7 @@
         "timeframes": [
           {
             "date_start": "2023-10-09",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -9998,7 +10036,7 @@
         "timeframes": [
           {
             "date_start": "2023-11-01",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -10040,7 +10078,7 @@
         "timeframes": [
           {
             "date_start": "2023-10-12",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -10097,7 +10135,7 @@
         "timeframes": [
           {
             "date_start": "2023-12-04",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -10156,7 +10194,7 @@
         "timeframes": [
           {
             "date_start": "2024-02-26",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -10212,7 +10250,7 @@
         "timeframes": [
           {
             "date_start": "2024-03-01",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -10269,7 +10307,7 @@
         "timeframes": [
           {
             "date_start": "2024-02-13",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -10326,7 +10364,7 @@
         "timeframes": [
           {
             "date_start": "2024-03-15",
-            "date_end": "2027-02-01"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -10384,7 +10422,7 @@
         "timeframes": [
           {
             "date_start": "2024-04-08",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -10441,7 +10479,7 @@
         "timeframes": [
           {
             "date_start": "2024-04-22",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -10500,7 +10538,7 @@
         "timeframes": [
           {
             "date_start": "2024-04-22",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -10558,7 +10596,7 @@
         "timeframes": [
           {
             "date_start": "2024-04-10",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -10618,7 +10656,7 @@
         "timeframes": [
           {
             "date_start": "2024-05-02",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -10660,7 +10698,7 @@
         "timeframes": [
           {
             "date_start": "2024-05-02",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -10719,7 +10757,7 @@
         "timeframes": [
           {
             "date_start": "2024-06-01",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -10774,7 +10812,7 @@
         "timeframes": [
           {
             "date_start": "2024-06-03",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -10831,7 +10869,7 @@
         "timeframes": [
           {
             "date_start": "2024-06-05",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -10887,7 +10925,7 @@
         "timeframes": [
           {
             "date_start": "2024-07-01",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -10940,7 +10978,7 @@
         "timeframes": [
           {
             "date_start": "2024-08-01",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -10997,7 +11035,7 @@
         "timeframes": [
           {
             "date_start": "2024-06-17",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -11054,7 +11092,7 @@
         "timeframes": [
           {
             "date_start": "2024-07-15",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -11107,8 +11145,8 @@
         ],
         "timeframes": [
           {
-            "date_start": "2024-06-25",
-            "date_end": "2027-01-31"
+            "date_start": "2024-07-01",
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -11163,7 +11201,7 @@
         "timeframes": [
           {
             "date_start": "2024-08-07",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -11221,7 +11259,7 @@
         "timeframes": [
           {
             "date_start": "2024-08-08",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -11278,7 +11316,7 @@
         "timeframes": [
           {
             "date_start": "2024-09-06",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -11334,7 +11372,7 @@
         "timeframes": [
           {
             "date_start": "2024-10-15",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -11390,7 +11428,7 @@
         "timeframes": [
           {
             "date_start": "2023-01-01",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -11446,7 +11484,7 @@
         "timeframes": [
           {
             "date_start": "2024-10-07",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -11504,7 +11542,7 @@
         "timeframes": [
           {
             "date_start": "2025-03-01",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -11560,7 +11598,7 @@
         "timeframes": [
           {
             "date_start": "2024-11-05",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -11617,7 +11655,7 @@
         "timeframes": [
           {
             "date_start": "2024-11-11",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -11627,7 +11665,6 @@
           171,
           152,
           27,
-          88,
           240
         ]
       }
@@ -11674,7 +11711,7 @@
         "timeframes": [
           {
             "date_start": "2025-03-14",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -11730,7 +11767,7 @@
         "timeframes": [
           {
             "date_start": "2025-05-08",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -11785,7 +11822,7 @@
         "timeframes": [
           {
             "date_start": "2025-02-01",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -11843,7 +11880,7 @@
         "timeframes": [
           {
             "date_start": "2025-02-12",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -11901,7 +11938,7 @@
         "timeframes": [
           {
             "date_start": "2025-04-15",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -11958,7 +11995,7 @@
         "timeframes": [
           {
             "date_start": "2025-06-04",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -12014,7 +12051,7 @@
         "timeframes": [
           {
             "date_start": "2025-03-13",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -12070,7 +12107,7 @@
         "timeframes": [
           {
             "date_start": "2025-03-27",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -12126,7 +12163,7 @@
         "timeframes": [
           {
             "date_start": "2025-03-25",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -12182,7 +12219,7 @@
         "timeframes": [
           {
             "date_start": "2025-04-07",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -12240,7 +12277,7 @@
         "timeframes": [
           {
             "date_start": "2025-04-16",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           },
           {
             "date_start": "2026-06-01",
@@ -12301,7 +12338,7 @@
         "timeframes": [
           {
             "date_start": "2025-05-06",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -12358,7 +12395,7 @@
         "timeframes": [
           {
             "date_start": "2025-05-06",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -12419,7 +12456,7 @@
         "timeframes": [
           {
             "date_start": "2025-06-09",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -12474,7 +12511,7 @@
         "timeframes": [
           {
             "date_start": "2025-06-09",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -12532,7 +12569,7 @@
         "timeframes": [
           {
             "date_start": "2025-07-23",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -12588,7 +12625,7 @@
         "timeframes": [
           {
             "date_start": "2025-05-07",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -12643,7 +12680,7 @@
         "timeframes": [
           {
             "date_start": "2025-06-18",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -12700,7 +12737,7 @@
         "timeframes": [
           {
             "date_start": "2025-07-02",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           },
           {
             "date_start": "2026-03-29",
@@ -12762,7 +12799,7 @@
         "timeframes": [
           {
             "date_start": "2025-07-01",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -12873,7 +12910,7 @@
         "timeframes": [
           {
             "date_start": "2025-07-08",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -12929,7 +12966,7 @@
         "timeframes": [
           {
             "date_start": "2025-09-01",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -12986,7 +13023,7 @@
         "timeframes": [
           {
             "date_start": "2025-09-01",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -13041,7 +13078,7 @@
         "timeframes": [
           {
             "date_start": "2025-11-06",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -13098,7 +13135,7 @@
         "timeframes": [
           {
             "date_start": "2025-11-10",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -13154,7 +13191,7 @@
         "timeframes": [
           {
             "date_start": "2025-11-03",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -13212,7 +13249,7 @@
         "timeframes": [
           {
             "date_start": "2025-10-15",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -13257,6 +13294,7 @@
           "E-Rad"
         ],
         "features": [
+          "Longtail",
           "Kinderbank"
         ],
         "project": [
@@ -13271,13 +13309,12 @@
         "timeframes": [
           {
             "date_start": "2025-11-01",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
           135,
           134,
-          345,
           27,
           26,
           73,
@@ -13327,7 +13364,7 @@
         "timeframes": [
           {
             "date_start": "2026-03-09",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -13382,7 +13419,7 @@
         "timeframes": [
           {
             "date_start": "2026-03-24",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -13442,7 +13479,7 @@
         "timeframes": [
           {
             "date_start": "2026-01-20",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -13499,7 +13536,7 @@
         "timeframes": [
           {
             "date_start": "2026-02-01",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -13555,7 +13592,7 @@
         "timeframes": [
           {
             "date_start": "2026-03-02",
-            "date_end": "2027-01-30"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -13612,7 +13649,7 @@
         "timeframes": [
           {
             "date_start": "2026-03-11",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -13668,7 +13705,7 @@
         "timeframes": [
           {
             "date_start": "2026-03-09",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -13725,7 +13762,7 @@
         "timeframes": [
           {
             "date_start": "2026-04-01",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -13780,7 +13817,7 @@
         "timeframes": [
           {
             "date_start": "2026-04-01",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -13821,7 +13858,7 @@
         "timeframes": [
           {
             "date_start": "2026-04-01",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -13877,7 +13914,7 @@
         "timeframes": [
           {
             "date_start": "2026-04-01",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -13944,6 +13981,7 @@
           171,
           134,
           27,
+          88,
           240
         ]
       }
@@ -14049,7 +14087,7 @@
         "timeframes": [
           {
             "date_start": "2026-03-27",
-            "date_end": "2027-01-31"
+            "date_end": "2099-12-31"
           }
         ],
         "unknown_terms": [
@@ -14333,7 +14371,7 @@
         ],
         "timeframes": [
           {
-            "date_start": "2026-05-28",
+            "date_start": "2026-06-01",
             "date_end": "2099-12-31"
           }
         ],
@@ -14598,7 +14636,7 @@
         "name": "Schleppi",
         "short_desc": "Christiania Light mit 2 Kinderbänken",
         "link": "https://flotte-berlin.de/cb_item/schleppi/",
-        "thumbnail": "https://flotte-berlin.de/wp-content/uploads/2019/11/Dicke-Berta-150x150.jpg",
+        "thumbnail": "https://flotte-berlin.de/wp-content/uploads/2026/09/Schleppi-150x150.jpg",
         "status": "publish",
         "type": [
           "Cargo Trike"
@@ -14619,7 +14657,7 @@
         ],
         "timeframes": [
           {
-            "date_start": "2026-07-20",
+            "date_start": "2026-09-04",
             "date_end": "2099-12-31"
           }
         ],
