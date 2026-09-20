@@ -1,5 +1,10 @@
 [
  {
+  "slug": "naturschutzstation-hahneberg",
+  "title": "Naturschutzstation Hahneberg",
+  "hours_text": "Mo-Do 9:00-14:00, Fr 9:00-13:00, außer an gesetzl. Feiertagen"
+ },
+ {
   "slug": "stadtteilzentrum-marie-li",
   "title": "Stadtteilzentrum Marie-Li",
   "hours_text": "Mo-Fr 10:00-16:00, außer an gesetzl. Feiertagen"
@@ -87,7 +92,7 @@
  {
   "slug": "flotte-berlin-e-v",
   "title": "fLotte Berlin e.V.",
-  "hours_text": "Mo, Mi, Do, Fr 10:00-15:30, außer an gesetzl. Feiertagen Treppe/Fahrstuhl hoch ins Erdgeschoss (ADFC), Tür direkt gegenüber"
+  "hours_text": "Mo 10:00-13:00, Mi + Do 10:30-15:30, außer an gesetzl. Feiertagen Abholung/Rückgabe nur nach vorheriger Absprache per E-Mail, da das Büro nicht dauerhaft besetzt ist. Treppe/Fahrstuhl hoch ins Erdgeschoss (ADFC), Tür direkt gegenüber"
  },
  {
   "slug": "refugium-paul-gerhardt-stift",
@@ -102,7 +107,7 @@
  {
   "slug": "malerviertel",
   "title": "Malerviertel",
-  "hours_text": "Mo-Fr 9:00-17:00, außer an gesetzl. Feiertagen Eine Ausleihe ist erst nach einer persönlichen Absprache (Mail, SMS oder Telefon) mit der Verleiherin verbindlich. Bitte das ausgefüllte Leihformular mitbringen."
+  "hours_text": "Mo-Fr 9:00-17:00, außer an gesetzl. Feiertagen Eine Abholung ist erst nach einer persönlichen Absprache (Mail, SMS oder Telefon - s. Buchungsbestätigungsmail) mit der Verleiherin möglich! Bitte das ausgefüllte Leihformular mitbringen!"
  },
  {
   "slug": "planty-skies",
@@ -127,7 +132,7 @@
  {
   "slug": "rathaus-herzberg-elster",
   "title": "Rathaus Herzberg (Elster)",
-  "hours_text": "Mo 9:00-17:00, Di 8:00-18:00, Mi 8:00-17:00, Do 8:00-17:00, Fr 8:00-13:00 außer angesetzl. Feiertagen"
+  "hours_text": "Mo 9:00-17:00, Di 8:00-18:00, Mi 8:00-17:00, Do 8:00-17:00, Fr 8:00-13:00 außer an gesetzl. Feiertagen"
  },
  {
   "slug": "thoerner-fuers-buero-gmbh",
@@ -207,7 +212,7 @@
  {
   "slug": "waldkindergarten-eichwalde-e-v",
   "title": "Waldkindergarten Eichwalde e.V.",
-  "hours_text": "Ausleihen sind übers Wochenende von Freitag 13 Uhr bis Montag 8 Uhr möglich, bei gesetzl. Feiertagen vom Vortag 13 Uhr bis zum Folgetag 8 Uhr"
+  "hours_text": "Kernzeit Mo-Fr 7:30 – 16:30 Uhr, außer an gesetzl. Feiertagen Ausleihen sind nur übers Wochenende von Freitag 13 Uhr bis Montag 8 Uhr möglich, bei gesetzl. Feiertagen vom Vortag 13 Uhr bis zum Folgetag 8 Uhr!"
  },
  {
   "slug": "kliq-berlin-eg-kieztreff-in-der-frisierkunst",
@@ -377,12 +382,12 @@
  {
   "slug": "raum-fuer-beteiligung-steglitz-zehlendorf",
   "title": "Raum für Beteiligung Steglitz-Zehlendorf",
-  "hours_text": "Mo 14:00-17:00, AUSNAHME: 1. Mo des Monats 14-16 Uhr , Fr 10:00-13:00, AUSNAHME: 3. Fr des Monats 10-12 Uhr , außer an gesetzl. Feiertagen Dieses Lastenfahrrad bitte immer für die ganze Woche oder das ganze Wochenende buchen: -Buchung am Montag: Rückgabe am folgenden Freitag -Buchung am Freitag: Rückgabe am folgenden Montag"
+  "hours_text": "Mo 14-17 Uhr (am 1. Montag/Monat nur bis 16 Uhr!), Fr 10-13 Uhr (am 3. Freitag/Monat nur bis 12 Uhr!), außer an gesetzl. Feiertagen Dieses Lastenrad bitte immer für die ganze Woche oder das ganze Wochenende buchen, also Montag bis Freitag oder Freitag bis Montag!"
  },
  {
   "slug": "st-elisabethstift",
   "title": "St. Elisabethstift",
-  "hours_text": "Mo - Fr 9:00-18:00, außer an gesetzl. Feiertagen"
+  "hours_text": null
  },
  {
   "slug": "fahrradhaus-schmutzler",
@@ -475,11 +480,6 @@
   "hours_text": "Mo - Fr von 9-15 Uhr, außer an gesetzl. Feiertagen Bitte immer anrufen vor der Abholung des Rades! Maximale Ausleihzeit ein Tag! Verlängerung nach Absprache und bei sicherem Unterstellplatz möglich."
  },
  {
-  "slug": "albatros-selbsthilfe-in-buch",
-  "title": "Albatros Selbsthilfe in Buch",
-  "hours_text": null
- },
- {
   "slug": "quartiersmanagement-falkenhagener-feld-ost",
   "title": "Quartiersmanagement Falkenhagener Feld Ost",
   "hours_text": "Mo-Do 10:00-16:00, außer an gesetzl. Feiertagen"
@@ -567,7 +567,7 @@
  {
   "slug": "familienzentrum-wattstrasse",
   "title": "Familienzentrum Wattstraße",
-  "hours_text": "Mo 9:00-15:00, Fr 9:00-15:00, außer an gesetzl. Feiertagen Achtung: Keine Ausleihe in den Schulferien!"
+  "hours_text": "Mo 9:00-15:00, Fr 9:00-15:00, außer an gesetzl. Feiertagen Achtung: Buchung nur übers Wochenende: Abholung Freitag - Rückgabe Montag! Keine Ausleihe in den Schulferien!"
  },
  {
   "slug": "clever-fit-birkenwerder-gmbh",
@@ -582,7 +582,7 @@
  {
   "slug": "kietz-klub-koepenick",
   "title": "Kietz Klub Köpenick",
-  "hours_text": "Mo-Fr 15:00-18:00 Uhr, außer an gesetzl. Feiertagen"
+  "hours_text": "Mo, Di, Do 14:00-18:00, außer an gesetzl. Feiertagen"
  },
  {
   "slug": "be4energy-gmbh",
@@ -757,7 +757,7 @@
  {
   "slug": "mehrgenerationenhaus-kiezkultur",
   "title": "Mehrgenerationenhaus KiezKultur e.V.",
-  "hours_text": "Mo 14:30-18:30, Di 14:00-18:00, Mi 15:00-18:00, Do 14:00-18:00, Fr 12:00-15:00, außer an gesetzl. Feiertagen Bitte unbedingt beim Mehrgenerationenhaus KiezKultur im 1. OG melden und nicht beim Roten Kreuz! Der Eingang ist links am Haus die Einfahrt nach unten, zweite Tür. Bitte vorher telefonisch oder per Mail die Abholung absprechen!"
+  "hours_text": "Mo 14:30-16:45, Di 14:30-18:30, Mi 12:00-14:00, Do 14:30-18:30, Fr 11:00-15:00, außer an gesetzl. Feiertagen Bitte unbedingt beim Mehrgenerationenhaus KiezKultur im 1. OG melden und nicht beim Roten Kreuz! Der Eingang ist links am Haus die Einfahrt nach unten, zweite Tür. Bitte vorher telefonisch oder per Mail die Abholung absprechen!"
  },
  {
   "slug": "bibliothek-im-maerkischen-viertel-fontanehaus",
@@ -1012,7 +1012,7 @@
  {
   "slug": "villa-oppenheim",
   "title": "Museum Charlottenburg-Wilmersdorf",
-  "hours_text": "Di-Fr 10:00-16:00, Sa/So/Feiertags 11:00-16:00"
+  "hours_text": "Di-Fr 10:00-16:00, Sa/So/Feiertags 11:00-16:00 Bitte UNBEDINGT die Verleihzeiten einhalten, danke!"
  },
  {
   "slug": "radkunst-cafe",
@@ -1272,7 +1272,7 @@
  {
   "slug": "galerie-im-turm",
   "title": "Galerie im Turm",
-  "hours_text": "Mo-Fr 12:00-18:00, Sa+So 14:00-19:00 Rad bei Rückgabe bitte in Sichtweite der Galerie am designierten Abstellplatz anschließen."
+  "hours_text": "Mo-Fr 12:00-18:00, Sa + So 14:00-19:00 Rad bei Rückgabe bitte in Sichtweite der Galerie am designierten Abstellplatz anschließen."
  },
  {
   "slug": "denns-biomarkt-alexanderplatz",
