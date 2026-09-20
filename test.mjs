@@ -4,7 +4,8 @@ const SUITES = ['engine.test.mjs', 'card.test.mjs', 'round.test.mjs',
                 'filter.test.mjs', 'outage.test.mjs', 'dot.test.mjs',
                 'hours.test.mjs', 'lang.test.mjs', 'adhoc.test.mjs', 'link.test.mjs',
                 'fallback.test.mjs', 'offline.test.mjs', 'batch.test.mjs', 'patch.test.mjs',
-                'car.test.mjs', 'transitous.test.mjs', 'reach.test.mjs'];
+                'car.test.mjs', 'transitous.test.mjs', 'reach.test.mjs',
+                'lazy.test.mjs'];
 let bad = 0, total = 0;
 for (const s of SUITES) {
   const r = spawnSync(process.execPath, [s], { encoding: 'utf8' });

@@ -165,6 +165,8 @@ svg{display:block}
   font-weight:600;white-space:nowrap}
 .ordertag.scan{background:#EAF1F8;color:var(--navy)}
 .opt-time{font-size:16px;font-weight:500;color:var(--green);white-space:nowrap}
+/* a distance is not a travel time: quieter, so the green always means "time" */
+.opt-time.dist{font-size:14px;font-weight:400;color:var(--sub)}
 .opt-sub{font-size:13px;color:var(--sub);margin:2px 0 0 34px}
 .strip{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:9px 0 0 34px;
   font-size:12px;color:var(--sub)}
@@ -1495,6 +1497,7 @@ function drawTrip(){
     m.on('click', function(){
       expanded = (expanded === o.i) ? null : o.i;
       paint();
+      if(expanded === o.i) ensureTimes(o.i);
       if(expanded != null) sheetTo('half');
       var el = document.getElementById('opt-' + o.i);
       if(el) el.scrollIntoView({block:'nearest', behavior: reduce ? 'auto' : 'smooth'});
@@ -2145,6 +2148,43 @@ function bestMode(o){
   return 'transit';
 }
 function optOf(i){ return options.filter(function(x){ return x.i === i; })[0] || null; }
+/* The other half of the lazy browse: real times for the one station she
+   opened. Three one-target requests instead of nine hundred-target ones, and
+   they cannot trip the reach cap — a station she opens to walk to is never
+   40 km away. A round already has every time it needs, so it never gets here. */
+var timesSeq = 0;
+async function ensureTimes(i){
+  var o = optOf(i);
+  if(mission || !o || o.timed || o.timing) return;
+  var loc = LOCATIONS[i];
+  if(!loc) return;
+  o.timing = true;
+  var my = ++timesSeq, tok = token;
+  var wantsCar = modePref === 'car' || modePref === 'best';
+  try{
+    var want = [matrix('pedestrian', [loc]), matrix('bicycle', [loc])];
+    if(wantsCar) want.push(matrix('auto', [loc]));
+    var got = await Promise.all(want);
+    if(my !== timesSeq || tok !== token) return;
+    o.walk = got[0][0]; o.bike = got[1][0]; o.car = wantsCar ? got[2][0] : null;
+  }catch(e){
+    if(my !== timesSeq || tok !== token) return;
+    // same rule as everywhere else: estimate, and say that it is an estimate
+    var f = here();
+    var est = function(costing){
+      return {sec: beelineSec(f.lat, f.lon, loc.lat, loc.lon, costing),
+              km: beelineKm(f.lat, f.lon, loc.lat, loc.lon)};
+    };
+    o.walk = est('pedestrian'); o.bike = est('bicycle');
+    o.car = wantsCar ? est('auto') : null;
+    roadEstimated = true;
+  }finally{
+    o.timing = false;
+  }
+  if(my !== timesSeq || tok !== token) return;
+  o.timed = true;
+  paint(); drawTrip();
+}
 function tourNext(){
   if(!mission || !tour) return null;
   for(var n = 0; n < tour.order.length; n++)
@@ -2466,38 +2506,57 @@ async function nextHop(){
      third of the road traffic spent on an answer nobody is shown. Same
      reasoning as the transit guard below. */
   var wantsCar = modePref === 'car' || modePref === 'best';
-  var walk, bike, car = null;
+  var all;
   roadEstimated = false;
-  try{
-    var want = [matrix('pedestrian', pool), matrix('bicycle', pool)];
-    if(wantsCar) want.push(matrix('auto', pool));
-    var pair = await Promise.all(want);
-    walk = pair[0]; bike = pair[1]; car = wantsCar ? pair[2] : null;
-  }catch(e){
+  if(mission){
+    /* A round already knows its stops — the pool IS the flagged stations, a
+       handful, and the visiting order needs every one of their times. */
+    var walk, bike, car = null;
+    try{
+      var want = [matrix('pedestrian', pool), matrix('bicycle', pool)];
+      if(wantsCar) want.push(matrix('auto', pool));
+      var pair = await Promise.all(want);
+      walk = pair[0]; bike = pair[1]; car = wantsCar ? pair[2] : null;
+    }catch(e){
+      if(my !== token) return;
+      /* The road router being down must not empty the screen. Everything else
+         still works — which bikes are flagged, where they are, the visiting
+         order, opening hours — so fall back to straight-line estimates and say
+         so, rather than showing her an error and nothing to act on. */
+      roadEstimated = true;
+      var f = here();
+      var beeline = function(costing){
+        return pool.map(function(l){
+          return {sec: beelineSec(f.lat, f.lon, l.lat, l.lon, costing),
+                  km: beelineKm(f.lat, f.lon, l.lat, l.lon)};
+        });
+      };
+      walk = beeline('pedestrian');
+      bike = beeline('bicycle');
+      car = wantsCar ? beeline('auto') : null;
+    }
     if(my !== token) return;
-    /* The road router being down must not empty the screen. Everything else
-       still works — which bikes are flagged, where they are, the visiting
-       order, opening hours — so fall back to straight-line estimates and say
-       so, rather than showing her an error and nothing to act on. */
-    roadEstimated = true;
-    var f = here();
-    var beeline = function(costing){
-      return pool.map(function(l){
-        return {sec: beelineSec(f.lat, f.lon, l.lat, l.lon, costing),
-                km: beelineKm(f.lat, f.lon, l.lat, l.lon)};
-      });
-    };
-    walk = beeline('pedestrian');
-    bike = beeline('bicycle');
-    car = wantsCar ? beeline('auto') : null;
+    all = pool.map(function(loc, k){
+        return {i: loc._i, walk: walk[k], bike: bike[k],
+                car: car ? car[k] : null, transit: null, selJ: 0};
+      })
+      .filter(function(o){ return o.walk || o.bike || o.car; });
+  }else{
+    /* Browsing asks for nothing at all. Ranking every station by road time
+       was nine requests to decide five rows, thrown away the moment she taps
+       one — and it is the call that trips every limit the public server has,
+       because it is the only one that reaches the far side of the city.
+       Straight-line order is instant, works offline, and is the same order
+       nine times out of ten; the real times are fetched for the station she
+       actually opens. That trade is deliberate: a station that is near by
+       road but far in a straight line (the other bank of the Havel) can sit
+       lower than it deserves, which is what the transit scan exists to catch. */
+    var f0 = here();
+    all = pool.map(function(loc){
+      return {i: loc._i, walk: null, bike: null, car: null, transit: null, selJ: 0,
+              beeKm: FlotteEngine.haversineKm(f0.lat, f0.lon, loc.lat, loc.lon)};
+    });
   }
-  if(my !== token) return;
-
-  var all = pool.map(function(loc, k){
-      return {i: loc._i, walk: walk[k], bike: bike[k],
-              car: car ? car[k] : null, transit: null, selJ: 0};
-    })
-    .filter(function(o){ return o.walk || o.bike || o.car; });
 
   if(mission && tour && tour.order.length){
     // the round IS the list: the optimal order's next stops, in that order
@@ -2509,6 +2568,8 @@ async function nextHop(){
   }else{
     options = all.slice()
       .sort(function(a, b){
+        // browsing has no times yet — straight-line distance is the order
+        if(a.beeKm != null && b.beeKm != null) return a.beeKm - b.beeKm;
         var A = Math.min(a.walk ? a.walk.sec : 1e9, a.bike ? a.bike.sec : 1e9);
         var B = Math.min(b.walk ? b.walk.sec : 1e9, b.bike ? b.bike.sec : 1e9);
         return A - B;
@@ -2520,10 +2581,15 @@ async function nextHop(){
   farKm = null;
   if(options.length){
     var o0 = options[0];
-    var nearSec = Math.min(o0.walk ? o0.walk.sec : 1e9, o0.bike ? o0.bike.sec : 1e9);
-    if(nearSec > 3600){
-      var kk = o0.bike && o0.bike.km != null ? o0.bike.km : (o0.walk ? o0.walk.km : null);
-      farKm = kk != null ? Math.round(kk) : -1;
+    if(o0.beeKm != null){
+      // no times to judge by yet, so judge by how far the nearest one is
+      if(o0.beeKm > 15) farKm = Math.round(o0.beeKm);
+    }else{
+      var nearSec = Math.min(o0.walk ? o0.walk.sec : 1e9, o0.bike ? o0.bike.sec : 1e9);
+      if(nearSec > 3600){
+        var kk = o0.bike && o0.bike.km != null ? o0.bike.km : (o0.walk ? o0.walk.km : null);
+        farKm = kk != null ? Math.round(kk) : -1;
+      }
     }
   }
   paint(); drawTrip(); frame();
@@ -2807,7 +2873,13 @@ function optHTML(o, n){
         '<span class="opt-name">' + esc(loc.location_name) +
           (mission && o.i === tourNext() ? ' <span class="ordertag">' + T('orderTag') + '</span>' : '') +
           (o.viaScan ? ' <span class="ordertag scan">' + T('scanTag') + '</span>' : '') + '</span>' +
-        '<span class="opt-time num">' + mins(shown) + '</span>' +
+        /* Before she opens it there is no time to show, and a blank slot reads
+           as "unknown". Show the straight-line distance, which is what the
+           order is built from, so the number on screen is the number that
+           ranked it. It is replaced by the real time once she taps. */
+        (shown == null && o.beeKm != null && !o.timed
+          ? '<span class="opt-time num dist">' + (o.timing ? '…' : km(o.beeKm)) + '</span>'
+          : '<span class="opt-time num">' + mins(shown) + '</span>') +
       '</div>' +
       '<div class="opt-sub">' + esc([loc.street, loc.district[0]].filter(Boolean).join(' · ')) + '</div>' +
       (function(){
@@ -3345,6 +3417,7 @@ function wireList(){
       if(d){ markRepaired(+d.getAttribute('data-done')); return; }
       expanded = (expanded === i) ? null : i;
       paint();
+      if(expanded === i) ensureTimes(i);
       previewOf(i);
     });
     b.addEventListener('mouseenter', function(){ previewOf(i); });
