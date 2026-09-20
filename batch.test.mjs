@@ -7,7 +7,7 @@
    parallel, and stitch the answers back in target order. One failed batch
    must still fail the whole call: the caller's straight-line fallback is
    all-or-nothing, and a silently half-real list would be dishonest.        */
-import { sandbox, harness, chunk } from './testkit.mjs';
+import { sandbox, harness, chunk, engineSrc } from './testkit.mjs';
 
 const { ok, eq, done } = harness('batch.test.mjs');
 
@@ -32,7 +32,7 @@ function makeFetch(log) {
 const tick = () => new Promise((r) => setTimeout(r, 0));
 
 function mk(log) {
-  return sandbox(['matrix', 'matrixChunk', 'roadSlot', 'roadRelease'], {
+  return sandbox(['matrix', 'matrixChunk', 'roadSlot', 'roadRelease', 'withinReach'], {
     MATRIX: null, matrixSec: () => null,
     here: () => ({ lat: 52.52, lon: 13.405, i: null }),
     beelineKm: () => 1,
@@ -41,12 +41,18 @@ function mk(log) {
     fetchT: makeFetch(log),
     T: (k, v) => k + (v ? ' ' + JSON.stringify(v) : ''),
     Error,
-  }, chunk(/var ROAD_MAX_INFLIGHT = \d+;\nvar roadInflight = 0, roadQueue = \[\];/, 'road gate') +
-     '\n' + chunk(/var MATRIX_CELL_CAP = \d+;\nvar MATRIX_BATCH = [^;]+;/, 'MATRIX_BATCH'));
+  }, engineSrc() +
+     '\n' + chunk(/var ROAD_MAX_INFLIGHT = \d+;\nvar roadInflight = 0, roadQueue = \[\];/, 'road gate') +
+     '\n' + chunk(/var MATRIX_CELL_CAP = \d+;\nvar MATRIX_BATCH = [^;]+;/, 'MATRIX_BATCH') +
+     '\n' + chunk(/var ROAD_MAX_KM = \{[^}]*\};/, 'ROAD_MAX_KM'));
 }
 
+/* Spread across ~3 km of Berlin, not 58: matrix() now drops targets a profile
+   provably cannot reach, and these fixtures exist to exercise batching, not
+   that filter — reach.test.mjs owns it. Further apart and the walking cap
+   would silently empty these requests. */
 const stations = (n) => Array.from({ length: n }, (_, i) =>
-  ({ _i: i, lat: 52 + i / 1000, lon: 13 + i / 1000 }));
+  ({ _i: i, lat: 52.5 + i / 10000, lon: 13.4 + i / 10000 }));
 const cell = (sec) => ({ time: sec, distance: sec / 240 });
 
 /* ---- a pool at exactly the cell cap stays a single request ---- */

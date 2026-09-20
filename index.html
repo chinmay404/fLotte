@@ -1768,20 +1768,35 @@ async function matrix(costing, targets){
     }
     if(all) return rows;
   }
-  /* Valhalla's public server rejects any matrix of more than 100 locations
-     (error 150), and the browse view asks for every station at once — more
-     than double that. Batch the targets and ask in parallel: the server
-     answers six 1x99 requests in about a second. Promise.all keeps the
-     all-or-nothing contract a single request had — one failed batch fails
-     the call and the caller falls back to estimates for the whole list,
-     never to a list that is half real and half beeline with no way to tell. */
+  /* Drop what this profile provably cannot reach BEFORE batching: one target
+     past the cap would be answered with a 400 that takes its whole batch of
+     99 real answers down with it. The dropped ones keep their slot in the
+     result as null — no route on foot is a fact worth showing, and the
+     caller lines results up with targets by index. */
+  var ask = [], slot = [];
+  targets.forEach(function(t, i){
+    if(withinReach(costing, from, t)){ ask.push(t); slot.push(i); }
+  });
+  var out = targets.map(function(){ return null; });
+  if(!ask.length) return out;
+
+  /* Valhalla's public server also caps a matrix at 100 cells, and the browse
+     view asks about every station at once — more than double that. Batch and
+     ask in parallel: it answers six of them in about a second. Promise.all
+     keeps the all-or-nothing contract a single request had — a batch that
+     fails because the SERVICE failed fails the call, and the caller falls
+     back to estimates for the whole list rather than showing a list that is
+     half real and half beeline with no way to tell which. */
   var chunks = [];
-  for(var b = 0; b < targets.length; b += MATRIX_BATCH)
-    chunks.push(targets.slice(b, b + MATRIX_BATCH));
+  for(var b = 0; b < ask.length; b += MATRIX_BATCH)
+    chunks.push(ask.slice(b, b + MATRIX_BATCH));
   var parts = await Promise.all(chunks.map(function(chunk){
     return matrixChunk(costing, from, chunk);
   }));
-  return Array.prototype.concat.apply([], parts);
+  Array.prototype.concat.apply([], parts).forEach(function(row, k){
+    out[slot[k]] = row;
+  });
+  return out;
 }
 /* Valhalla's public server caps a matrix at 100 CELLS — sources x targets —
    not at 100 locations. It answers both with "Exceeded max locations: 100",
@@ -1808,6 +1823,20 @@ function roadRelease(){
 }
 var MATRIX_CELL_CAP = 100;
 var MATRIX_BATCH = MATRIX_CELL_CAP;   // browse: 1 source x 100 targets
+/* The other limit, and the one that is easy to miss: Valhalla caps how long a
+   single PATH may be, per profile, and refuses the whole matrix if any one
+   target is past it — error 154, not a null cell. Measured 2026-09-20 against
+   valhalla1.openstreetmap.de. Berlin's stations span 41 km, so from an edge
+   like Staaken 19 of the 248 cannot be walked to, and one of them in a request
+   costs every other answer in it. A road is never shorter than the straight
+   line between its ends, so a target already past the cap in a straight line
+   is certainly past it by road: answer "no route" for it without asking. */
+var ROAD_MAX_KM = {pedestrian: 30, bicycle: 60, auto: 150};
+function withinReach(costing, from, t){
+  var cap = ROAD_MAX_KM[costing];
+  return cap == null ||
+    FlotteEngine.haversineKm(from.lat, from.lon, t.lat, t.lon) <= cap;
+}
 async function matrixChunk(costing, from, targets){
   var r;
   await roadSlot();
@@ -1827,6 +1856,11 @@ async function matrixChunk(costing, from, targets){
        service being overloaded. Name what happened and what to do. */
     throw new Error(e && e.name === 'AbortError' ? T('roadTimeout') : T('roadNet'));
   }finally{ roadRelease(); }
+  /* A 4xx is the server refusing the question, not the server being down:
+     these targets have no answer, the rest of the matrix is unaffected, and
+     the straight-line banner would be a lie. Only 5xx and the thrown failures
+     above mean the service itself is unavailable. */
+  if(r.status >= 400 && r.status < 500) return targets.map(function(){ return null; });
   if(!r.ok) throw new Error(T('roadDown', {status: r.status}));
   return (await r.json()).sources_to_targets[0].map(function(x){
     return x && typeof x.time === 'number'
@@ -1875,6 +1909,11 @@ async function matrixPatch(costing, pts, req){
   }catch(e){
     throw new Error(e && e.name === 'AbortError' ? T('roadTimeout') : T('roadNet'));
   }finally{ roadRelease(); }
+  // same rule as matrixChunk: a refusal leaves holes, an outage is thrown
+  if(r.status >= 400 && r.status < 500)
+    return req.sources.map(function(){
+      return req.targets.map(function(){ return null; });
+    });
   if(!r.ok) throw new Error(T('roadDown', {status: r.status}));
   return (await r.json()).sources_to_targets;
 }
