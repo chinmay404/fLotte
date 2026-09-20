@@ -752,14 +752,20 @@ var TOTAL_ITEMS = LOCATIONS.reduce(function(a, l){ return a + l.items.length; },
 
 var VALHALLA = 'https://valhalla1.openstreetmap.de/sources_to_targets';
 var VALHALLA_ROUTE = 'https://valhalla1.openstreetmap.de/route';
-/* Two deployments of the same API. VBB covers Berlin AND Brandenburg; BVG is
-   Berlin only. They fail independently — today VBB's certificate broke while
-   BVG was fine — so try VBB first for the wider coverage and fall back.
+/* Three departure services, tried in order. The first two are deployments of
+   the same HAFAS wrapper (VBB covers Berlin AND Brandenburg; BVG is Berlin
+   only) — but both are one volunteer's infrastructure and have gone down
+   together. Transitous (api.transitous.org) is the genuinely independent
+   third leg: community-run MOTIS ingesting the official VBB GTFS feed, CORS
+   open, free for open-source non-commercial use. It speaks a different
+   dialect, so vbbGet routes it through transitousGet, which translates both
+   the request and the response — the consumers never see MOTIS shapes.
 
-   vbb-hafas talks to VBB's own HAFAS backend directly, which would skip both:
-   but fahrinfo.vbb.de returns no Access-Control-Allow-Origin at all, so a
-   browser blocks it. A CORS proxy is exactly what these hosts are. */
-var VBB_HOSTS = ['https://v6.vbb.transport.rest', 'https://v6.bvg.transport.rest'];
+   vbb-hafas talks to VBB's own HAFAS backend directly, which would skip all
+   of this: but fahrinfo.vbb.de returns no Access-Control-Allow-Origin at
+   all, so a browser blocks it. CORS-open proxies are exactly what these are. */
+var VBB_HOSTS = ['https://v6.vbb.transport.rest', 'https://v6.bvg.transport.rest',
+                 'https://api.transitous.org'];
 var VBB      = VBB_HOSTS[0];
 var vbbHost  = null;       // latched to whichever answered, so we stop probing a dead one
 var vbbLimited = false;    // the answer came from the Berlin-only host
@@ -1267,7 +1273,7 @@ var map = L.map('map', {scrollWheelZoom:true}).setView([52.5075, 13.404], 11);
 var CARTO_KEY = 'cb1_3myq_1_42aeb9446326c0639260b8a7';
 L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=' + CARTO_KEY, {
   maxZoom:20, subdomains:'abcd',
-  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a> · data: fLotte Berlin'
+  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a> · data: fLotte Berlin · transit: VBB, <a href="https://transitous.org/sources/">Transitous</a>'
 }).addTo(map);
 var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 var dots      = L.layerGroup().addTo(map);
@@ -1881,15 +1887,122 @@ async function vbbGet(path, timeout){
   var lastRes = null;
   for(var i = 0; i < order.length; i++){
     try{
-      var r = await fetchT(order[i] + path, null, timeout);
+      var r = order[i].indexOf('transitous') !== -1
+        ? await transitousGet(order[i], path, timeout)
+        : await fetchT(order[i] + path, null, timeout);
       if(r.status >= 500 || r.status === 429){ lastRes = r; continue; }
       vbbHost = order[i];
-      vbbLimited = order[i] !== VBB_HOSTS[0];
+      // only the BVG deployment is Berlin-only; Transitous carries all of VBB
+      vbbLimited = order[i] === VBB_HOSTS[1];
       return r;
     }catch(e){ /* TLS, DNS, abort — try the next host */ }
   }
   if(lastRes) return lastRes;
   throw new Error('vbb unreachable');
+}
+/* ---------- Transitous (MOTIS) translation ----------
+   The rest of the app speaks the HAFAS wrapper's dialect. These translate the
+   three requests it makes and the answers that come back, and hand vbbGet a
+   Response-shaped object, so a fallback to Transitous is invisible upstream. */
+function parseQuery(path){
+  var out = {};
+  path.slice(path.indexOf('?') + 1).split('&').forEach(function(kv){
+    var i = kv.indexOf('=');
+    if(i > 0) out[decodeURIComponent(kv.slice(0, i))] = decodeURIComponent(kv.slice(i + 1));
+  });
+  return out;
+}
+async function transitousGet(host, path, timeout){
+  var q = parseQuery(path), url, translate;
+  if(path.indexOf('/journeys?') === 0){
+    url = host + '/api/v1/plan?fromPlace=' + q['from.latitude'] + ',' + q['from.longitude'] +
+      '&toPlace=' + q['to.latitude'] + ',' + q['to.longitude'] +
+      '&numItineraries=' + (q.results || 3) + '&detailedTransfers=false' +
+      (q.departure ? '&time=' + encodeURIComponent(q.departure) : '');
+    /* numItineraries is a floor for MOTIS and a ceiling for the HAFAS wrapper:
+       asking for 3 can return 8. Cap it here, or a Transitous answer would
+       quietly offer more alternatives on the card than a VBB one. */
+    translate = function(js){ return motisJourneys(js, +(q.results || 3)); };
+  } else if(path.indexOf('/stops/reachable-from?') === 0){
+    url = host + '/api/experimental/one-to-all?one=' + q.latitude + ',' + q.longitude +
+      '&maxTravelTime=' + (q.maxDuration || 30) +
+      (q.maxTransfers ? '&maxTransfers=' + q.maxTransfers : '');
+    translate = motisReachable;
+  } else if(path.indexOf('/locations?') === 0){
+    url = host + '/api/v1/geocode?text=' + encodeURIComponent(q.query || '') + '&language=de';
+    translate = function(js){ return motisLocations(js, +(q.results || 5)); };
+  } else {
+    throw new Error('no transitous translation for ' + path);
+  }
+  var r = await fetchT(url, null, timeout);
+  if(!r.ok) return r;   // callers branch on .status — pass failures through raw
+  var js = await r.json();
+  return {ok: true, status: 200, json: function(){ return Promise.resolve(translate(js)); }};
+}
+/* Google encoded polyline. MOTIS names the precision per geometry (usually 7);
+   HAFAS wrappers use GeoJSON, so the shape must come back as [lon,lat]. */
+function decodePolyline(str, precision){
+  var div = Math.pow(10, precision == null ? 7 : precision);
+  var pts = [], lat = 0, lon = 0, i = 0;
+  while(i < str.length){
+    for(var v = 0; v < 2; v++){
+      var result = 0, shift = 0, b;
+      do{ b = str.charCodeAt(i++) - 63; result |= (b & 31) << shift; shift += 5; }while(b >= 32);
+      var d = (result & 1) ? ~(result >> 1) : (result >> 1);
+      if(v === 0) lat += d; else lon += d;
+    }
+    pts.push([lat / div, lon / div]);
+  }
+  return pts;
+}
+function motisJourneys(js, n){
+  return {journeys: (js.itineraries || []).slice(0, n || undefined).map(function(it){
+    return {legs: (it.legs || []).map(function(L){
+      var from = L.from || {}, to = L.to || {};
+      var pts = L.legGeometry && L.legGeometry.points
+        ? decodePolyline(L.legGeometry.points, L.legGeometry.precision) : null;
+      var delay = null;
+      if(L.scheduledStartTime && L.startTime !== L.scheduledStartTime)
+        delay = (new Date(L.startTime) - new Date(L.scheduledStartTime)) / 1000;
+      return {
+        walking: L.mode === 'WALK',
+        departure: L.startTime, arrival: L.endTime,
+        line: L.routeShortName ? {name: L.routeShortName,
+          color: L.routeColor ? {bg: '#' + L.routeColor,
+            fg: L.routeTextColor ? '#' + L.routeTextColor : null} : null} : null,
+        direction: L.headsign || null,
+        departurePlatform: from.track || null,
+        departureDelay: delay,
+        origin: {name: from.name || null},
+        destination: {name: to.name || null,
+          location: to.lat != null ? {latitude: to.lat, longitude: to.lon} : null},
+        distance: L.distance || null,
+        polyline: pts ? {features: pts.map(function(p){
+          return {geometry: {coordinates: [p[1], p[0]]}};
+        })} : null
+      };
+    })};
+  })};
+}
+function motisReachable(js){
+  /* one-to-all gives per-stop transit minutes; the scan wants minute buckets */
+  var buckets = {};
+  (js.all || []).forEach(function(x){
+    var p = x.place || {};
+    if(p.lat == null || x.duration == null) return;
+    var m = Math.max(1, Math.ceil(x.duration));
+    (buckets[m] = buckets[m] || []).push({id: p.stopId || null, name: p.name || null,
+      location: {latitude: p.lat, longitude: p.lon}});
+  });
+  return {reachable: Object.keys(buckets).map(function(m){
+    return {duration: +m, stations: buckets[m]};
+  })};
+}
+function motisLocations(js, n){
+  return (js || []).slice(0, n).map(function(x){
+    return {type: x.type === 'STOP' ? 'stop' : 'location', name: x.name || null,
+            location: {latitude: x.lat, longitude: x.lon}};
+  });
 }
 async function transitFor(loc){
   var from = here();
