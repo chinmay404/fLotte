@@ -13348,7 +13348,9 @@
         "type": [
           "Event Bike"
         ],
-        "drive": [],
+        "drive": [
+          "E-Rad"
+        ],
         "features": [
           "Tisch/Schirm"
         ],
@@ -14842,6 +14844,62 @@
           88,
           72,
           49,
+          240
+        ]
+      }
+    ]
+  },
+  {
+    "location_name": "Bio Frischemarkt Grünschnabel",
+    "lat": 52.388143,
+    "lon": 13.3977562,
+    "street": "Steinstraße 37",
+    "zip": "12307",
+    "city": "Berlin-Lichtenrade",
+    "closed_days": false,
+    "district": [
+      "Treptow-Köpenick"
+    ],
+    "region": [
+      "Süd-Ost"
+    ],
+    "items": [
+      {
+        "id": 41931,
+        "name": "Grünschnabel",
+        "short_desc": "Bakfiets CargoBike Classic Long mit Kinderbank",
+        "link": "https://flotte-berlin.de/cb_item/gruenschnabel/",
+        "thumbnail": "https://flotte-berlin.de/wp-content/uploads/2019/04/Clara-150x150.jpg",
+        "status": "publish",
+        "type": [
+          "Cargo Bike"
+        ],
+        "drive": [],
+        "features": [
+          "Kinderbank"
+        ],
+        "project": [
+          "fLotte Kiezlastenrad"
+        ],
+        "district": [
+          "Treptow-Köpenick"
+        ],
+        "region": [
+          "Süd-Ost"
+        ],
+        "timeframes": [
+          {
+            "date_start": "2026-09-21",
+            "date_end": "2099-12-31"
+          }
+        ],
+        "unknown_terms": [
+          71,
+          135,
+          132,
+          27,
+          88,
+          203,
           240
         ]
       }
