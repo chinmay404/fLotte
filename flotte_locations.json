@@ -14808,9 +14808,9 @@
     "items": [
       {
         "id": 41960,
-        "name": "Bärbel",
+        "name": "HahneRad",
         "short_desc": " PedalPower Berliner Lastenrad mit Kinderbank",
-        "link": "https://flotte-berlin.de/cb_item/baerbel/",
+        "link": "https://flotte-berlin.de/cb_item/hahnerad/",
         "thumbnail": "https://flotte-berlin.de/wp-content/uploads/2018/10/Bärbel-150x150.jpg",
         "status": "publish",
         "type": [
@@ -14858,10 +14858,10 @@
     "city": "Berlin-Lichtenrade",
     "closed_days": false,
     "district": [
-      "Treptow-Köpenick"
+      "Tempelhof-Schöneberg"
     ],
     "region": [
-      "Süd-Ost"
+      "Süd"
     ],
     "items": [
       {
@@ -14882,10 +14882,10 @@
           "fLotte Kiezlastenrad"
         ],
         "district": [
-          "Treptow-Köpenick"
+          "Tempelhof-Schöneberg"
         ],
         "region": [
-          "Süd-Ost"
+          "Süd"
         ],
         "timeframes": [
           {
@@ -14896,7 +14896,8 @@
         "unknown_terms": [
           71,
           135,
-          132,
+          171,
+          134,
           27,
           88,
           203,
