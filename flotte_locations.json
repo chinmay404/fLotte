@@ -5994,7 +5994,7 @@
     "street": "Bizetstraße 41",
     "zip": "13088",
     "city": "Berlin-Weissensee",
-    "closed_days": "a:2:{i:0;s:1:\"6\";i:1;s:1:\"7\";}",
+    "closed_days": false,
     "district": [
       "Pankow"
     ],
@@ -9784,7 +9784,7 @@
         "name": "Elli",
         "short_desc": "Van Raam Rikscha",
         "link": "https://flotte-berlin.de/cb_item/elli/",
-        "thumbnail": "https://flotte-berlin.de/wp-content/uploads/2023/09/Ricky-150x150.jpg",
+        "thumbnail": "https://flotte-berlin.de/wp-content/uploads/2026/09/Elli-Radportrait-150x150.jpg",
         "status": "publish",
         "type": [
           "Rikscha"
@@ -14901,6 +14901,60 @@
           27,
           88,
           203,
+          240
+        ]
+      }
+    ]
+  },
+  {
+    "location_name": "Fluss Bad Berlin (Büro)",
+    "lat": 52.496897626448295,
+    "lon": 13.41238684888818,
+    "street": "Erkelenzdamm 59/61 (Aufgang 2.b)",
+    "zip": "10999",
+    "city": "Berlin-Kreuzberg",
+    "closed_days": false,
+    "district": [
+      "Friedrichshain-Kreuzberg"
+    ],
+    "region": [
+      "Zentrum"
+    ],
+    "items": [
+      {
+        "id": 41700,
+        "name": "Flida",
+        "short_desc": "Bullitt ohne Kinderbank",
+        "link": "https://flotte-berlin.de/cb_item/flida/",
+        "thumbnail": "https://flotte-berlin.de/wp-content/uploads/2023/04/Flida-150x150.jpg",
+        "status": "publish",
+        "type": [
+          "Cargo Bike"
+        ],
+        "drive": [],
+        "features": [],
+        "project": [
+          "fLotte Kiezlastenrad"
+        ],
+        "district": [
+          "Friedrichshain-Kreuzberg"
+        ],
+        "region": [
+          "Zentrum"
+        ],
+        "timeframes": [
+          {
+            "date_start": "2026-10-01",
+            "date_end": "2027-04-30"
+          }
+        ],
+        "unknown_terms": [
+          291,
+          135,
+          158,
+          27,
+          88,
+          204,
           240
         ]
       }
