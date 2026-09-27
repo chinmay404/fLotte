@@ -1,8 +1,13 @@
 [
  {
+  "slug": "bio-frischemarkt-gruenschnabel",
+  "title": "Bio Frischemarkt Grünschnabel",
+  "hours_text": "Mo-Fr 9:00-18:00, Sa 9:00-14:00, außer an gesetzl. Feiertagen"
+ },
+ {
   "slug": "naturschutzstation-hahneberg",
   "title": "Naturschutzstation Hahneberg",
-  "hours_text": "Mo-Do 9:00-14:00, Fr 9:00-13:00, außer an gesetzl. Feiertagen"
+  "hours_text": "Mo-Fr 10:00-14:00, außer an gesetzl. Feiertagen"
  },
  {
   "slug": "stadtteilzentrum-marie-li",
@@ -107,7 +112,7 @@
  {
   "slug": "malerviertel",
   "title": "Malerviertel",
-  "hours_text": "Mo-Fr 9:00-17:00, außer an gesetzl. Feiertagen Eine Abholung ist erst nach einer persönlichen Absprache (Mail, SMS oder Telefon - s. Buchungsbestätigungsmail) mit der Verleiherin möglich! Bitte das ausgefüllte Leihformular mitbringen!"
+  "hours_text": "Mo-Fr nach Vereinbarung, außer an gesetzl. Feiertagen Nach der Buchung zwingend Kontakt aufnehmen und Abhol-/Rückgabezeit vereinbaren (Grund: bürgerliche, private Station von Nachbarin). Bitte das ausgefüllte Leihformular mitbringen!"
  },
  {
   "slug": "planty-skies",
@@ -537,7 +542,7 @@
  {
   "slug": "fluss-bad-berlin-garten",
   "title": "Fluss Bad Berlin (Garten)",
-  "hours_text": "Mo-Fr 12:00-18:00"
+  "hours_text": null
  },
  {
   "slug": "fablab-cottbus",
@@ -902,7 +907,7 @@
  {
   "slug": "wolfdietrich-schnurre-bibliothek",
   "title": "Wolfdietrich-Schnurre-Bibliothek",
-  "hours_text": "Mo + Do 10:00 - 18:30, Mi 13:00 - 18:30, Di + Fr 10:00 - 16:30, außer an gesetzl. Feiertagen"
+  "hours_text": "Mo + Do 10:00-18:30, Mi 13:00-18:30, Di + Fr 10:00-16:30, außer an gesetzl. Feiertagen"
  },
  {
   "slug": "heinrich-boell-bibliothek",
@@ -1045,11 +1050,6 @@
   "hours_text": "Mo, Di, Mi, Fr 09:00-12:00, Do 14:00-18:00, außer an gesetzl. Feiertagen Wichtig: Abholung des Lastenfahrrads bitte am Seiteneingang des Familienbüros (erreichbar über Hintereingang Große-Leege-Str. 103)! Bitte zur Ausleihe unbedingt den bereits ausgefüllten Ausleihvertrag mitbringen!"
  },
  {
-  "slug": "centre-francais-de-berlin",
-  "title": "Centre Français de Berlin",
-  "hours_text": null
- },
- {
   "slug": "kiezklub-gerard-philipe",
   "title": "KIEZKLUB Gerard Philipe",
   "hours_text": null
@@ -1067,7 +1067,7 @@
  {
   "slug": "kulturgiesserei-schoeneiche",
   "title": "Kulturgiesserei Schöneiche",
-  "hours_text": "Mo-Fr 10:00-13:00 Uhr, außer an gesetzl. Feiertagen Achtung: Keine Ausleihe in den Schulferien!"
+  "hours_text": "Mo, Di, Do, Fr 10:00-13:00, außer an gesetzl. Feiertagen Achtung: Keine Ausleihe in den Schulferien!"
  },
  {
   "slug": "kinder-und-jugendzentrum-schoeneiche",
@@ -1123,11 +1123,6 @@
   "slug": "haus-der-jugend-koepenick",
   "title": "Haus der Jugend Köpenick",
   "hours_text": "Mo 14:00-17:00, Di-Do 15:00-19:00, außer an gesetzl. Feiertagen Bitte unbedingt das ausgefüllte Leihformular mitbringen."
- },
- {
-  "slug": "gastro-norm",
-  "title": "IdylleCafé / AperitivoBar",
-  "hours_text": null
  },
  {
   "slug": "jugendverkehrsschule-lichtenberg",
@@ -1377,7 +1372,7 @@
  {
   "slug": "denns-biomarkt-karlshorst",
   "title": "denn‘s Biomarkt Karlshorst",
-  "hours_text": "Mo-Sa 8:00-20:00, außer an gesetzl. Feiertagen Bitte bringt etwas Geduld mit, wenn ihr zu Stoßzeiten das Rad abholt bzw. zurückbringt."
+  "hours_text": "Di-Fr 10:00-19:00, außer an gesetzl. Feiertagen Bitte bringe etwas Geduld mit, wenn du zu Stoßzeiten das Rad abholst bzw. zurückbringst."
  },
  {
   "slug": "aehrensache-naturkost",
