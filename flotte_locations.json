@@ -14318,7 +14318,7 @@
         "timeframes": [
           {
             "date_start": "2026-05-01",
-            "date_end": "2026-09-30"
+            "date_end": "2026-10-31"
           }
         ],
         "unknown_terms": [
@@ -14944,7 +14944,7 @@
         ],
         "timeframes": [
           {
-            "date_start": "2026-10-01",
+            "date_start": "2026-11-01",
             "date_end": "2027-04-30"
           }
         ],
