@@ -1984,7 +1984,6 @@
           171,
           158,
           27,
-          88,
           240
         ]
       }
@@ -11048,9 +11047,9 @@
   },
   {
     "location_name": "Stadtteilkoordination Lichtenberg Mitte",
-    "lat": 52.495994,
-    "lon": 13.5107734,
-    "street": "Sewanstraße 178 (1. OG)",
+    "lat": 52.49885711151816,
+    "lon": 13.502250988765937,
+    "street": "Sewanstraße 43",
     "zip": "10319",
     "city": "Berlin-Friedrichsfelde",
     "closed_days": false,
