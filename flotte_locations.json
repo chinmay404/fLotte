@@ -633,6 +633,7 @@
           152,
           27,
           48,
+          88,
           240
         ]
       }
@@ -1207,7 +1208,6 @@
           171,
           132,
           27,
-          88,
           203,
           240
         ]
@@ -8534,6 +8534,7 @@
           171,
           152,
           27,
+          88,
           240
         ]
       }
@@ -9868,6 +9869,7 @@
           152,
           27,
           48,
+          88,
           72,
           240
         ]
@@ -14687,7 +14689,7 @@
         "name": "Marie-Li",
         "short_desc": "Christiania Light mit Ladefläche (ohne Kinderbank)",
         "link": "https://flotte-berlin.de/cb_item/marie-li/",
-        "thumbnail": "https://flotte-berlin.de/wp-content/uploads/2019/10/Lasti-150x150.jpg",
+        "thumbnail": "https://flotte-berlin.de/wp-content/uploads/2026/10/Marie-Li-150x150.jpg",
         "status": "publish",
         "type": [
           "Cargo Trike"
