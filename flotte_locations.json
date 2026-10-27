@@ -7637,6 +7637,7 @@
       "Mitte"
     ],
     "region": [
+      "Nord",
       "Zentrum"
     ],
     "items": [
@@ -7677,6 +7678,46 @@
           27,
           193,
           88,
+          240
+        ]
+      },
+      {
+        "id": 41741,
+        "name": "Tenzing Norgay",
+        "short_desc": "Bakfiets CargoBike Classic Long mit 1 Kinderbank",
+        "link": "https://flotte-berlin.de/cb_item/tenzing-norgay/",
+        "thumbnail": "https://flotte-berlin.de/wp-content/uploads/2022/05/Tenzing-Norgay-150x150.jpg",
+        "status": "publish",
+        "type": [
+          "Cargo Bike"
+        ],
+        "drive": [],
+        "features": [
+          "Kinderbank"
+        ],
+        "project": [
+          "fLotte kommunal"
+        ],
+        "district": [
+          "Mitte"
+        ],
+        "region": [
+          "Nord",
+          "Zentrum"
+        ],
+        "timeframes": [
+          {
+            "date_start": "2026-11-04",
+            "date_end": "2027-04-30"
+          }
+        ],
+        "unknown_terms": [
+          71,
+          135,
+          171,
+          158,
+          27,
+          193,
           240
         ]
       }
@@ -14025,7 +14066,7 @@
         "timeframes": [
           {
             "date_start": "2026-04-01",
-            "date_end": "2026-10-31"
+            "date_end": "2026-10-28"
           }
         ],
         "unknown_terms": [
@@ -14882,7 +14923,7 @@
         ],
         "timeframes": [
           {
-            "date_start": "2026-11-02",
+            "date_start": "2026-10-26",
             "date_end": "2099-12-31"
           }
         ],
