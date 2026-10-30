@@ -14024,64 +14024,6 @@
     ]
   },
   {
-    "location_name": "Jugendverkehrsschule Wedding",
-    "lat": 52.5532583,
-    "lon": 13.3730541,
-    "street": "Gottschedstr. 23",
-    "zip": "13357",
-    "city": "Berlin-Gesundbrunnen",
-    "closed_days": false,
-    "district": [
-      "Mitte"
-    ],
-    "region": [
-      "Nord",
-      "Zentrum"
-    ],
-    "items": [
-      {
-        "id": 41741,
-        "name": "Tenzing Norgay",
-        "short_desc": "Bakfiets CargoBike Classic Long mit 1 Kinderbank",
-        "link": "https://flotte-berlin.de/cb_item/tenzing-norgay/",
-        "thumbnail": "https://flotte-berlin.de/wp-content/uploads/2022/05/Tenzing-Norgay-150x150.jpg",
-        "status": "publish",
-        "type": [
-          "Cargo Bike"
-        ],
-        "drive": [],
-        "features": [
-          "Kinderbank"
-        ],
-        "project": [
-          "fLotte kommunal"
-        ],
-        "district": [
-          "Mitte"
-        ],
-        "region": [
-          "Nord",
-          "Zentrum"
-        ],
-        "timeframes": [
-          {
-            "date_start": "2026-04-01",
-            "date_end": "2026-10-28"
-          }
-        ],
-        "unknown_terms": [
-          71,
-          135,
-          171,
-          158,
-          27,
-          193,
-          240
-        ]
-      }
-    ]
-  },
-  {
     "location_name": "Koko Kiezgrün",
     "lat": 52.491279951920205,
     "lon": 13.39745160880595,
@@ -14845,7 +14787,7 @@
         "name": "HahneRad",
         "short_desc": " PedalPower Berliner Lastenrad mit Kinderbank",
         "link": "https://flotte-berlin.de/cb_item/hahnerad/",
-        "thumbnail": "https://flotte-berlin.de/wp-content/uploads/2018/10/Bärbel-150x150.jpg",
+        "thumbnail": "https://flotte-berlin.de/wp-content/uploads/2026/10/HahneRad-150x150.jpg",
         "status": "publish",
         "type": [
           "Cargo Trike"
