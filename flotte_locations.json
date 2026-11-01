@@ -14256,60 +14256,6 @@
     ]
   },
   {
-    "location_name": "Fluss Bad Berlin (Garten)",
-    "lat": 52.5143535612659,
-    "lon": 13.401297926902773,
-    "street": "Sperlingsgasse Ecke Friedrichsgracht (Kioskwagen)",
-    "zip": "10178",
-    "city": "Berlin-Mitte",
-    "closed_days": false,
-    "district": [
-      "Friedrichshain-Kreuzberg"
-    ],
-    "region": [
-      "Zentrum"
-    ],
-    "items": [
-      {
-        "id": 41700,
-        "name": "Flida",
-        "short_desc": "Bullitt ohne Kinderbank",
-        "link": "https://flotte-berlin.de/cb_item/flida/",
-        "thumbnail": "https://flotte-berlin.de/wp-content/uploads/2023/04/Flida-150x150.jpg",
-        "status": "publish",
-        "type": [
-          "Cargo Bike"
-        ],
-        "drive": [],
-        "features": [],
-        "project": [
-          "fLotte Kiezlastenrad"
-        ],
-        "district": [
-          "Friedrichshain-Kreuzberg"
-        ],
-        "region": [
-          "Zentrum"
-        ],
-        "timeframes": [
-          {
-            "date_start": "2026-05-01",
-            "date_end": "2026-10-31"
-          }
-        ],
-        "unknown_terms": [
-          291,
-          135,
-          158,
-          27,
-          88,
-          204,
-          240
-        ]
-      }
-    ]
-  },
-  {
     "location_name": "Familienzentrum Stresow",
     "lat": 52.5309108,
     "lon": 13.2051002,

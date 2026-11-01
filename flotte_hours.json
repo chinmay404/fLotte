@@ -1,13 +1,23 @@
 [
  {
+  "slug": "haus-der-begegnung-wolletz",
+  "title": "Haus der Begegnung Wolletz",
+  "hours_text": "Ausleihe nur nach telefonischer Rücksprache!! Mo + Mi nachmittags, Di + Fr vormittags"
+ },
+ {
+  "slug": "musikschule-klang-farbe-orange-oranienburg",
+  "title": "Musikschule-Klang-Farbe-Orange Oranienburg",
+  "hours_text": "Abholzeiten NUR nach Absprache - also vor Abholung Kontakt aufnehmen und nicht spontan vorbeikommen"
+ },
+ {
   "slug": "dein-radius-fahrradladen-werkstatt",
   "title": "Dein Radius – Fahrradladen & Werkstatt",
-  "hours_text": null
+  "hours_text": "Mo-Fr 9:00-18:00, außer an gesetzl. Feiertagen"
  },
  {
   "slug": "bio-frischemarkt-gruenschnabel",
   "title": "Bio Frischemarkt Grünschnabel",
-  "hours_text": "Mo-Fr 9:00-18:00, Sa 9:00-14:00, außer an gesetzl. Feiertagen"
+  "hours_text": "Mo-Sa 9:00-18:00, außer an gesetzl. Feiertagen"
  },
  {
   "slug": "naturschutzstation-hahneberg",
@@ -57,7 +67,7 @@
  {
   "slug": "stadtteilzentrum-schoeneberg",
   "title": "Stadtteilzentrum Schöneberg",
-  "hours_text": "Mo, Mi, Do 10:00-15:00, Di 13:00-15:00, außer an gesetzl. Feiertagen"
+  "hours_text": "Mo, Mi, Do 10:00-15:00, Di 13:00-15:00, außer an gesetzl. Feiertagen. Der Standort bittet um rechtzeitige telefonische Absprache der Abholung und Rückgabe."
  },
  {
   "slug": "koko-kiezgruen",
@@ -107,7 +117,7 @@
  {
   "slug": "refugium-paul-gerhardt-stift",
   "title": "Refugium – Paul Gerhardt Stift",
-  "hours_text": "Mo 10-12 Uhr, Di-Do 10-12 Uhr, Fr 10-12 Uhr außer an gesetzl. Feiertagen"
+  "hours_text": "Mo-Do 10-12 Uhr außer an gesetzl. Feiertagen Bitte rechtzeitig vor der Abholung anrufen und die Abholzeiten absprechen."
  },
  {
   "slug": "kulturtribuene-ortsverein-gruenau-e-v",
@@ -347,7 +357,7 @@
  {
   "slug": "philantow",
   "title": "Philantow",
-  "hours_text": "Mo + Fr 9-17 Uhr, Di - Do 9-18 Uhr, außer an gesetzl. Feiertagen Übergabe nur nach vorheriger Absprache"
+  "hours_text": "Übergabe nur nach vorheriger Absprache Montag–Freitag möglich/b>"
  },
  {
   "slug": "jugendverkehrsschule-alt-hsh",
@@ -392,7 +402,7 @@
  {
   "slug": "raum-fuer-beteiligung-steglitz-zehlendorf",
   "title": "Raum für Beteiligung Steglitz-Zehlendorf",
-  "hours_text": "Mo 14-17 Uhr (am 1. Montag/Monat nur bis 16 Uhr!), Fr 10-13 Uhr (am 3. Freitag/Monat nur bis 12 Uhr!), außer an gesetzl. Feiertagen Dieses Lastenrad bitte immer für die ganze Woche oder das ganze Wochenende buchen, also Montag bis Freitag oder Freitag bis Montag!"
+  "hours_text": "Mo 14:00-17:00 (am 1. Montag/Monat nur bis 16:00!), Fr 10:00-13:00 (am 3. Freitag/Monat nur bis 12:00!), außer an gesetzl. Feiertagen Dieses Lastenrad bitte immer für die ganze Woche oder das ganze Wochenende buchen, also Montag bis Freitag oder Freitag bis Montag!"
  },
  {
   "slug": "st-elisabethstift",
@@ -542,7 +552,7 @@
  {
   "slug": "fluss-bad-berlin-buero",
   "title": "Fluss Bad Berlin (Büro)",
-  "hours_text": null
+  "hours_text": "Mo 10:00-14:00, Di 10:00-15:00, Do 10:00-14:00, Fr 10:00-13:00, außer an gesetzl. Feiertagen"
  },
  {
   "slug": "fluss-bad-berlin-garten",
@@ -562,7 +572,7 @@
  {
   "slug": "walnussmeisterei-herzberg",
   "title": "Walnussmeisterei Herzberg",
-  "hours_text": null
+  "hours_text": "Mo - Sa 10:00-18:00, So 10:00-14:00, außer an gesetzl. Feiertagen jeweils nach telefonischer Absprache"
  },
  {
   "slug": "ev-kirchengemeinde-ruethnick",
@@ -572,7 +582,7 @@
  {
   "slug": "bund-besucherzentrum-lenzen",
   "title": "BUND-Besucherzentrum Lenzen",
-  "hours_text": "April-Okt.: Mo-So 10:00-18:00; Nov.-März: Mi+Do 11:00-15:00, Fr-So 11:00-16:00, Mo+Di nach Vereinbarung"
+  "hours_text": "April-Okt.: Mo-So 10:00-18:00; Nov.-März: Mo-Mi nach Vereinbarung, Do-So 11:00-16:00"
  },
  {
   "slug": "familienzentrum-wattstrasse",
@@ -712,7 +722,7 @@
  {
   "slug": "jugendverkehrsschule-wedding",
   "title": "Jugendverkehrsschule Wedding",
-  "hours_text": "Mo-Fr 8:00-16:00, außer an gesetzl. Feiertagen in den Schulferien Mo-Fr 10:00-16:00"
+  "hours_text": null
  },
  {
   "slug": "kirchenkreis-tempelhof-schoeneberg",
@@ -757,7 +767,7 @@
  {
   "slug": "jugendverkehrsschule-moabit",
   "title": "Jugendverkehrsschule Moabit",
-  "hours_text": "Mo-Fr 8:00-16:00, außer an gesetzl. Feiertagen in den Schulferien Mo-Fr 10:00-16:00"
+  "hours_text": null
  },
  {
   "slug": "hotel-am-wald",
@@ -787,7 +797,7 @@
  {
   "slug": "weltladen-in-der-emmaus-kirche",
   "title": "Weltladen in der Emmaus-Kirche",
-  "hours_text": "Mo-Fr 15:00-17:30, außer an gesetzl. Feiertagen"
+  "hours_text": "Mo-Fr 15:00-17:30, außer an gesetzl. Feiertagen Achtung, Diebstahlgefahr: Bitte löst bei der Rückgabe des Rades sowie immer dann, wenn ihr es über Nacht im Kiez stehen lasst, unbedingt die Sattelklemme, nehmt den Sattel samt Sattelstange heraus und lagert beides drinnen."
  },
  {
   "slug": "supercoop",
@@ -822,7 +832,7 @@
  {
   "slug": "humboldt-bibliothek",
   "title": "Humboldt-Bibliothek",
-  "hours_text": "Mo-Fr 11:00-19:00, Sa 11:00-16:00, außer an gesetzl. Feiertagen"
+  "hours_text": "Mo-Fr 11:30-18:30, Sa 11:30-15:30, außer an gesetzl. Feiertagen"
  },
  {
   "slug": "ev-kirche-in-kladow-schilfdachkapelle",
@@ -867,7 +877,7 @@
  {
   "slug": "nachbarschaftszentrum-elele",
   "title": "Nachbarschaftszentrum elele",
-  "hours_text": "Mo - Fr 15:00-18:00, außer an gesetzl. Feiertagen"
+  "hours_text": "Mo-Fr 15:00-18:00, außer an gesetzl. Feiertagen"
  },
  {
   "slug": "jugendfreizeiteinrichtung-ufo",
@@ -1222,7 +1232,7 @@
  {
   "slug": "mehrgenerationenhaus-phoenix",
   "title": "Phoenix JFE / Mehrgenerationenhaus",
-  "hours_text": "Mo-Fr 12:00-14:00, außer an gesetzl. Feiertagen Achtung: in den Schulferien kein Verleih!"
+  "hours_text": "Mo-Fr 14:00-17:00, außer an gesetzl. Feiertagen Achtung: in den Schulferien kein Verleih!"
  },
  {
   "slug": "nachbarschaftshaus-wannseebahn",
@@ -1247,7 +1257,7 @@
  {
   "slug": "nicolaische-buchhandlung",
   "title": "Nicolaische Buchhandlung",
-  "hours_text": "Mo - Fr 10:00-19:00, Sa 10:00-16:00, außer an gesetzl. Feiertagen"
+  "hours_text": "Mo-Fr 10:00-19:00, Sa 10:00-16:00, außer an gesetzl. Feiertagen"
  },
  {
   "slug": "kinderfreizeithaus-kleine-ritterburg",
@@ -1407,7 +1417,7 @@
  {
   "slug": "naturkost-oranjeboom",
   "title": "Naturkost Oranjeboom",
-  "hours_text": "Mo-Fr 10:00 - 17:30, Sa 9:30 -12:30, außer an gesetzl. Feiertagen"
+  "hours_text": null
  },
  {
   "slug": "ikea-lichtenberg",
