@@ -6,7 +6,7 @@
  },
  {
   "slug": "musikschule-klang-farbe-orange-oranienburg",
-  "title": "Musikschule-Klang-Farbe-Orange Oranienburg",
+  "title": "Musikschule Klang-Farbe Orange",
   "hours_text": "Abholzeiten NUR nach Absprache - also vor Abholung Kontakt aufnehmen und nicht spontan vorbeikommen"
  },
  {
@@ -67,7 +67,7 @@
  {
   "slug": "stadtteilzentrum-schoeneberg",
   "title": "Stadtteilzentrum Schöneberg",
-  "hours_text": "Mo, Mi, Do 10:00-15:00, Di 13:00-15:00, außer an gesetzl. Feiertagen. Der Standort bittet um rechtzeitige telefonische Absprache der Abholung und Rückgabe."
+  "hours_text": "Mo, Mi, Do 10:00-15:00, Di 13:00-15:00, außer an gesetzl. Feiertagen. Der Standort bittet um rechtzeitige telefonische Absprache der Abholung und Rückgabe!"
  },
  {
   "slug": "koko-kiezgruen",
@@ -117,7 +117,7 @@
  {
   "slug": "refugium-paul-gerhardt-stift",
   "title": "Refugium – Paul Gerhardt Stift",
-  "hours_text": "Mo-Do 10-12 Uhr außer an gesetzl. Feiertagen Bitte rechtzeitig vor der Abholung anrufen und die Abholzeiten absprechen."
+  "hours_text": "Mo-Do 10-12 Uhr, außer an gesetzl. Feiertagen Bitte rechtzeitig vor der Abholung anrufen und die Abholzeiten absprechen!"
  },
  {
   "slug": "kulturtribuene-ortsverein-gruenau-e-v",
@@ -267,7 +267,7 @@
  {
   "slug": "bahnhof-falkensee",
   "title": "Bahnhof Falkensee",
-  "hours_text": "Nach Vereinbarung"
+  "hours_text": "Nach Vereinbarung: rad-spencer-fks@web.de"
  },
  {
   "slug": "bahnhofstrasse",
@@ -497,7 +497,7 @@
  {
   "slug": "drk-seniorenzentrum-marie",
   "title": "DRK Seniorenzentrum Marie",
-  "hours_text": "Mo - Fr von 9-15 Uhr, außer an gesetzl. Feiertagen Bitte immer anrufen vor der Abholung des Rades! Maximale Ausleihzeit ein Tag! Verlängerung nach Absprache und bei sicherem Unterstellplatz möglich."
+  "hours_text": "Mo - Fr von 9-15 Uhr, außer an gesetzl. Feiertagen Bitte immer anrufen vor der Abholung des Rades! Maximale Ausleihzeit nur 1 Tag! Verlängerung nach Absprache und bei sicherem Unterstellplatz möglich."
  },
  {
   "slug": "quartiersmanagement-falkenhagener-feld-ost",
@@ -572,7 +572,7 @@
  {
   "slug": "walnussmeisterei-herzberg",
   "title": "Walnussmeisterei Herzberg",
-  "hours_text": "Mo - Sa 10:00-18:00, So 10:00-14:00, außer an gesetzl. Feiertagen jeweils nach telefonischer Absprache"
+  "hours_text": null
  },
  {
   "slug": "ev-kirchengemeinde-ruethnick",
@@ -892,7 +892,7 @@
  {
   "slug": "apis-pro",
   "title": "APIS PRO",
-  "hours_text": "Di, Mi, Fr 9:00-17:00, Do 9:00-18:30, Sa 9:00-13:00, außer an gesetzl. Feiertagen"
+  "hours_text": "Di, Mi, Fr 9:00-17:00, Do 9:00-18:30, Sa 9:00-13:00, außer an gesetzl. Feiertagen Achtung: im Nov./Dez. 26 nur Do 9:00-12:00 u. 13:00-18:00! ."
  },
  {
   "slug": "stadtteilbibliothek-buch",
@@ -1037,7 +1037,7 @@
  {
   "slug": "radkunst-cafe",
   "title": "Radkunst Café",
-  "hours_text": "Di, Do, Fr 10:00-18:00, Mi, 10:00-19:00, Sa 10:00-16:00, außer an gesetzl. Feiertagen"
+  "hours_text": "Di 10:00-17:30, Mi-Fr 10:00-18:00, Sa 10:00-16:00, außer an gesetzl. Feiertagen"
  },
  {
   "slug": "haus-der-nachbarschafft",
@@ -1117,7 +1117,7 @@
  {
   "slug": "kiezklub-haus-der-begegnung",
   "title": "KIEZKLUB Haus der Begegnung",
-  "hours_text": "Mo-Fr 8:30-13:30, außer an gesetzlichen Feiertagen<br ACHTUNG: Unbedingt telefonisch nach der Online-Reservierung und spätestens zwei Stunden vor der Abholung mit dem Verleihstandort Kontakt aufnehmen, andernfalls kann der Verleih nicht stattfinden! Da der Betrieb des Kiezklubs absoluten VORRANG gegenüber dem Lastenradverleih genießt, wird um Geduld und um das Mitbringen eines \"Zeitpuffers\" gebeten."
+  "hours_text": "Mo-Fr 8:30-13:30, außer an gesetzlichen Feiertagen ACHTUNG: Unbedingt telefonisch nach der Online-Reservierung und spätestens zwei Stunden vor der Abholung mit dem Verleihstandort Kontakt aufnehmen, andernfalls kann der Verleih nicht stattfinden! Da der Betrieb des Kiezklubs absoluten VORRANG gegenüber dem Lastenradverleih genießt, wird um Geduld und um das Mitbringen eines \"Zeitpuffers\" gebeten."
  },
  {
   "slug": "kiezklub-bohnsdorf",
@@ -1197,7 +1197,7 @@
  {
   "slug": "villa-pelikan",
   "title": "Villa Pelikan",
-  "hours_text": "Di - Fr 11:00 – 20:00, Sa 12:00 – 18:00, außer an gesetzl. Feiertagen"
+  "hours_text": "Di, Do, Fr 12:00–19:30, Mi 14:00–19:30, Sa 12:00–17:30, außer an gesetzl. Feiertagen"
  },
  {
   "slug": "wuhletal-bew",
@@ -1397,7 +1397,7 @@
  {
   "slug": "stk-lichtenbergmitte",
   "title": "Stadtteilkoordination Lichtenberg Mitte",
-  "hours_text": "Mo-Do 10:00-15:00, Fr nur nach telefonischer Absprache, außer an gesetzl. Feiertagen Bitte melde dich telefonisch spätestens am Tag vor der Abholung!"
+  "hours_text": "Mo-Do 10:00-15:00, Fr nur nach telefonischer Absprache, außer an gesetzl. Feiertagen Bitte melde dich telefonisch spätestens am Tag vor der Abholung! Zur Abholung bitte in der 2. Etage Raum A2 2.05"
  },
  {
   "slug": "benn-allende-viertel",
