@@ -427,7 +427,7 @@
  {
   "slug": "flipperklub",
   "title": "Flipperklub",
-  "hours_text": "Mo, Do 15:00-18:00, außer an gesetzl. Feiertagen Bitte unbedingt das ausgefüllte Leihformular mitbringen! In den Schulferien geschlossen!"
+  "hours_text": "Mo, Do 15:00-18:00, außer an gesetzl. Feiertagen Bitte unbedingt das ausgefüllte Leihformular mitbringen! keine Ausleihe in den Schulferien!"
  },
  {
   "slug": "peetzig-peng-e-v",
@@ -887,7 +887,7 @@
  {
   "slug": "jfe-wichurastrasse",
   "title": "JFE Wichurastraße",
-  "hours_text": "Mo-Fr 13:00-18:00, außer an gesetzl. Feiertagen in den Schulferien geschlossen!"
+  "hours_text": "Mo-Fr 13:00-18:00, außer an gesetzl. Feiertagen keine Ausleihe in den Schulferien!"
  },
  {
   "slug": "apis-pro",
@@ -1317,7 +1317,7 @@
  {
   "slug": "evangelische-markusgemeinde",
   "title": "Evangelische Markusgemeinde",
-  "hours_text": "Mo, Di, Do 9:00-12:00 (außer in den Schulferien), an gesetzl. Feiertagen geschlossen"
+  "hours_text": "Mo, Di, Do 9:00-12:00, außer an gesetzl. Feiertagen keine Ausleihe in den Schulferien!"
  },
  {
   "slug": "bezirkszentralbibliothek-tempelhof",
